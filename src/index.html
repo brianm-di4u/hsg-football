@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Friday Night Spa City: an original high-school football game set in Garland County, Arkansas. Real schools, fictional players.">
+<title>Friday Night Spa City</title>
+<link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+<div id="app">
+  <canvas id="bg" aria-hidden="true"></canvas>
+  <div id="game" hidden>
+    <header id="scorebug" aria-live="polite"></header>
+    <div id="fieldWrap">
+      <canvas id="field" aria-label="Football field" role="img"></canvas>
+      <div id="toast" aria-live="polite"></div>
+    </div>
+    <aside id="panel" aria-label="Play controls"></aside>
+  </div>
+  <main id="screen"></main>
+</div>
+<!-- @inline ../data/schools.json as SCHOOLS -->
+<!-- @inline ../data/facts.json as FACTS -->
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
