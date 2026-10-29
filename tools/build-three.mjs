@@ -2,8 +2,8 @@
 // Tree-shakes the vendored three.js (vendor/three, r186, MIT) down to the classes the field view uses and writes
 // src/js/three-lib.js, a plain module the shared inliner can bundle (no `import` lines, one `export const THREE`).
 //
-//   cd games/football/tools/dev && npm install   (once: esbuild, build-time only)
-//   node games/football/tools/build-three.mjs
+//   cd tools/dev && npm install   (once: esbuild, build-time only)
+//   node tools/build-three.mjs
 //
 // Add a name to NAMES when the game starts using another three.js export.
 import fs from 'node:fs';

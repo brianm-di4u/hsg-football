@@ -1,21 +1,21 @@
 #!/usr/bin/env node
-// Regenerates games/football/data/ from the shared sources (never edits them):
+// Regenerates data/ from the shared sources (never edits them):
 //   data/schools.json  ← shared/data/schools.json (verbatim copy)
 //   data/facts.json    ← halftime facts: audited trivia ids (games/trivia/data/questions.json) + two schools.json notes
-// Usage: node games/football/tools/build-data.mjs
+// Usage: node tools/build-data.mjs
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(here, '../../..');
+const root = path.resolve(here, '..');
 const out = path.resolve(here, '../data');
 fs.mkdirSync(out, { recursive: true });
 
 const schoolsSrc = fs.readFileSync(path.join(root, 'shared/data/schools.json'), 'utf8');
 fs.writeFileSync(path.join(out, 'schools.json'), schoolsSrc);
 
-const bank = JSON.parse(fs.readFileSync(path.join(root, 'games/trivia/data/questions.json'), 'utf8'));
+const bank = JSON.parse(fs.readFileSync(path.join(root, 'shared/data/trivia-questions.json'), 'utf8'));
 const byId = new Map(bank.questions.map((q) => [q.id, q]));
 
 // Text is a light rewording of each audited explanation (see research/town-content.md §3).

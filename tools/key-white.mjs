@@ -2,13 +2,13 @@
 // Keys out ALL near-white, low-saturation pixels of a painted motif (art-pack's keyWhite only removes white that
 // touches the edge, which leaves enclosed gaps such as the space inside a trophy's handles). Uses the harness's
 // Chromium canvas, so no image libraries are needed.
-//   node games/football/tools/key-white.mjs art-src/trophy.png art-src/trophy-keyed.png [threshold=232]
+//   node tools/key-white.mjs art-src/trophy.png art-src/trophy-keyed.png [threshold=232]
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 const game = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-const require = createRequire(path.join(game, '..', '..', 'shared', 'test-harness', 'package.json'));
+const require = createRequire(path.join(game, 'shared', 'test-harness', 'package.json'));
 const { chromium } = require('playwright');
 const [src, dst, thr = '232'] = process.argv.slice(2);
 const b64 = fs.readFileSync(path.join(game, src)).toString('base64');

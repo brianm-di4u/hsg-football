@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Embeds the vendored OFL fonts (vendor/fonts, from @fontsource on npm) as base64 @font-face rules in
 // src/styles/fonts.css, so they load under file:// too (browsers refuse file:// font URLs).
-//   node games/football/tools/build-fonts.mjs
+//   node tools/build-fonts.mjs
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

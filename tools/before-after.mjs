@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 // Before/after sheets for the visual campaign: pairs screenshots from two milestones (default visual-before vs
 // visual-final) side by side, labelled, using the harness's Chromium.
-//   node games/football/tools/before-after.mjs [--from visual-before] [--to visual-final]
+//   node tools/before-after.mjs [--from visual-before] [--to visual-final]
 // Writes screenshots/<to>/before-after/<viewport>-NN.png (git-ignored, like all screenshots).
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 const game = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-const require = createRequire(path.join(game, '..', '..', 'shared', 'test-harness', 'package.json'));
+const require = createRequire(path.join(game, 'shared', 'test-harness', 'package.json'));
 const { chromium } = require('playwright');
 const args = process.argv.slice(2);
 const opt = (n, d) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : d; };

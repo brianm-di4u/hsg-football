@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Balance checker: runs the real play sim (src/js/sim.js) headless and prints outcome distributions,
 // then plays whole AI-vs-AI games through rules.js. PRD AC42.
-//   node games/football/tools/balance.mjs [--plays 300] [--games 40] [--quarter 12] [--matrix]
+//   node tools/balance.mjs [--plays 300] [--games 40] [--quarter 12] [--matrix]
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

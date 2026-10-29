@@ -2,7 +2,7 @@
 // Embeds the packed sky panorama (assets/sky-ridge.webp, from art-src via shared/test-harness/art-pack.mjs) as a
 // data URL module. WebGL can't upload images loaded from file:// (they count as cross-origin), but a data URL
 // works everywhere. The title art stays a plain file (assets/*.webp), shown with CSS.
-//   node games/football/tools/build-art.mjs
+//   node tools/build-art.mjs
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

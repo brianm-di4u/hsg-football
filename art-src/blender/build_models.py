@@ -1,6 +1,6 @@
 # Friday Night Spa City: low-poly 3D models built in Blender and exported for the three.js field view.
 #
-#   "C:\Program Files\Blender Foundation\Blender 5.2\blender.exe" -b --factory-startup --python games/football/art-src/blender/build_models.py
+#   "C:\Program Files\Blender Foundation\Blender 5.2\blender.exe" -b --factory-startup --python art-src/blender/build_models.py
 #
 # Builds the player (helmet, facemask, shoulder pads, jersey number panels), the game official and the
 # stadium light tower from lofted rings and tubes, saves art-src/blender/models.blend, renders previews to
