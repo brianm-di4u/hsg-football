@@ -1,0 +1,31 @@
+{
+  "quality": 0.8,
+  "items": [
+    {
+      "name": "sky-ridge",
+      "src": "sky-ridge.png",
+      "w": 2048,
+      "h": 683,
+      "quality": 0.78
+    },
+    {
+      "name": "title-night",
+      "src": "title-night.png",
+      "w": 1600,
+      "h": 900
+    },
+    {
+      "name": "title-night-tall",
+      "src": "title-night-tall.png",
+      "w": 720,
+      "h": 1280
+    },
+    {
+      "name": "trophy",
+      "src": "trophy-keyed.png",
+      "w": 640,
+      "h": 640,
+      "quality": 0.85
+    }
+  ]
+}

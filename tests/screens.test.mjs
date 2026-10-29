@@ -74,7 +74,7 @@ export const tests = [
       const s = await t.page.$$eval('[data-set]', (els) => els.map((e) => e.dataset.set));
       for (const k of ['sound', 'volume', 'autoQB', 'autoKick', 'autoContinue', 'routes']) t.expect(s.includes(k), `setting ${k}`);
       const segs = await t.page.$$eval('.seg-row .seg-label', (els) => els.map((e) => e.textContent));
-      t.equal(segs, ['Motion', 'Theme', 'Text size', 'Quarters', 'Difficulty', 'Play speed'], 'segmented settings');
+      t.equal(segs, ['Motion', 'Theme', 'Field view', 'Weather', 'Graphics', 'Text size', 'Quarters', 'Difficulty', 'Play speed'], 'segmented settings');
       await t.page.click('[data-act="set:quarterMin"][data-id="8"]');
       t.equal((await t.state()).settings.quarterMin, 8, 'quarter length set to 8');
       await t.page.click('[data-act="set:quarterMin"][data-id="4"]');

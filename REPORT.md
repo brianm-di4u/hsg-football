@@ -1,5 +1,24 @@
 # REPORT: Friday Night Spa City (`games/football`)
 
+## v2: visual overhaul (2026-10-29)
+
+The field is now a **3D Friday-night stadium** (three.js r186, tree-shaken and inlined). It has animated,
+Blender-built players in school uniforms, officials, crowds and a band, light towers with haze, a painted Ouachita
+sky, NFHS field markings, venue layouts sourced from `research/stadiums.md` (Wolf Stadium; Holt Field at Joe C. Reese
+Stadium), a broadcast camera director with sideline replays, weather, and touchdown celebrations.
+
+The HUD was restyled as a broadcast:
+- a varsity and condensed type pair;
+- a school-color scorebug;
+- play-call cards with diagrams drawn from the playbook;
+- painted title, pregame and champion art.
+
+Simulation, AI, rules, season and saves are unchanged. The v1 2D field remains as the fallback and as a Settings
+option. **Details, review scores, tests and performance: `VISUAL-REPORT.md`.** The v1 report below still describes
+the game logic. Where it talks about circles, squares or the phone field scale, read the v2 notes:
+- players are 3D figures, home dark and away white;
+- phone players are now about 25–45 px when the ball is in hand.
+
 ## What was built
 
 An original high-school football game set in Garland County, Arkansas, shipped as one self-contained
@@ -153,8 +172,8 @@ The `--matrix` view shows real counters between calls. For example, Bathhouse Di
 - **Sound was not listened to.** The cues are short, quiet synth presets and need a human ear.
 - **No screen-reader pass.** The scorebug and toasts are live regions and buttons are labelled, but nobody has
   played it with a screen reader. The field itself is a canvas.
-- **Phone field scale.** At 390 px wide, players are 6 px dots without numbers. Shapes and badges keep them
-  readable, but it's tight.
+- **Phone field scale.** (v1) At 390 px wide, players were 6 px dots. **Resolved in v2:** the 3D phone camera frames
+  about 24–46 yd of field, and players are about 25–45 px.
 - **Quick sim vs played games.** "Sim game" and every other league game use a separate drive model tuned to
   similar scores. Player season stats count only games the user played.
 - **Game simplifications** (by design, PRD §13): no penalties, onside kicks, injuries or substitutions; no side

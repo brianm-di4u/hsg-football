@@ -7,6 +7,7 @@ import { specialsFor, yardLine, fgDistance, playerOfGame, statLine, kickRange } 
 import { starters } from './roster.js';
 import { DIFFICULTY } from './ai.js';
 import { canThrow } from './sim.js';
+import { offenseArt, defenseArt } from './playart.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const ord = (n) => ['', '1st', '2nd', '3rd', '4th'][n] || `${n}th`;
@@ -211,7 +212,7 @@ function helpHTML(S) {
   if (tab === 'basics') body = `
     <p><b>Football in one minute.</b> Your offense has four tries (<b>downs</b>) to move the ball 10 yards. Make it and you get a fresh set (<b>first down</b>). Score a <b>touchdown</b> (6 points) by carrying or catching the ball in the end zone at the top of the screen. After a touchdown, kick the try (1 point) or run one play from the 3 for 2 points. Out of downs? On 4th down you can <b>punt</b> it away or try a <b>field goal</b> (3 points).</p>
     <p><b>Each snap:</b> call a play from the cards, see the routes, then press <b>HIKE</b>. On runs, the carrier runs on his own; steer to find a hole and <b>JUKE</b> to slip a tackle. On passes, tap a receiver (or press his number) when he's open; the auto-QB throws for you if you wait. On defense, pick a call and watch it play out.</p>
-    <p><b>Reading the field:</b> your team is always the circles moving up the screen; the opponent is squares. The <span class="k-blue">blue line</span> is the line of scrimmage and the <span class="k-gold">gold line</span> is the first-down marker. Receivers wear shape badges: ${BADGES.map((b, i) => `${b} ${i + 1}`).join(', ')}.</p>
+    <p><b>Reading the field:</b> the camera sits behind your team's end, so your offense always attacks up the screen. The home team wears dark jerseys, the visitors white. (In the 2D classic view, your team is the circles and the opponent the squares.) After any play, press <kbd>R</kbd> or Replay for a sideline replay. The <span class="k-blue">blue line</span> is the line of scrimmage and the <span class="k-gold">gold line</span> is the first-down marker. Receivers wear shape badges: ${BADGES.map((b, i) => `${b} ${i + 1}`).join(', ')}.</p>
     <p><b>Calls that beat calls:</b> Runs beat <i>Deep Shell</i>; deep passes beat <i>Run Stuff</i>; quick slants and screens beat <i>Fire Blitz</i>; a QB keeper beats <i>Man Press</i>. Each defensive card says what it's strong against.</p>`;
   else if (tab === 'controls') body = `<table class="tbl keys"><tbody>
     <tr><th>Choose a play</th><td>Number keys (1–9, 0), or tap a card. Specials: P punt, F field goal, K kneel</td></tr>
@@ -256,6 +257,9 @@ function settingsHTML(S) {
       <label class="range"><span id="lbl-vol">Volume</span> <input type="range" min="0" max="100" step="5" value="${Math.round(s.volume * 100)}" data-set="volume" aria-labelledby="lbl-vol"></label>
       ${segRow('Motion', 'set:motion', [['auto', 'System'], ['full', 'Full'], ['reduced', 'Reduced']], s.motion)}
       ${segRow('Theme', 'set:theme', [['night', 'Night game'], ['day', 'Day game']], s.theme)}
+      ${S.ui.has3d || S.force2d ? segRow('Field view', 'set:graphics', [['auto', '3D stadium'], ['2d', '2D classic']], S.force2d ? '2d' : s.graphics) : '<p class="small">Field view: 2D classic (this browser has no WebGL 2).</p>'}
+      ${segRow('Weather', 'set:weather', [['auto', 'Varies'], ['clear', 'Clear'], ['mist', 'Mist'], ['rain', 'Rain']], s.weather)}
+      ${S.ui.has3d ? segRow('Graphics', 'set:quality', [['auto', 'Auto'], ['high', 'High'], ['low', 'Low']], s.quality) : ''}
       ${segRow('Text size', 'set:textScale', [[1, '100%'], [1.15, '115%'], [1.3, '130%']], s.textScale)}
       ${segRow('Quarters', 'set:quarterMin', [[4, '4 min'], [8, '8 min'], [12, '12 min']], s.quarterMin)}
       ${segRow('Difficulty', 'set:difficulty', Object.entries(DIFFICULTY).map(([k, v]) => [k, v.label]), s.difficulty)}
@@ -281,9 +285,9 @@ function pregameHTML(S) {
     <div class="pg-card">
       <p class="eyebrow">${esc(label)}${g.rivalry ? ' · <span class="tag rival">Rivalry Week</span>' : ''}</p>
       <div class="matchup">
-        <div class="mt">${mascot(A.id, 88)}<b>${esc(A.short)}</b><span>${A.mascot}${g.home === 0 && !g.neutral ? ' · home' : ''}</span></div>
+        <div class="mt" style="--tc:${A.colors.primary}">${mascot(A.id, 112)}<b>${esc(A.short)}</b><span>${A.mascot}${g.home === 0 && !g.neutral ? ' · home' : ''}</span></div>
         <div class="vs">vs</div>
-        <div class="mt">${mascot(B.id, 88)}<b>${esc(B.short)}</b><span>${B.mascot}${g.home === 1 && !g.neutral ? ' · home' : ''}</span></div>
+        <div class="mt" style="--tc:${B.colors.primary}">${mascot(B.id, 112)}<b>${esc(B.short)}</b><span>${B.mascot}${g.home === 1 && !g.neutral ? ' · home' : ''}</span></div>
       </div>
       <p class="venue">at ${esc(venue)}</p>
       ${riv ? `<p class="fact">${esc(riv)}</p>` : ''}
@@ -315,8 +319,10 @@ function finalHTML(S) {
   const acts = g.mode === 'season' ? btn('seasonContinue', 'Continue ▶', { cls: 'primary', auto: true })
     : g.challenge ? btn('challenge', 'Retry', { id: g.challenge.key || g.challenge.id, cls: 'primary', auto: true }) + btn('go', 'Challenges', { id: 'challenges' })
       : btn('rematch', 'Rematch', { cls: 'primary', auto: true }) + btn('go', 'Title', { id: 'title' });
-  return `<div class="panel-screen final">
-    <p class="eyebrow">Final${ot ? ' (overtime)' : ''}</p>
+  const W = won ? A : B;
+  const hero = `<div class="final-hero" style="--tc:${W.colors.primary};--tt:${onColor(W.colors.primary)}">${mascot(W.id, 72)}<div><p class="fh-eyebrow">Final${ot ? ' (overtime)' : ''}</p>
+      <p class="fh-score"><span>${esc(A.short)} ${g.score[0]}</span><span>${esc(B.short)} ${g.score[1]}</span></p></div></div>`;
+  return `<div class="panel-screen final">${hero}
     <h2 class="${won ? 'w' : 'l'}">${headline}</h2>${chal}
     <table class="tbl qs"><thead><tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th>${ot ? '<th>OT</th>' : ''}<th>T</th></tr></thead><tbody>${qrow(0, A)}${qrow(1, B)}</tbody></table>
     ${pog ? `<div class="pog"><span class="eyebrow">Player of the Game</span><b>${esc(pog.name)}</b> #${pog.num} ${pog.pos}, ${esc(teamDef(g.teams[pog.side].id).short)}<br><span class="small">${statLine(pog)}</span></div>` : ''}
@@ -347,9 +353,10 @@ export function overlayHTML(S) {
     const half = g.breakKind === 'half';
     const fact = half && S.factCard;
     const A = teamDef(g.teams[0].id), B = teamDef(g.teams[1].id);
-    return `<div class="modal${half ? ' wide' : ''}" role="dialog" aria-modal="true" aria-label="${half ? 'Halftime' : 'End of quarter'}">
-      <p class="eyebrow">${half ? 'Halftime' : `End of the ${ord(g.quarter - 1)} quarter`}</p>
-      <h2>${A.abbr} ${g.score[0]} · ${B.abbr} ${g.score[1]}</h2>
+    const blk = (t, sc) => `<div class="bc-team" style="--tc:${t.colors.primary};--tt:${onColor(t.colors.primary)}">${mascot(t.id, 40)}<span class="bc-name"><span class="sb-full">${esc(t.short)}</span><span class="sb-short">${esc(t.abbr)}</span></span><span class="bc-score">${sc}</span></div>`;
+    return `<div class="modal bcard${half ? ' wide' : ''}" role="dialog" aria-modal="true" aria-label="${half ? 'Halftime' : 'End of quarter'}">
+      <p class="bc-head">${half ? 'Halftime' : `End of the ${ord(g.quarter - 1)} quarter`}</p>
+      <h2 class="bc-row">${blk(A, g.score[0])}${blk(B, g.score[1])}</h2>
       ${fact ? `<div class="factcard"><span class="eyebrow">Halftime fact</span><p>${esc(fact.text)}</p><p class="src">Source: ${esc(fact.source)}</p></div>` : ''}
       <div class="actions">${btn('cont', 'Continue ▶', { cls: 'primary', auto: true })}</div></div>`;
   }
@@ -365,14 +372,16 @@ export function scorebugHTML(S) {
     const t = teamDef(g.teams[i].id), c = t.colors;
     const pos = g.poss === i && !['final'].includes(g.phase);
     const to = [0, 1, 2].map((k) => `<i class="${k < g.timeouts[i] ? 'on' : ''}"></i>`).join('');
-    return `<div class="sb-team${pos ? ' has-ball' : ''}" style="--tc:${c.primary};--tt:${onColor(c.primary)}">
-      ${mascot(t.id, 30)}<span class="sb-abbr">${pos ? '<span class="sb-poss" aria-label="has the ball">◆</span>' : ''}${t.abbr}</span>${i === g.home && !g.neutral ? '<span class="sb-home">home</span>' : ''}<span class="sb-score">${g.score[i]}</span>
+    const ball = pos ? '<svg class="sb-ball" viewBox="0 0 20 12" aria-label="has the ball" role="img"><ellipse cx="10" cy="6" rx="9.2" ry="5.2" fill="#7A3E1D" stroke="#2A1408" stroke-width="0.8"/><path d="M6 6h8M8 4.6v2.8M10 4.6v2.8M12 4.6v2.8" stroke="#FFF6E0" stroke-width="0.8"/></svg>' : '';
+    const long = true; // phones show school codes for both teams
+    return `<div class="sb-team${pos ? ' has-ball' : ''}" style="--tc:${c.primary};--tc2:${c.secondary};--tt:${onColor(c.primary)}">
+      ${mascot(t.id, 30)}<span class="sb-abbr"><span class="sb-full">${esc(t.short.toUpperCase())}</span><span class="sb-short">${esc((long ? t.abbr : t.short).toUpperCase())}</span>${ball}</span>${i === g.home && !g.neutral ? '<span class="sb-home">home</span>' : ''}<span class="sb-score">${g.score[i]}</span>
       <span class="sb-to" aria-label="${g.timeouts[i]} timeouts left">${to}</span></div>`;
   };
-  const q = g.quarter > 4 ? `OT${g.quarter > 5 ? g.quarter - 4 : ''}` : `Q${g.quarter}`;
-  const shown = g.ot ? '' : clockStr(Math.max(0, g.clock - (g.phase === 'call' ? g.runoff : 0)));
+  const q = g.phase === 'break' ? (g.breakKind === 'half' ? 'HALFTIME' : `END Q${g.quarter - 1}`) : g.quarter > 4 ? `OT${g.quarter > 5 ? g.quarter - 4 : ''}` : `Q${g.quarter}`;
+  const shown = g.ot || g.phase === 'break' ? '' : clockStr(Math.max(0, g.clock - (g.phase === 'call' ? g.runoff : 0)));
   const running = g.phase === 'call' && g.runoff > 0 && !g.ot;
-  const dd = g.twoPoint ? 'Two-point try' : ['pat', 'kick'].includes(g.phase) && g.kick && g.kick.kind === 'pat' || g.phase === 'pat' ? 'Try' :
+  const dd = g.phase === 'break' || g.phase === 'otStart' ? '' : g.phase === 'result' && g.lastResult && g.lastResult.kind === 'td' ? 'Touchdown' : g.twoPoint ? 'Two-point try' : ['pat', 'kick'].includes(g.phase) && g.kick && g.kick.kind === 'pat' || g.phase === 'pat' ? 'Try' :
     ['kickoff'].includes(g.phase) ? (g.kickAnim && g.kickAnim.kind === 'punt' ? 'Punt' : g.kickAnim && g.kickAnim.kind === 'free' ? 'Free kick' : 'Kickoff') : `${ord(g.down)} & ${g.ballOn + g.toGo >= 100 ? 'goal' : g.toGo} · ${yardLine(g.ballOn)}`;
   return `${side(0)}<div class="sb-mid"><div class="sb-clock">${q} ${shown}${running ? ' <span class="run" title="clock running">▸</span>' : ''}</div><div class="sb-down">${dd}</div></div>${side(1)}
     <button class="icon-btn" data-act="pause" aria-label="Pause menu">❚❚</button>`;
@@ -396,17 +405,17 @@ export function panelHTML(S) {
           const extra = id === 'fg' ? ` (${fgDistance(g.ballOn)} yd)` : '';
           return `<button class="card special" data-act="call" data-id="${id}" aria-label="${p.name}${extra}, key ${key}"><span class="k">${key}</span><span class="nm">${p.name}${extra}</span><span class="ds">${p.desc}</span></button>`;
         }).join('');
-        const cards = PLAYS.map((p, i) => `<button class="card play" data-act="call" data-id="${p.id}"${i === 0 && !sp.length ? ' data-autofocus' : ''} aria-label="${p.name}, ${p.type}, key ${p.key}"><span class="k">${p.key}</span><span class="nm">${p.name}</span><span class="ty ${p.type}">${p.type === 'run' ? 'RUN' : 'PASS'}</span><span class="ds">${p.desc}</span></button>`).join('');
+        const cards = PLAYS.map((p, i) => `<button class="card play art" data-act="call" data-id="${p.id}"${i === 0 && !sp.length ? ' data-autofocus' : ''} aria-label="${p.name}, ${p.type}, key ${p.key}"><span class="art-box">${offenseArt(p.id)}<span class="k">${p.key}</span></span><span class="nm">${p.name}</span><span class="ty ${p.type}">${p.type === 'run' ? 'RUN' : 'PASS'}</span><span class="ds">${p.desc}</span></button>`).join('');
         return `<div class="ph"><h2>${g.twoPoint ? 'Two-point try: call a play' : `Your ball: ${situ}`}</h2>${toBtn}</div>${warn}<div class="cards">${spc}${cards}</div>`;
       }
-      const cards = DEFS.map((d, i) => `<button class="card def" data-act="defCall" data-id="${d.id}"${i === 0 ? ' data-autofocus' : ''} aria-label="${d.name}, strong versus ${d.vs}, key ${d.key}"><span class="k">${d.key}</span><span class="nm">${d.name}</span><span class="ty">vs ${d.vs}</span><span class="ds">${d.desc}</span></button>`).join('');
+      const cards = DEFS.map((d, i) => `<button class="card def art" data-act="defCall" data-id="${d.id}"${i === 0 ? ' data-autofocus' : ''} aria-label="${d.name}, strong versus ${d.vs}, key ${d.key}"><span class="art-box">${defenseArt(d.id)}<span class="k">${d.key}</span></span><span class="nm">${d.name}</span><span class="ty">vs ${d.vs}</span><span class="ds">${d.desc}</span></button>`).join('');
       return `<div class="ph"><h2>Defense: ${esc(T.short)} has it, ${situ}</h2>${toBtn}</div>${warn}<div class="cards">${cards}</div>`;
     }
     case 'pre': {
       const pd = playById(g.offCall), dd = DEFS.find((d) => d.id === g.defCall);
-      if (userOff) return `<div class="ph"><h2>${esc(pd.name)}</h2><p class="sub">${esc(pd.desc)}</p></div>
+      if (userOff) return `<div class="ph"><h2>${esc(pd.name)}</h2><p class="sub">${esc(pd.desc)}</p></div><div class="art-big">${offenseArt(pd.id)}</div>
         <div class="actions big">${btn('hike', 'HIKE ▶ <kbd>Space</kbd>', { cls: 'primary huge', auto: true })}${btn('changePlay', 'Change play')}</div>`;
-      return `<div class="ph"><h2>Your defense: ${esc(dd.name)}</h2><p class="sub">${esc(T.short)} is lined up.</p></div>
+      return `<div class="ph"><h2>Your defense: ${esc(dd.name)}</h2><p class="sub">${esc(T.short)} is lined up.</p></div><div class="art-big">${defenseArt(dd.id)}</div>
         <div class="actions big">${btn('hike', 'Ready ▶ <kbd>Space</kbd>', { cls: 'primary huge', auto: true })}</div>`;
     }
     case 'live': {
@@ -422,9 +431,9 @@ export function panelHTML(S) {
         }).join('') : '';
         const c = P.A[P.carrier];
         const canJuke = P.ball.st === 'held' && (c.slot !== 'QB' || P.handed || P.scramble) && c.side === 'O';
-        return `<div class="live-bar"><div class="ph"><h2>${esc(pd.name)}</h2></div>${recv ? `<div class="rcvs" role="group" aria-label="Receivers">${recv}</div>` : ''}
+        return `<div class="live-bar"><div class="ph"><h2>${esc(pd.name)}</h2></div><div class="art-big live-art">${offenseArt(pd.id)}</div>${recv ? `<div class="rcvs" role="group" aria-label="Receivers">${recv}</div>` : ''}
           ${btn('juke', 'JUKE <kbd>J</kbd>', { cls: 'juke', disabled: !canJuke })}
-          <p class="hint">${pd.type === 'pass' && !P.thrown ? 'Tap an open receiver, or press his number.' : 'Steer with arrows/WASD or drag on the field.'}</p></div>`;
+          <p class="hint">${pd.type === 'pass' && !P.thrown ? 'Tap an open receiver<span class="kb-only">, or press his number</span>.' : 'Steer <span class="kb-only">with arrows/WASD or </span>by dragging on the field.'}</p></div>`;
       }
       if (P.intRet) return `<div class="live-bar">${btn('juke', 'JUKE <kbd>J</kbd>', { cls: 'juke' })}<p class="hint">Interception! Steer the return.</p></div>`;
       return `<div class="live-bar"><div class="ph"><h2>Your defense: ${esc(DEFS.find((d) => d.id === g.defCall).name)}</h2><p class="sub">${esc(T.short)} runs ${esc(playById(g.offCall).name)}</p></div></div>`;
@@ -432,13 +441,13 @@ export function panelHTML(S) {
     case 'result': {
       const log = g.log.slice(-4).reverse().map((l) => `<li><span class="lq">Q${Math.min(4, l.q)} ${l.clock}</span> ${esc(l.text)}</li>`).join('');
       return `<div class="ph"><h2>${esc(g.lastResult ? g.lastResult.text : '')}</h2>${toBtn}</div>
-        <div class="actions">${btn('cont', 'Continue ▶ <kbd>Space</kbd>', { cls: 'primary', auto: true })}</div><ul class="log">${log}</ul>`;
+        <div class="actions">${btn('cont', 'Continue ▶ <kbd>Space</kbd>', { cls: 'primary', auto: true })}${S.ui.canReplay ? btn('replay', S.ui.replaying ? 'Replaying…' : 'Replay <kbd>R</kbd>', { disabled: !!S.ui.replaying }) : ''}</div><ul class="log">${log}</ul>`;
     }
     case 'pat': {
       if (g.tryFor !== g.user) return '<div class="ph"><h2>Try…</h2></div>';
       return `<div class="ph"><h2>Touchdown! Choose the try</h2></div><div class="cards two">
-        <button class="card special" data-act="pat" data-id="kick" data-autofocus aria-label="Kick for one point, key 1"><span class="k">1</span><span class="nm">Kick it (1 point)</span><span class="ds">A 20-yard kick</span></button>
-        <button class="card special" data-act="pat" data-id="two" aria-label="Go for two points, key 2"><span class="k">2</span><span class="nm">Go for two (2 points)</span><span class="ds">One play from the 3</span></button></div>`;
+        <button class="card special" data-act="pat" data-id="kick" data-autofocus aria-label="Kick for one point, key 1"><span class="k">1</span><span class="nm">Kick (1 pt)</span><span class="ds">A 20-yard kick</span></button>
+        <button class="card special" data-act="pat" data-id="two" aria-label="Go for two points, key 2"><span class="k">2</span><span class="nm">Go for 2</span><span class="ds">One play from the 3</span></button></div>`;
     }
     case 'kick': {
       if (g.kick && g.kick.user && !S.settings.autoKick) return `<div class="ph"><h2>${g.kick.kind === 'pat' ? 'Kick the try' : `Field goal: ${g.kick.dist} yd`}</h2><p class="sub">Stop the needle in the green.</p></div>

@@ -24,7 +24,9 @@ export function resize(canvas) {
 
 const sx = (x) => view.ox + x * view.ppy;
 const sy = (y) => view.cssH / 2 - (y - view.camY) * view.ppy;
-export const fieldToScreen = (x, y) => [sx(x), sy(y)];
+// When the 3D view is on, proj.fn(x, y, h) projects field yards (h: height in yards) to canvas pixels.
+export const proj = { fn: null };
+export const fieldToScreen = (x, y, h = 0) => (proj.fn ? proj.fn(x, y, h) : [sx(x), sy(y)]);
 export const screenToField = (px, py) => [(px - view.ox) / view.ppy, view.camY + (view.cssH / 2 - py) / view.ppy];
 
 export function jersey(g, side) {
@@ -229,7 +231,8 @@ export function receiverTargets(g) {
     const a = P.A[P.idx[s]];
     if (!a || a.role !== 'route' || !a.route) return;
     const [x, y] = agentAbs(P, a);
-    out.push({ slot: s, k, x: sx(x), y: sy(y) });
+    const [px, py] = fieldToScreen(x, y, proj.fn ? 2.9 : 0);
+    out.push({ slot: s, k, x: px, y: py });
   });
   return out;
 }
@@ -383,16 +386,88 @@ export function needleAt(t) { return Math.sin(t * 3.6); }
 
 function drawMeter(ctx, g, now) {
   const k = g.kick;
-  const w = Math.min(view.cssW - 40, 420), h = 26, x = (view.cssW - w) / 2, y = view.cssH - 70;
+  const w = Math.min(view.cssW - 32, 560), h = 40, x = (view.cssW - w) / 2, y = Math.min(view.cssH - 70, view.cssH * 0.78);
   const tol = Math.max(0.03, kickTolerance(k.kck, k.dist));
-  ctx.fillStyle = 'rgba(20,18,31,0.88)'; ctx.fillRect(x - 10, y - 30, w + 20, h + 44);
-  ctx.fillStyle = '#D8CFBD'; ctx.font = '700 13px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-  ctx.fillText(`${k.kind === 'pat' ? 'Try' : 'Field goal'}: ${k.dist} yd. Stop the needle in the green.`, x + w / 2, y - 12);
-  ctx.fillStyle = '#5A2A2A'; ctx.fillRect(x, y, w, h);
-  ctx.fillStyle = '#2E6A3C'; ctx.fillRect(x + w / 2 - (tol * w) / 2, y, tol * w, h);
-  ctx.strokeStyle = '#FFF6E0'; ctx.lineWidth = 1; ctx.strokeRect(x, y, w, h);
-  ctx.beginPath(); ctx.moveTo(x + w / 2, y); ctx.lineTo(x + w / 2, y + h); ctx.stroke();
+  ctx.save();
+  ctx.fillStyle = 'rgba(11,10,20,0.88)'; ctx.fillRect(x - 12, y - 46, w + 24, h + 78);
+  ctx.fillStyle = '#D4AF37'; ctx.fillRect(x - 12, y - 46, w + 24, 4);
+  ctx.fillStyle = '#FFF6E0'; ctx.font = '700 20px Oswald, "Arial Narrow", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText(`${k.kind === 'pat' ? 'TRY' : 'FIELD GOAL'} · ${k.dist} YD`, x + w / 2, y - 18);
+  ctx.font = '500 13px Oswald, "Arial Narrow", sans-serif'; ctx.fillStyle = '#D8CFBD';
+  ctx.fillText('Stop the needle between the uprights', x + w / 2, y + h + 25);
+  const gr = ctx.createLinearGradient(x, 0, x + w, 0);
+  gr.addColorStop(0, '#7A2020'); gr.addColorStop(0.5, '#A8862A'); gr.addColorStop(1, '#7A2020');
+  ctx.fillStyle = gr; ctx.fillRect(x, y, w, h);
+  const gx = x + w / 2 - (tol * w) / 2, gw = tol * w;
+  ctx.fillStyle = '#2E8A48'; ctx.fillRect(gx, y, gw, h);
+  // goalpost icon: uprights at the edges of the green zone
+  ctx.strokeStyle = '#E8C21C'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(gx, y - 8); ctx.lineTo(gx, y + h * 0.55); ctx.lineTo(gx + gw, y + h * 0.55); ctx.lineTo(gx + gw, y - 8); ctx.moveTo(x + w / 2, y + h * 0.55); ctx.lineTo(x + w / 2, y + h); ctx.stroke();
+  ctx.strokeStyle = '#FFF6E0'; ctx.lineWidth = 1.5; ctx.strokeRect(x, y, w, h);
   const e = k.frozen !== undefined ? k.frozen : needleAt(k.t);
   const nx = x + w / 2 + (e * w) / 2;
-  ctx.fillStyle = '#FFFFFF'; ctx.fillRect(nx - 2, y - 6, 4, h + 12);
+  ctx.fillStyle = '#111111'; ctx.fillRect(nx - 4, y - 10, 8, h + 20);
+  ctx.fillStyle = '#FFFFFF'; ctx.fillRect(nx - 2.5, y - 9, 5, h + 18);
+  ctx.restore();
+}
+
+// 3D mode: the 2D canvas sits on top of the WebGL view and draws only overlays, placed by projection:
+// route previews, receiver badges, the kick meter and the replay tag.
+export function renderOverlay(ctx, g, S, now, extra = {}) {
+  const { cssW, cssH, dpr } = view;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, cssW, cssH);
+  const P = g.play;
+  const showPlay = P && ['pre', 'live', 'result'].includes(g.phase) && (g.phase !== 'result' || P.phase === 'dead');
+  if (showPlay && !extra.replay) {
+    const userOff = g.user !== null && P.offTeam === g.user;
+    if (P.phase === 'pre' && userOff && S.settings.routes !== false) {
+      ctx.save(); ctx.setLineDash([7, 6]); ctx.lineWidth = 3; ctx.lineCap = 'round';
+      for (const a of P.A) {
+        if (a.side !== 'O') continue;
+        let pts = a.route;
+        const pd = playById(P.offId);
+        if (a.role === 'carrierPath') pts = pd.path ? pd.path.map(([dx, y]) => [P.bx + dx, y]) : [[P.bx + pd.mesh[0], pd.mesh[1]], [P.bx + pd.hole[0], pd.hole[1]], [P.bx + pd.hole[0] * 1.15, pd.hole[1] + 4]];
+        if (a.role === 'qbKeep') pts = [[P.bx + pd.hole[0], pd.hole[1]], [P.bx + pd.hole[0] * 1.15, pd.hole[1] + 4]];
+        if (!pts || a.role === 'stalk') continue;
+        const run = a.role === 'carrierPath' || a.role === 'qbKeep';
+        const toS = (px, py) => { const [ax, ay] = toAbs(px, py, playLos(P), playDir(P)); return fieldToScreen(ax, ay, 0.05); };
+        const sp = [toS(a.x, a.y), ...pts.map(([px, py]) => toS(px, py))];
+        for (const [col, w] of [['rgba(10,12,20,0.55)', 6], [run ? 'rgba(255,214,90,0.95)' : 'rgba(255,246,224,0.95)', 3]]) {
+          ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(sp[0][0], sp[0][1]);
+          for (const q of sp.slice(1)) ctx.lineTo(q[0], q[1]);
+          ctx.stroke();
+          const e = sp[sp.length - 1], q = sp[sp.length - 2];
+          arrow(ctx, q[0], q[1], e[0], e[1]);
+        }
+      }
+      ctx.restore();
+    }
+    const size = cssW < 500 ? 13 : 12;
+    for (const t of receiverTargets(g)) drawBadge(ctx, t.x, t.y - size * 0.6, t.k, size);
+    // broadcast ID tag over the ball carrier (fictional players)
+    const c = P.A[P.carrier];
+    if (c && P.ball.st === 'held' && P.phase !== 'pre' && (P.handed || P.thrown || P.scramble || P.intRet || c.slot !== 'QB')) {
+      const [ax, ay] = agentAbs(P, c);
+      const [px, py] = fieldToScreen(ax, ay, 3.1);
+      const label = `${c.num}  ${String(c.last || '').toUpperCase()}`;
+      ctx.save();
+      ctx.font = '700 12px Oswald, "Arial Narrow", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const w = ctx.measureText(label).width + 14;
+      ctx.fillStyle = 'rgba(11,10,20,0.82)'; ctx.fillRect(px - w / 2, py - 9, w, 18);
+      ctx.fillStyle = '#FFC233'; ctx.fillRect(px - w / 2, py + 7, w, 2);
+      ctx.fillStyle = '#FFF6E0'; ctx.fillText(label, px, py + 0.5);
+      ctx.restore();
+    }
+  }
+  if (g.phase === 'kick' && g.kick && g.kick.user && !S.settings.autoKick) drawMeter(ctx, g, now);
+  if (extra.replay) {
+    ctx.save();
+    ctx.font = '900 20px "Arial Black", Impact, sans-serif'; ctx.textBaseline = 'middle';
+    const w = ctx.measureText('REPLAY').width + 34;
+    ctx.fillStyle = 'rgba(11,10,20,0.85)'; ctx.fillRect(14, 14, w, 36);
+    ctx.fillStyle = '#FF3B2F'; ctx.beginPath(); ctx.arc(30, 32, 6, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#FFF6E0'; ctx.fillText('REPLAY', 42, 33);
+    ctx.restore();
+  }
 }

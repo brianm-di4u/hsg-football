@@ -100,3 +100,18 @@ and QB), and separation. Concepts only.
 | Coverage | ours | man (trail with a lag by coverage rating) and zone (drop to landmark, then pursue the nearest receiver in zone) |
 | Play-calling AI | ZenGM ideas (4) | our situational table plus tendencies by difficulty |
 | League sim | fbsim idea (5) | drive-based quick sim from team ratings |
+
+## v2 visual overhaul: vendored libraries, fonts, tools and art
+
+| What | Version / source | License | Where | How it ships |
+|---|---|---|---|---|
+| three.js | `three@0.186.1` from npm (`build/three.module.js`, `build/three.core.js`) | MIT, © 2010-2026 Three.js Authors (`vendor/three/LICENSE`) | `vendor/three/` | `tools/build-three.mjs` tree-shakes it to the classes we use into `src/js/three-lib.js` (≈555 KB), which is inlined |
+| Graduate (varsity display face) | `@fontsource/graduate@5.2.5` from npm, latin 400 | SIL OFL 1.1 (`vendor/fonts/LICENSE-graduate.txt`) | `vendor/fonts/` | `tools/build-fonts.mjs` embeds it as base64 in `src/styles/fonts.css` (file:// can't load font files) |
+| Oswald (condensed UI face) | `@fontsource/oswald@5.2.5` from npm, latin 500 and 700 | SIL OFL 1.1 (`vendor/fonts/LICENSE-oswald.txt`) | `vendor/fonts/` | same |
+| esbuild | `esbuild@0.25.10` from npm | MIT | `tools/dev/` (git-ignored `node_modules`) | build-time only, never shipped |
+| Blender 5.2 | local install | GPL (tool only) | `art-src/blender/build_models.py` → `models.blend`, `src/js/models-data.js` | our own meshes, exported as quantized vertex data |
+| Painted art | Codex (OpenAI image generation), original prompts, no references | ours | `art-src/*.png` (git-ignored) → `assets/*.webp` (`art-pack.mjs`) | title and pregame art as WebP files; the sky panorama is embedded as a data URL (`tools/build-art.mjs`, because WebGL can't upload file:// images) |
+
+Benchmark screenshots of other games (EA College Football 26, Madden NFL 26, Axis Football 2026, Legend Bowl,
+Retro Bowl) were used for the review only. They live in the git-ignored `benchmarks/` folder, and nothing from them
+(art, layouts, code) is in the game.

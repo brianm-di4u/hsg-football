@@ -1,26 +1,27 @@
 // Friday Night Spa City: state, loop, input, save/load, flow between screens, and window.__game.
 import { makeRng } from './rng.js';
-import { ALL, REAL, teamDef, FACT_LIST as FACTS } from './data.js';
+import { ALL, REAL, teamDef, contrast, onColor, FACT_LIST as FACTS } from './data.js';
 import * as R from './rules.js';
 import * as AI from './ai.js';
 import * as L from './league.js';
 import { TICK, canThrow } from './sim.js';
 import { PLAYS, DEFS, SLOTS, playById } from './plays.js';
-import { view, resize, render, cameraTarget, stepCamera, receiverTargets, screenToField, agentAbs, ballAbs, kickDur, needleAt } from './field.js';
+import { view, resize, render, renderOverlay, proj, fieldToScreen, cameraTarget, stepCamera, receiverTargets, screenToField, agentAbs, ballAbs, kickDur, needleAt } from './field.js';
+import { F3, init3d, render3d, recordTick, clearFx3d, stepCamera3d, cameraSettled3d, project3d, fx3d, shake3d, snap3d, info3d, profile3d, canReplay, startReplay, stopReplay, replayDone, webglAvailable } from './field3d.js';
 import { mascotSprite, drawBackdrop, drawSplit, drawCup, makeConfetti, drawConfetti, clearArtCache } from './art.js';
 import { initAudio, sfx, audio, setVolume } from './audio.js';
 import * as UI from './ui.js';
 
 const SAVE_KEY = 'hsg.football.v1';
 const DEFAULTS = { sound: true, volume: 0.6, motion: 'auto', theme: 'night', textScale: 1, quarterMin: 4, difficulty: 'varsity',
-  autoQB: true, autoKick: false, autoContinue: true, playSpeed: 1, routes: true };
+  autoQB: true, autoKick: false, autoContinue: true, playSpeed: 1, routes: true, graphics: 'auto', weather: 'auto', quality: 'auto' };
 
 let rng = makeRng((Date.now() ^ 0x9e3779b9) >>> 0);
 const S = {
   scene: 'title', settings: { ...DEFAULTS }, game: null, season: null, challenges: {}, overlay: null,
   exhib: { you: 'hot-springs', opp: 'lakeside', home: true, step: 'you' }, seasonPick: { team: 'hot-springs', short: false },
   ui: { tab: 'schedule', helpTab: 'basics', resultT: 9, preT: 0, aiKickT: -1, confT: 0, weekRecap: '' },
-  fx: [], reduced: false, saveOk: true, hasSave: false, helpFromGame: false, factCard: null, paused: false, frozen: null,
+  fx: [], perf: { upd: 0, draw: 0 }, reduced: false, saveOk: true, hasSave: false, helpFromGame: false, factCard: null, paused: false, frozen: null,
 };
 const inp = { keys: new Set(), drag: null, juke: false, throwSlot: null };
 const $ = (id) => document.getElementById(id);
@@ -105,6 +106,7 @@ function renderAll() {
   }
   if (!showScreen) lastScreenKey = '';
   if (inGame && S.game) {
+    S.ui.canReplay = use3d() && S.game.phase === 'result' && canReplay();
     if (setHTML(els.scorebug, UI.scorebugHTML(S))) paintMascots(els.scorebug);
     const ph = UI.panelHTML(S);
     setHTML(els.panel, ph);
@@ -117,7 +119,7 @@ function renderAll() {
     }
     renderToast();
     resize(els.field);
-    drawField(performance.now());
+    if (!running) drawField(performance.now()); // the running loop draws this frame anyway (one 3D render per frame)
     wake();
   }
   drawBackground();
@@ -125,16 +127,44 @@ function renderAll() {
   if (S.scene === 'champion') drawChampion(performance.now());
 }
 
-function renderToast() {
+function replayAct(at) {
   const g = S.game;
-  const show = g && g.phase === 'result' && g.lastResult;
-  const html = show ? `<div class="toast-in k-${g.lastResult.kind}"><b>${g.lastResult.text}</b><span>${g.lastResult.sub || ''}</span></div>` : '';
-  setHTML(els.toast, html);
+  if (!g || g.phase !== 'result' || !use3d()) return false;
+  if (!startReplay(performance.now())) return false;
+  if (at !== undefined && at !== null) F3.replay.frozen = at;
+  S.ui.replaying = true;
+  renderToast(); renderAll(); wake();
+  return true;
 }
 
+function renderToast() {
+  const g = S.game;
+  const show = g && g.phase === 'result' && g.lastResult && !F3.replay;
+  let style = '';
+  if (show && g.lastResult.kind === 'td') { // the scoring school's colors
+    const c = teamDef(g.teams[g.tryFor ?? g.poss].id).colors;
+    style = ` style="--td1:${c.primary};--td2:${contrast(c.secondary, c.primary) >= 3 ? c.secondary : onColor(c.primary)}"`;
+  }
+  const html = show ? `<div class="toast-in k-${g.lastResult.kind}"${style}><b>${g.lastResult.text}</b><span>${g.lastResult.sub || ''}</span></div>` : '';
+  setHTML(els.toast, html);
+  els.toast.className = show && g.lastResult.kind !== 'td' ? 'low' : '';
+}
+
+// 3D stadium view (WebGL) with a 2D overlay canvas on top, or the classic 2D field as the fallback.
+const use3d = () => F3.on && !S.force2d && S.settings.graphics !== '2d';
 function drawField(now) {
   const ctx = els.field.getContext('2d');
+  if (!F3.on && !F3.err && !S.force2d && S.settings.graphics !== '2d' && webglAvailable()) { init3d(els.field3d); S.ui.has3d = F3.on; }
+  const on3d = use3d();
+  if (els.field3d.hidden === on3d) { els.field3d.hidden = !on3d; els.field.classList.toggle('overlay2d', on3d); els.field.parentElement.classList.toggle('v3d', on3d); snap3d(); }
+  proj.fn = on3d ? project3d : null;
+  if (on3d) {
+    const anim = render3d(S.game, S, now);
+    renderOverlay(ctx, S.game, S, now, { replay: !!F3.replay });
+    return anim;
+  }
   render(ctx, S.game, S, now);
+  return false;
 }
 
 function drawBackground() {
@@ -156,6 +186,7 @@ function drawSplash() {
   const c = $('splash');
   if (!c || !S.game) return;
   const r = c.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+  if (r.width < 2 || r.height < 2) return; // hidden behind the painted title art
   c.width = Math.round(r.width * dpr); c.height = Math.round(r.height * dpr);
   const ctx = c.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   const g = S.game, home = teamDef(g.teams[g.home].id);
@@ -164,7 +195,14 @@ function drawSplash() {
   if (g.rivalry) { ctx.globalAlpha = 0.35; drawSplit(ctx, r.width, r.height * 0.5, g.teams[0].id, g.teams[1].id); ctx.globalAlpha = 1; }
 }
 
-let confetti = null;
+let confetti = null, trophyImg = null;
+// painted trophy (assets/trophy.webp); the vector cup is the fallback
+function loadTrophy() {
+  if (/[?&]art=0/.test(location.search)) return;
+  const im = new Image(); im.src = 'assets/trophy.webp';
+  S.ui.transT = (S.ui.transT || 0) + 1;
+  im.decode().then(() => { trophyImg = im; }).catch(() => {}).finally(() => { S.ui.transT = Math.max(0, S.ui.transT - 1); if (S.scene === 'champion') drawChampion(performance.now()); });
+}
 function drawChampion(now) {
   const c = $('cup');
   if (!c || !S.season) return;
@@ -172,9 +210,15 @@ function drawChampion(now) {
   if (c.width !== Math.round(r.width * dpr)) { c.width = Math.round(r.width * dpr); c.height = Math.round(r.height * dpr); }
   const ctx = c.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   const t = teamDef(S.season.champion);
-  drawBackdrop(ctx, r.width, r.height, { theme: S.settings.theme, kind: t.backdrop, colors: [t.colors.primary, t.colors.secondary] });
+  if (S.titleArt) { // the painted stadium shows through (CSS); a glow in the champion's colors behind the cup
+    ctx.clearRect(0, 0, r.width, r.height);
+    const gl = ctx.createRadialGradient(r.width / 2, r.height * 0.4, 0, r.width / 2, r.height * 0.4, Math.max(r.width, r.height) * 0.5);
+    gl.addColorStop(0, t.colors.primary + 'AA'); gl.addColorStop(1, t.colors.primary + '00');
+    ctx.fillStyle = gl; ctx.fillRect(0, 0, r.width, r.height);
+  } else drawBackdrop(ctx, r.width, r.height, { theme: S.settings.theme, kind: t.backdrop, colors: [t.colors.primary, t.colors.secondary] });
   const s = Math.min(r.width * 0.35, r.height * 0.42);
-  drawCup(ctx, r.width / 2, r.height * 0.62, s);
+  if (trophyImg) { const h = Math.min(r.height * 0.6, r.width * 0.9), w = h * trophyImg.width / trophyImg.height; ctx.drawImage(trophyImg, r.width / 2 - w / 2, r.height * 0.06, w, h); }
+  else drawCup(ctx, r.width / 2, r.height * 0.62, s);
   if (!confetti) confetti = makeConfetti(120, r.width, [t.colors.primary, t.colors.secondary, '#D4AF37', '#F4EFE6'], 7);
   const ct = S.frozen !== null ? S.frozen / 1000 : S.reduced ? 1.6 : S.ui.confT;
   drawConfetti(ctx, confetti, Math.min(ct, 6));
@@ -185,10 +229,15 @@ let running = false, last = 0, acc = 0;
 function wake() { if (!running) { running = true; last = performance.now(); requestAnimationFrame(frame); } }
 function frame(now) {
   const dt = Math.min(0.25, (now - last) / 1000); last = now;
+  const t0 = performance.now();
   const busy = update(dt, now);
-  if (S.scene === 'game' && S.game) drawField(now);
+  const t1 = performance.now();
+  let anim = false;
+  if (S.scene === 'game' && S.game) anim = drawField(now);
+  const t2 = performance.now(); // frame cost profile (EMA, ms), reported by getState().perf
+  S.perf.upd = S.perf.upd * 0.95 + (t1 - t0) * 0.05; S.perf.draw = S.perf.draw * 0.95 + (t2 - t1) * 0.05;
   if (S.scene === 'champion') drawChampion(now);
-  if (busy) requestAnimationFrame(frame); else running = false;
+  if (busy || anim && !S.overlay) requestAnimationFrame(frame); else running = false;
 }
 
 function liveInput(g) {
@@ -220,8 +269,9 @@ function drainEvents(g) {
         const c = P.A[P.carrier];
         const [x, y] = agentAbs(P, c);
         S.fx.push({ kind: 'hit', x, y, t0: performance.now() });
+        if (!S.reduced) fx3d('hit', x, y);
         sfx('hit');
-        if ((e.kind === 'sack' || e.kind === 'fumbleLost') && !S.reduced) view.shake = 4;
+        if ((e.kind === 'sack' || e.kind === 'fumbleLost') && !S.reduced) { view.shake = 4; shake3d(0.9); }
       }
     }
   }
@@ -237,11 +287,11 @@ function onResult() {
     const t = teamDef(g.teams[scorer].id);
     let x = 26.7, y = scorer === 0 ? 112 : 8;
     if (g.play && g.play.phase === 'dead') [x, y] = agentAbs(g.play, g.play.A[g.play.carrier]);
-    if (!S.reduced) S.fx.push({ kind: 'td', x, y, t0: performance.now(), c1: t.colors.primary, c2: t.colors.secondary });
+    if (!S.reduced) { S.fx.push({ kind: 'td', x, y, t0: performance.now(), c1: t.colors.primary, c2: t.colors.secondary }); fx3d('td', x, y, t.colors.primary, t.colors.secondary); }
   } else if (r.kind === 'score') sfx('good');
   else if (r.kind === 'miss') sfx('bad');
   else if (r.kind === 'turnover') sfx('groan');
-  else if (r.kind === 'big') sfx('crowd');
+  else if (r.kind === 'big') { sfx('crowd'); fx3d('big'); }
   save();
 }
 
@@ -260,7 +310,7 @@ function update(dt, now) {
       acc += dt * speed;
       let n = Math.min(Math.floor(acc / TICK), 30);
       acc -= n * TICK;
-      while (n-- > 0 && g.phase === 'live') { R.stepLive(g, rng, liveInput(g)); drainEvents(g); }
+      while (n-- > 0 && g.phase === 'live') { R.stepLive(g, rng, liveInput(g)); recordTick(g, S); drainEvents(g); }
       if (acc > TICK * 4) acc = 0;
     }
   } else if ((g.phase === 'kickoff' || g.phase === 'kickfly') && g.kickAnim) {
@@ -277,6 +327,9 @@ function update(dt, now) {
       S.ui.aiKickT -= dt;
       if (S.ui.aiKickT < 0) { S.ui.aiKickT = -1; doKick(R.aiKickError(rng, g.kick.kck)); }
     } else if (g.kick && g.kick.user && !S.settings.autoKick && S.frozen === null) busy = true;
+  } else if (g.phase === 'result' && F3.replay) {
+    busy = true;
+    if (replayDone()) { stopReplay(); S.ui.replaying = false; renderAll(); }
   } else if (g.phase === 'result') {
     S.ui.resultT += dt;
     if (S.ui.resultT < (S.reduced ? 0 : 0.3)) busy = true;
@@ -286,7 +339,9 @@ function update(dt, now) {
     S.ui.preT += dt;
     if (S.ui.preT > 0.9) hike();
   }
-  if (stepCamera(cameraTarget(g), dt, S.reduced)) busy = true;
+  if (use3d()) { if (stepCamera3d(g, S, dt, now)) busy = true; }
+  else if (stepCamera(cameraTarget(g), dt, S.reduced)) busy = true;
+  if (F3.replay && g.phase !== 'result') { stopReplay(); S.ui.replaying = false; }
   if (view.shake > 0) { view.shake = Math.max(0, view.shake - dt * 14); busy = true; }
   if (S.fx.length) { S.fx = S.fx.filter((f) => now - f.t0 < 1300); if (S.fx.length) busy = true; }
   if (g.phase !== prevPhase || g.phase === 'live') renderPanelOnly(prevPhase);
@@ -330,7 +385,7 @@ function flow() {
     if (g.phase === 'call' && g.twoPoint && g.poss !== g.user && !g.aiOff) continue;
     break;
   }
-  if (g.phase === 'kick') S.fx = [];
+  if (g.phase === 'kick') { S.fx = []; clearFx3d(); }
   if (g.phase === 'kick' && g.kick && (!g.kick.user || S.settings.autoKick) && S.ui.aiKickT < 0) S.ui.aiKickT = 0.7;
   if (g.phase === 'break') { S.overlay = 'break'; if (g.breakKind === 'half') pickFact(); sfx('horn'); }
   if (g.phase === 'otStart') { S.overlay = 'ot'; sfx('horn'); }
@@ -420,8 +475,8 @@ function newSeed() { return (Math.random() * 2 ** 32) >>> 0; }
 function startGame(cfg) {
   const g = R.createGame({ quarterMin: S.settings.quarterMin, difficulty: S.settings.difficulty, ...cfg }, rng);
   S.game = g; S.overlay = null; S.fx = []; S.factCard = null; S.dropGame = false;
-  view.camY = cameraTarget(g);
-  if (g.phase === 'toss') go('pregame'); else { go('game'); flow(); }
+  view.camY = cameraTarget(g); snap3d();
+  if (g.phase === 'toss') go('pregame'); else { go('game'); flow(); drawField(performance.now()); } // build the stadium now
   return g;
 }
 
@@ -586,6 +641,9 @@ function setSetting(k, v) {
   s[k] = v;
   applySettings();
   if (k === 'theme') { view.layerKey = ''; clearArtCache(); els.bg._key = ''; }
+  if (k === 'graphics') S.force2d = false;
+  if (k === 'graphics' && v !== '2d' && !F3.on && webglAvailable()) { init3d(els.field3d); S.ui.has3d = F3.on; }
+  if (k === 'graphics' || k === 'weather' || k === 'theme' || k === 'quality') snap3d();
   if (S.game && k === 'difficulty') S.game.difficulty = v;
   save(); renderAll();
 }
@@ -621,6 +679,7 @@ const ACTIONS = {
   cont: () => cont(),
   skipAnim: () => skipAnim(),
   pause: () => { if (S.scene === 'game') { S.overlay = 'pause'; renderAll(); } },
+  replay: () => replayAct(),
   resume: () => { S.overlay = null; renderAll(); wake(); },
   overlay: (id) => { S.overlay = id; S.helpFromGame = true; renderAll(); },
   closeOverlay: () => { S.overlay = S.scene === 'game' ? 'pause' : null; S.helpFromGame = false; if (S.scene !== 'game') go('title'); else renderAll(); },
@@ -687,7 +746,8 @@ function onKeyDown(e) {
       if (k === ' ') e.preventDefault();
       return;
     case 'result':
-      if (k === ' ' || k === 'Enter' && !onBtn) { e.preventDefault(); cont(); }
+      if (k === ' ' || k === 'Enter' && !onBtn) { e.preventDefault(); if (F3.replay) { stopReplay(); S.ui.replaying = false; } cont(); }
+      else if (k === 'r') { e.preventDefault(); replayAct(); }
       return;
     case 'pat':
       if (k === '1') ACTIONS.pat('kick'); else if (k === '2') ACTIONS.pat('two');
@@ -783,7 +843,7 @@ function snapshot() {
       userGame: ug ? { home: ug.home, away: ug.away, result: ug.result } : null,
       roster: s.rosters[s.userTeam].map((p) => ({ name: `${p.first} ${p.last}`, pos: p.pos, yr: p.yr, ovr: p.ovr, num: p.num })) };
   }
-  return { loop: running, ptr: [S.ptr || 0, S.ptrMove || 0], fx: S.fx.length, scene: S.scene, overlay: S.overlay, settings: { ...S.settings }, reduced: S.reduced, saveOk: S.saveOk, hasSave: S.hasSave, game, season, challenges: { ...S.challenges }, exhib: { ...S.exhib }, rng: rng.s };
+  return { loop: running, perf: { upd: Math.round(S.perf.upd * 100) / 100, draw: Math.round(S.perf.draw * 100) / 100 }, gfx: info3d(), view3d: use3d(), ptr: [S.ptr || 0, S.ptrMove || 0], fx: S.fx.length, scene: S.scene, overlay: S.overlay, settings: { ...S.settings }, reduced: S.reduced, saveOk: S.saveOk, hasSave: S.hasSave, game, season, challenges: { ...S.challenges }, exhib: { ...S.exhib }, rng: rng.s };
 }
 
 function isIdle() {
@@ -791,12 +851,15 @@ function isIdle() {
   if (S.ui.transT > 0) return false;
   if (S.scene === 'champion') return S.reduced || S.frozen !== null || S.ui.confT >= 6;
   if (S.scene !== 'game' || !g || S.overlay) return true;
+  if (F3.artLoading && use3d()) return false;
   if (S.frozen !== null) return true;
   if (g.phase === 'live') return false;
   if ((g.phase === 'kickoff' || g.phase === 'kickfly') && g.kickAnim) return false;
   if (g.phase === 'kick' && S.ui.aiKickT >= 0) return false;
   if (g.phase === 'result' && S.ui.resultT < (S.reduced ? 0 : 0.3)) return false;
-  if (Math.abs(cameraTarget(g) - view.camY) > 0.05) return false;
+  if (F3.replay || F3.artLoading && use3d()) return false;
+  // (reduced motion never animates the camera: it snaps on the next frame, so there is nothing to wait for)
+  if (use3d() ? (!S.reduced && !cameraSettled3d(g, S)) || F3.animating : Math.abs(cameraTarget(g) - view.camY) > 0.05) return false;
   if (view.shake > 0 || S.fx.length) return false;
   return true;
 }
@@ -805,7 +868,7 @@ function stepN(n) {
   const g = S.game;
   for (let i = 0; i < n; i++) {
     if (!g) break;
-    if (g.phase === 'live') { R.stepLive(g, rng, liveInput(g)); drainEvents(g); if (g.phase !== 'live') { onResultMaybe(); } }
+    if (g.phase === 'live') { R.stepLive(g, rng, liveInput(g)); recordTick(g, S); drainEvents(g); if (g.phase !== 'live') { onResultMaybe(); } }
     else update(TICK, performance.now());
   }
   renderAll();
@@ -825,7 +888,7 @@ function layoutRects() {
     out.field = rect(els.field);
     out.receivers = S.game ? receiverTargets(S.game).map((t) => ({ slot: t.slot, x: fr.left + t.x, y: fr.top + t.y })) : [];
     const P = S.game && S.game.play;
-    if (P) { const [x, y] = agentAbs(P, P.A[P.carrier]); const [sx, sy] = [view.ox + x * view.ppy, view.cssH / 2 - (y - view.camY) * view.ppy]; out.carrier = { x: fr.left + sx, y: fr.top + sy }; }
+    if (P) { const [x, y] = agentAbs(P, P.A[P.carrier]); const [sx, sy] = fieldToScreen(x, y, 1); out.carrier = { x: fr.left + sx, y: fr.top + sy }; }
   }
   return out;
 }
@@ -835,7 +898,10 @@ const HOOKS = {
   getState: () => snapshot(),
   setState(p) {
     if (!p) return snapshot();
-    if (p.settings) { deepMerge(S.settings, p.settings); applySettings(); view.layerKey = ''; }
+    if (p.settings) {
+      deepMerge(S.settings, p.settings); applySettings(); view.layerKey = '';
+      if (p.settings.graphics !== undefined) { S.force2d = false; if (p.settings.graphics !== '2d' && !F3.on && webglAvailable()) { init3d(els.field3d); S.ui.has3d = F3.on; } }
+    }
     if (p.game && S.game) {
       const gp = { ...p.game };
       if (gp.phase && gp.phase !== S.game.phase) Object.assign(S.game, { kickAnim: null, kick: null, pendingPunt: null, pendingKick: null, aiOff: null });
@@ -847,9 +913,10 @@ const HOOKS = {
     if (p.challenges) deepMerge(S.challenges, p.challenges);
     if (p.ui) deepMerge(S.ui, p.ui);
     if (p.overlay !== undefined) S.overlay = p.overlay;
-    if (S.game) view.camY = cameraTarget(S.game);
+    if (S.game) { view.camY = cameraTarget(S.game); snap3d(); }
     if ((p.game || p.settings) && S.game && S.scene === 'game' && !S.overlay) flow();
     renderAll();
+    if (p.settings && S.game && S.scene === 'game') drawField(performance.now()); // apply view changes now (weather, theme)
     return snapshot();
   },
   isIdle,
@@ -878,7 +945,7 @@ const HOOKS = {
     S.exhib.home = opts.userHome !== false;
     const g = startGame({ mode: 'exhibition', teamA: S.exhib.you, teamB: S.exhib.opp, home: S.exhib.home ? 0 : 1, user: opts.user === null ? null : 0,
       quarterMin: opts.quarterMin || S.settings.quarterMin, skipToss: !!opts.skipToss, receiver: opts.receiver ?? 0, rivalry: !!opts.rivalry });
-    if (opts.skipKickoff && g.phase === 'kickoff') { R.finishKickoff(g, rng); R.advance(g, rng); flow(); renderAll(); }
+    if (opts.skipKickoff && g.phase === 'kickoff') { R.finishKickoff(g, rng); R.advance(g, rng); snap3d(); flow(); renderAll(); }
     return snapshot();
   },
   act(name, ...a) {
@@ -891,7 +958,7 @@ const HOOKS = {
       case 'throw': {
         if (!g || !g.play) return false;
         inp.throwSlot = a[0];
-        if (S.paused || a[1] === 'now') { R.stepLive(g, rng, liveInput(g)); drainEvents(g); renderAll(); }
+        if (S.paused || a[1] === 'now') { R.stepLive(g, rng, liveInput(g)); recordTick(g, S); drainEvents(g); renderAll(); }
         return g.play.thrown;
       }
       case 'steer': S.steer = (a[0] || a[1]) ? [a[0], a[1]] : null; return true;
@@ -900,7 +967,7 @@ const HOOKS = {
         if (!g) return null;
         if (g.phase === 'pre') hike();
         let n = 0;
-        while (g.phase === 'live' && n++ < 60 * 20) { R.stepLive(g, rng, liveInput(g)); drainEvents(g); }
+        while (g.phase === 'live' && n++ < 60 * 20) { R.stepLive(g, rng, liveInput(g)); recordTick(g, S); drainEvents(g); }
         onResultMaybe(); renderAll();
         return g.lastResult;
       }
@@ -932,7 +999,7 @@ const HOOKS = {
         if (g && g.phase === 'kick' && g.kick) { if (a[0] === null) delete g.kick.frozen; else g.kick.frozen = Math.max(-1, Math.min(1, a[1] ?? 0)); }
         if (g && g.kickAnim && a[0] !== null) g.kickAnim.t = a[0] / 1000;
         if (g && a[0] !== null && g.phase === 'result') S.ui.resultT = Math.max(S.ui.resultT, 0.31);
-        if (a[0] !== null) { view.camY = cameraTarget(g || {}); view.shake = 0; }
+        if (a[0] !== null) { view.camY = cameraTarget(g || {}); view.shake = 0; snap3d(); }
         renderAll();
         if (g && S.scene === 'game') drawField(performance.now());
         return true;
@@ -958,6 +1025,9 @@ const HOOKS = {
         onResultMaybe(); renderAll();
         return snapshot().game;
       }
+      case 'replay': return replayAct(a[0]);
+      case 'gfx': return info3d();
+      case 'gfxProfile': return profile3d(a[0]);
       case 'save': return save();
       case 'hasSave': return hasSave();
       case 'audio': return { ready: !!initAudio(), on: audio.on, volume: audio.volume };
@@ -969,7 +1039,7 @@ const HOOKS = {
 
 // ------------------------------------------------------------------ boot
 function boot() {
-  els = { bg: $('bg'), game: $('game'), scorebug: $('scorebug'), field: $('field'), panel: $('panel'), toast: $('toast'), screen: $('screen') };
+  els = { bg: $('bg'), game: $('game'), scorebug: $('scorebug'), field: $('field'), field3d: $('field3d'), panel: $('panel'), toast: $('toast'), screen: $('screen') };
   const d = load();
   if (d) {
     if (d.settings) S.settings = { ...DEFAULTS, ...d.settings };
@@ -979,6 +1049,20 @@ function boot() {
   S.hasSave = !!(d && (d.game || d.season));
   if (!storage()) S.saveOk = false;
   applySettings();
+  // ?gl=0 starts on the 2D field without touching WebGL (until the player picks 3D in Settings)
+  S.force2d = new URLSearchParams(location.search).get('gl') === '0';
+  if (!S.force2d && S.settings.graphics !== '2d' && webglAvailable()) init3d(els.field3d);
+  S.ui.has3d = F3.on;
+  F3.onArt = () => { if (S.scene === 'game' && S.game) { drawField(performance.now()); wake(); } };
+  // title art: preload so screenshots never catch the plain backdrop mid-load
+  S.titleArt = false;
+  if (!/[?&]art=0\b/.test(location.search)) {
+    const im = new Image(); im.src = window.innerWidth < window.innerHeight ? 'assets/title-night-tall.webp' : 'assets/title-night.webp';
+    S.ui.transT = 1;
+    im.decode().then(() => { S.titleArt = true; document.documentElement.classList.add('title-art'); }).catch(() => {}).finally(() => { S.ui.transT = Math.max(0, S.ui.transT - 1); });
+    loadTrophy();
+  }
+  els.field3d.hidden = !use3d(); els.field.classList.toggle('overlay2d', use3d()); els.field.parentElement.classList.toggle('v3d', use3d());
   document.addEventListener('click', onClick);
   document.addEventListener('change', onChange);
   document.addEventListener('input', (e) => { if (e.target.dataset && e.target.dataset.set === 'volume') onChange(e); });

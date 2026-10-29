@@ -1,0 +1,1 @@
+{"name":"football-dev-tools","private":true,"description":"Build-time only: tree-shakes the vendored three.js into src/js/three-lib.js","devDependencies":{"esbuild":"0.25.10"},"dependencies":{"@fontsource/graduate":"^5.2.5","@fontsource/oswald":"^5.2.5"}}

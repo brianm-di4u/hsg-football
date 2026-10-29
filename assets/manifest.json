@@ -1,0 +1,26 @@
+{
+ "sky-ridge": {
+  "file": "sky-ridge.webp",
+  "w": 2048,
+  "h": 683,
+  "bytes": 51354
+ },
+ "title-night": {
+  "file": "title-night.webp",
+  "w": 1600,
+  "h": 900,
+  "bytes": 174280
+ },
+ "title-night-tall": {
+  "file": "title-night-tall.webp",
+  "w": 720,
+  "h": 1280,
+  "bytes": 124170
+ },
+ "trophy": {
+  "file": "trophy.webp",
+  "w": 640,
+  "h": 640,
+  "bytes": 52290
+ }
+}

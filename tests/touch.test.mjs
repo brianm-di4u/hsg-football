@@ -23,7 +23,8 @@ export const tests = [
       let s = await t.state();
       t.equal(s.game.live.carrierSlot, 'RB', 'RB has the ball');
       const x0 = s.game.live.ballX, y0 = s.game.live.ballY;
-      await t.game('resume');
+      // set the touch up while paused, then let the play run with the finger down (frames can be slow under
+      // software WebGL, and the play must not end before the drag lands)
       const lay = await t.game('act', 'layout');
       const f = lay.field;
       // drag straight up-left: the vector from the touch start is the steering direction
@@ -33,8 +34,11 @@ export const tests = [
       const pt = ([x, y]) => [{ x, y, id: 1, radiusX: 4, radiusY: 4, force: 1 }];
       await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: pt(start) });
       for (let i = 1; i <= 6; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: pt([start[0] - 90 * i / 6, start[1] - 40 * i / 6]) });
-      await t.page.waitForTimeout(700);
-      const mid = await t.state();
+      await t.game('resume');
+      // hold until about 0.9 s of game time has passed (real frames can be slow under software WebGL)
+      const t0 = s.game.live.t;
+      let mid = await t.state();
+      for (let k = 0; k < 100 && mid.game.phase === 'live' && mid.game.live.t - t0 < 0.9; k++) { await t.page.waitForTimeout(100); mid = await t.state(); }
       await t.shot('46-touch-steer', { wait: false });
       await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
       await cdp.detach();
