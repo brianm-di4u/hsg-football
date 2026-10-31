@@ -1,0 +1,197 @@
+[
+  {
+    "id": "G-read-camera-scale",
+    "category": "readability",
+    "expectedGain": 0.4,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R04",
+      "high/desktop/R05"
+    ],
+    "benchmark": "madden26-1",
+    "fix": "Move the default behind-offense camera in and down so linemen are about 45 px tall at 1280x800 while all eleven offensive players and route badges stay in frame in R04.",
+    "priority": 0.6,
+    "selected": true
+  },
+  {
+    "id": "G-contact-weight",
+    "category": "animation",
+    "expectedGain": 0.5,
+    "severity": 5,
+    "effort": "M",
+    "workstream": "WS4b",
+    "evidence": [
+      "crops/high/R13-carrier",
+      "crops/high/R12-carrier",
+      "strips/high/R13",
+      "crops/high/R14-carrier"
+    ],
+    "benchmark": "cfb26-4",
+    "fix": "Per-tick capsule push-out (torso radius ~0.35 m) so no two torsos overlap; stack 2nd/3rd tacklers on top of the carrier with vertical offset; IK the first tackler's arms closed around the carrier's waist on the contact frame; keep standing players' feet outside the pile footprint; draw celebrations from a 5-6 pose pool with mirroring, capping both-arms-up at 40%. Test: R12/R13 close-ups show separate silhouettes and one visible wrap arm.",
+    "priority": 0.375,
+    "selected": true
+  },
+  {
+    "id": "G-mobile-portrait-framing",
+    "category": "mobile",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "medium/mobile/R04",
+      "high/mobile/R04"
+    ],
+    "benchmark": "retrobowl-1",
+    "fix": "Fit the portrait pre-snap camera to formation width plus route extents plus a 24 CSS px margin, pull in after the snap, and offset the down stencil when a receiver badge overlaps it; test: all five badges fully on screen in medium/mobile/R04.",
+    "priority": 0.375,
+    "selected": true
+  },
+  {
+    "id": "G-gait-and-blocking",
+    "category": "animation",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS4",
+    "evidence": [
+      "strips/high/R10",
+      "high/desktop/R10",
+      "strips/high/R11"
+    ],
+    "benchmark": "madden26-4",
+    "fix": "Hold engaged blocker/defender pairs face to face 0.6-0.8 m apart with hands on chest and a drive/shed animation that moves them; release both to upright jog or turn-and-watch poses at the whistle; add a planted outside-foot cut frame with 10-15 degree torso lean on the sweep.",
+    "priority": 0.375,
+    "selected": true
+  },
+  {
+    "id": "G-ui-toast-overlap",
+    "category": "ui",
+    "expectedGain": 0.3,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R12",
+      "high/desktop/R14"
+    ],
+    "benchmark": "madden26-3",
+    "fix": "While a result toast is up, frame the post-play camera so the ball spot sits in the upper 55% of the field view, or dock the toast under the scorebug; test: no player bounding box intersects the toast in R12 and R14.",
+    "priority": 0.3,
+    "selected": true
+  },
+  {
+    "id": "G-light-multishadow-wet",
+    "category": "lighting",
+    "expectedGain": 0.4,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS1",
+    "evidence": [
+      "high/desktop/R09",
+      "crops/high/R18-turf_26_67_40",
+      "high/desktop/R14"
+    ],
+    "benchmark": "cfb26-3",
+    "fix": "Add 2-3 faint secondary shadow lobes toward the other towers; in rain lower roughness across the whole field with specular streaks toward each tower (splashes already exist); add tower spill on stand faces and the end-zone surround.",
+    "priority": 0.3,
+    "selected": false
+  },
+  {
+    "id": "G-replay-blur",
+    "category": "lighting",
+    "expectedGain": 0.2,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS1",
+    "evidence": [
+      "high/desktop/R15"
+    ],
+    "benchmark": "cfb26-3",
+    "fix": "Set replay depth-of-field focus distance to the camera-to-carrier distance and apply blur only beyond 15 yd from the carrier; test: #44 and his tag are sharp in R15.",
+    "priority": 0.3,
+    "selected": false
+  },
+  {
+    "id": "G-anim-feel-beats",
+    "category": "animation",
+    "expectedGain": 0.3,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS4",
+    "evidence": [
+      "strips/high/R13",
+      "strips/high/R09"
+    ],
+    "benchmark": "madden26-4",
+    "fix": "Keep the existing catch push-in; add a turf-spray and dust particle burst at the first tackle-contact point plus a 0.25 s ease to 0.4x time scale with a 10% dolly-in at first contact.",
+    "priority": 0.225,
+    "selected": false
+  },
+  {
+    "id": "G-venue-endzone-void",
+    "category": "authenticity",
+    "expectedGain": 0.4,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS2",
+    "evidence": [
+      "high/desktop/R14",
+      "high/desktop/R20",
+      "high/desktop/R15"
+    ],
+    "benchmark": "cfb26-1",
+    "fix": "In the R14 and R20 venues, continue the track around the end zone, add a chain-link fence 10 yd past the end line, a berm or field-house block and two parking-lot light poles beyond it; thin the visitor-side pine wall so the tree tops sit below light-tower height.",
+    "priority": 0.2,
+    "selected": false
+  },
+  {
+    "id": "G-community-staging",
+    "category": "authenticity",
+    "expectedGain": 0.4,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS2",
+    "evidence": [
+      "crops/high/R01-crowd",
+      "high/desktop/R01"
+    ],
+    "benchmark": "cfb26-1; legendbowl-4",
+    "fix": "Add a uniformed band block with instrument silhouettes in one home-stand section, a student section with painted shirts and 3-4 sign boards, and a cheer line on the track in front of the home stand.",
+    "priority": 0.2,
+    "selected": false
+  },
+  {
+    "id": "G-def-call-legibility",
+    "category": "ui",
+    "expectedGain": 0.2,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R05"
+    ],
+    "benchmark": "madden26-2",
+    "fix": "Fan rush arrows out by gap starting from each rusher's helmet, label zone ovals with short names (FLAT, HOOK, DEEP 1/2), and move the umpire 3 yd off the ball pre-snap when a defensive diagram is drawn.",
+    "priority": 0.2,
+    "selected": false
+  },
+  {
+    "id": "G-art-limbs-faces",
+    "category": "art",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "L",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R06-slot_C-side",
+      "crops/high/R04-slot_QB"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Skin-tone forearms with sleeve and elbow-pad seams, split-finger gloves, a face plane with brow shadow behind the cage, a softer shoulder-to-torso transition with two or three body-type scales, and normal/AO fold maps on jersey and pants.",
+    "priority": 0.188,
+    "selected": false
+  }
+]

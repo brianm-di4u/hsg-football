@@ -1,0 +1,156 @@
+{
+ "made": "2026-10-30T04:39:31.052Z",
+ "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5060 (0x00002F06) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+ "problems": [],
+ "game": {
+  "3m": [
+   {
+    "lod": "hero",
+    "team": "hot-springs",
+    "home": true,
+    "playerPixels": 123782,
+    "changedPct": 5.55
+   },
+   {
+    "lod": "lod0",
+    "team": "hot-springs",
+    "home": true,
+    "playerPixels": 125218,
+    "changedPct": 11.06
+   },
+   {
+    "lod": "lod1",
+    "team": "hot-springs",
+    "home": true,
+    "playerPixels": 128200,
+    "changedPct": 19.66
+   },
+   {
+    "lod": "lod2",
+    "team": "hot-springs",
+    "home": true,
+    "playerPixels": 130522,
+    "changedPct": 41.45
+   }
+  ],
+  "8m": [
+   {
+    "lod": "hero",
+    "team": "hot-springs",
+    "home": true,
+    "playerPixels": 134942,
+    "changedPct": 9.06
+   },
+   {
+    "lod": "lod0",
+    "team": "hot-springs",
+    "home": true,
+    "playerPixels": 135348,
+    "changedPct": 12.31
+   },
+   {
+    "lod": "lod1",
+    "team": "hot-springs",
+    "home": true,
+    "playerPixels": 136708,
+    "changedPct": 19.6
+   },
+   {
+    "lod": "lod2",
+    "team": "hot-springs",
+    "home": true,
+    "playerPixels": 137587,
+    "changedPct": 39.55
+   }
+  ],
+  "20m": [
+   {
+    "lod": "hero",
+    "team": "hot-springs",
+    "home": true,
+    "playerPixels": 144667,
+    "changedPct": 15.51
+   },
+   {
+    "lod": "lod0",
+    "team": "hot-springs",
+    "home": true,
+    "playerPixels": 144795,
+    "changedPct": 17.94
+   },
+   {
+    "lod": "lod1",
+    "team": "hot-springs",
+    "home": true,
+    "playerPixels": 145732,
+    "changedPct": 22.86
+   },
+   {
+    "lod": "lod2",
+    "team": "hot-springs",
+    "home": true,
+    "playerPixels": 146632,
+    "changedPct": 40.39
+   }
+  ],
+  "45m": [
+   {
+    "lod": "hero",
+    "team": "hot-springs",
+    "home": true,
+    "playerPixels": 151537,
+    "changedPct": 26.15
+   },
+   {
+    "lod": "lod0",
+    "team": "hot-springs",
+    "home": true,
+    "playerPixels": 151837,
+    "changedPct": 27.34
+   },
+   {
+    "lod": "lod1",
+    "team": "hot-springs",
+    "home": true,
+    "playerPixels": 152582,
+    "changedPct": 28.6
+   },
+   {
+    "lod": "lod2",
+    "team": "hot-springs",
+    "home": true,
+    "playerPixels": 152738,
+    "changedPct": 45.07
+   }
+  ]
+ },
+ "glb": {
+  "tris": 62547,
+  "restRot": [
+   [
+    0,
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    0,
+    1
+   ]
+  ]
+ }
+}

@@ -1,6 +1,6 @@
 // The 3D field view: WebGL on, venues, posed players, projection for taps and badges, replays, settings, and the
 // 2D fallback. (The harness Chromium renders WebGL in software, so frame rates here are a floor; see perf.)
-import { quickGame, offenseAt, defenseAt } from './helpers.mjs';
+import { quickGame, offenseAt, defenseAt, waitFor } from './helpers.mjs';
 
 export const tests = [
   {
@@ -31,6 +31,16 @@ export const tests = [
       await quickGame(t, { seed: 504, you: 'lakeside', opp: 'hot-springs' });
       await offenseAt(t, { ballOn: 35 }, 'dive');
       await t.shot('52-stance');
+      // three-point stances: the down hand on the turf (ends mirror it, inside tackles go down on both), the center's on the ball
+      const probe = (slot) => t.game('act', 'rigProbe', slot);
+      for (const [slot, hands] of [['LG', ['handR']], ['RT', ['handR']], ['DL1', ['handL']], ['DL2', ['handL', 'handR']]]) {
+        const p = await probe(slot);
+        for (const h of hands) t.expect(p && p[h] < 0.1, `${slot} ${h} on the turf (${p && p[h]} yd)`);
+        t.expect(p && p.back > 1.2, `${slot} back flat (${p && p.back} rad from upright)`);
+      }
+      const c = await probe('C');
+      t.equal(c && c.stance, 'c', 'center over the ball');
+      t.expect(c && c.handR > 0.15 && c.handR < 0.6, `center's hand on top of the ball, not the turf (${c && c.handR} yd)`);
       await t.game('pause');
       await t.game('act', 'snap');
       await t.game('step', 45);
@@ -85,9 +95,12 @@ export const tests = [
       const lay = await t.game('act', 'layout');
       t.expect(!!lay.replay, 'Replay button shown after a play');
       t.equal(await t.game('act', 'replay', 0.6), true, 'replay starts');
-      s = await t.state();
+      // the camera moves on the next rendered frame (immediate on a fast GPU, later in software)
+      s = await waitFor(t, (x) => Math.abs(x.gfx.cam.yaw) > 1, 3000, 'sideline replay camera');
       t.equal(s.gfx.replay, true, 'replay running');
       t.expect(Math.abs(s.gfx.cam.yaw) > 1, `sideline camera angle (yaw ${s.gfx.cam.yaw})`);
+      const car = await t.game('act', 'rigProbe', 'carrier');
+      t.expect(car && car.ring !== null && car.ring < 0.8, `replay ring under the carrier (${car && car.slot}, ${car && car.ring} yd from the hips)`);
       await t.shot('56-replay', { wait: false });
       await t.page.keyboard.press('Space');
       s = await t.state();

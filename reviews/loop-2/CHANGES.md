@@ -1,0 +1,25 @@
+Changes since loop 1 (facts only). Score **High** on desktop; Medium is the phone/mid tier; Low is the v2 look and is captured for regressions.
+
+- **Players and officials (Medium/High).** New HD meshes built in Blender: about 11k triangles per player, 7k per official, on the same skeleton.
+  - Two-bone skin weights blended across every joint.
+  - Subdivided smooth limbs and torso; shoulder pads with rims.
+  - A helmet with jaw pads, ear holes, a four-bar facemask with three verticals, and a chin strap.
+  - Gloves with thumbs, cleats with soles, and knee pads.
+  - Low keeps the v2 meshes.
+- **Front jersey numbers.** Corrected again (they were flipped vertically) on all tiers.
+- **Crowd (Medium/High).** Every fan is now a camera-facing card cut from a Blender-rendered atlas (4 builds × 16 poses × 2 frames), tinted per fan from an ID mask (shirt in school colors, skin, hair or cap). The cards are lit at the stadium's lamp level.
+  - Fans sit, clap and lean; on big plays a growing share stand, raise their arms, wave and jump.
+  - The band plays in uniform, the home student section stands near the 50, and end-zone berm fans stand.
+  - Low keeps the box crowd.
+- **Animation (all tiers).** Running adds shoulder-against-hip counter-rotation with a level head, and runners bank into cuts.
+  - Tackled players buckle at the knees before pitching forward, roll to one side (which side varies by player), brace with their arms, lift their heads, and stay above the turf.
+  - Touchdown celebrations come in four variants: arms-up hops, fist pump, point to the sky, chest-out strut.
+  - The passer holds the ball in his throwing hand through the wind-up.
+- **Replays.** Shallower depth of field that keeps the play sharp. Ambient occlusion is limited to the field area, removing a dark band across the turf in replays.
+- **Rain (Medium/High).** Wetter turf: darker, glossier, with more reflective puddles.
+- **HUD.**
+  - The result panel now shows the next down and distance instead of repeating the field banner.
+  - The kickoff/punt panel shows the kicking team and the drive log.
+  - The carrier ring sits under the carrier's hips.
+- **Phone pre-snap camera.** Fitted to the formation's width so the outside receivers stay in frame.
+- **Unchanged since loop 1:** lighting and post-processing setup, HUD layout and type, venue geometry (stands, press box, trees), and animation timing (no new clips).

@@ -1,0 +1,178 @@
+[
+  {
+    "id": "G-regression-animation",
+    "category": "animation",
+    "expectedGain": 0.5,
+    "severity": 5,
+    "effort": "S",
+    "workstream": "WS7",
+    "fix": "Find and undo what lowered animation since loop 9",
+    "priority": 99,
+    "selected": true
+  },
+  {
+    "id": "G-catch-beat",
+    "category": "animation",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS4",
+    "evidence": [
+      "strips/high/R09",
+      "crops/high/R09-slot_Z"
+    ],
+    "benchmark": "cfb26-4",
+    "fix": "Blend to a hands-up reach 6-10 ticks before arrival, attach the ball to the hands on contact, tuck within 4 ticks, and time the existing punch-in to the reach frame. Test: the arrival frame in strips/high/R09 shows both hands above the shoulders.",
+    "priority": 0.375,
+    "selected": true
+  },
+  {
+    "id": "G-tackle-contact",
+    "category": "animation",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS4b",
+    "evidence": [
+      "strips/high/R10",
+      "strips/high/R13",
+      "crops/high/R12-carrier"
+    ],
+    "benchmark": "madden26-4",
+    "fix": "Spread the wrap, drive and fall over at least 3 strip frames (12+ ticks) with a visible impact lean; add a 3-4 tick hit-stop at first contact; keep the ball attached to the carrier's hand through the fall; make the R13 replay window include the takedown; add post-fall settle motion.",
+    "priority": 0.375,
+    "selected": true
+  },
+  {
+    "id": "G-camera-space",
+    "category": "readability",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R04",
+      "high/desktop/R10",
+      "medium/mobile/R04"
+    ],
+    "benchmark": "retrobowl-1; axis-1",
+    "fix": "Desktop pre-snap: lower the look-at so the formation sits at about 60% frame height and the empty near field behind the offense is under 15%. Desktop live play: collapse the panel to the 250 px quiet width. Portrait pre-snap: linemen at least 24 CSS px. Offset badges above heads and keep edge badges clear of painted down markers. Keep the pass-corridor framing.",
+    "priority": 0.375,
+    "selected": true
+  },
+  {
+    "id": "G-player-construction",
+    "category": "art",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R03-slot_QB",
+      "crops/high/R04-slot_C",
+      "crops/high/R06-slot_C-side"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Officials first: skin-toned head with face planes, sleeves joined to the shoulder with no gap, fingered hands, brimmed cap. Players: slim the stance pants and hip volume, smooth the jersey hem, model forearm and sleeve separation. Player gloves already have fingers.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-night-lighting",
+    "category": "lighting",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS1",
+    "evidence": [
+      "high/desktop/R04",
+      "high/desktop/R18",
+      "high/desktop/R15",
+      "crops/high/R18-turf_26_67_40"
+    ],
+    "benchmark": "cfb26-3",
+    "fix": "Extend the tower pools so the near-field band (y~700 in R04, flat at 88-95 today) shows at least a 12% lateral swing; grade the sky from dusk orange to night blue-black; put the replay focus plane on the tagged carrier; spread angle-dependent tower reflections across the wet turf so sheen shows in the gameplay frame (WS5 part).",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-toast-hierarchy",
+    "category": "typography",
+    "expectedGain": 0.2,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R12",
+      "high/desktop/R21"
+    ],
+    "benchmark": "madden26-3",
+    "fix": "Raise the desktop toast's primary line to about 28-30 px cap height and give the toast a solid, unfaded backing so 3D figures don't show through its edges and rules.",
+    "priority": 0.2,
+    "selected": true
+  },
+  {
+    "id": "G-locomotion-weight",
+    "category": "animation",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "L",
+    "workstream": "WS4",
+    "evidence": [
+      "strips/high/R11",
+      "strips/high/R07",
+      "strips/high/R10"
+    ],
+    "benchmark": "madden26-4",
+    "fix": "Plant the outside foot one tick before a cut, add hip and shoulder rotation through the throw, vary blocking reactions instead of identical crouches, and desynchronise celebration poses.",
+    "priority": 0.188,
+    "selected": false
+  },
+  {
+    "id": "G-kick-ribbon-chalk",
+    "category": "lighting",
+    "expectedGain": 0.1,
+    "severity": 1,
+    "effort": "S",
+    "workstream": "WS1",
+    "evidence": [
+      "high/desktop/R02",
+      "high/desktop/R17"
+    ],
+    "fix": "Make the kick ribbon additive and emissive with tapered alpha, and lift it off the ground plane so it doesn't read as a painted line in the top-down kickoff view.",
+    "priority": 0.15,
+    "selected": false
+  },
+  {
+    "id": "G-phone-frame-pacing",
+    "category": "mobile",
+    "expectedGain": 0.1,
+    "severity": 1,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "medium/mobile/R10",
+      "medium/mobile/R04"
+    ],
+    "fix": "Make phones auto-select Medium; re-run the 4x throttle proxy on an unloaded machine and confirm Medium's worst p95 is at most 33 ms (42 ms today). High's 13 fps is not the phone tier.",
+    "priority": 0.15,
+    "selected": false
+  },
+  {
+    "id": "G-venue-dressing",
+    "category": "authenticity",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "L",
+    "workstream": "WS2",
+    "evidence": [
+      "high/desktop/R01",
+      "high/desktop/R15",
+      "high/desktop/R13"
+    ],
+    "benchmark": "cfb26-2",
+    "fix": "First (S): vary sideline pose, facing, idle phase and spacing, and add helmets-off players. Then: a band block, a student section in a distinct shirt colour, a visitor bleacher and press box at Reese, a track ring, and chain-link fencing in place of black slabs and cone trees.",
+    "priority": 0.125,
+    "selected": false
+  }
+]

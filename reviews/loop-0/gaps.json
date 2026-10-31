@@ -1,0 +1,207 @@
+[
+  {
+    "id": "G-type-system",
+    "category": "typography",
+    "expectedGain": 0.75,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "legacy/desktop/R14",
+      "legacy/desktop/R20",
+      "legacy/desktop/R16"
+    ],
+    "benchmark": "madden26-3",
+    "fix": "Condensed display face for all banners, sans for body/log, remove the Courier-style mono (key chips and timestamps in the sans with tabular-nums), 12 px minimum. Test: R14/R21/R15 render exactly 2 font families and no text under 12 px.",
+    "priority": 1.125,
+    "selected": true
+  },
+  {
+    "id": "G-cast-shadows-bloom",
+    "category": "lighting",
+    "expectedGain": 1.25,
+    "severity": 5,
+    "effort": "M",
+    "workstream": "WS1",
+    "evidence": [
+      "legacy/desktop/R02",
+      "legacy/desktop/R01",
+      "legacy/desktop/R20"
+    ],
+    "benchmark": "cfb26-3",
+    "fix": "Shadow maps from 2 tower lights so each player in R02 shows 2 soft shadows in distinct directions plus a contact core; restrained UnrealBloom (lamp heads and lines only); a second light zone for the stands so the R01/R17 bowl shows seat rows instead of near-black.",
+    "priority": 0.938,
+    "selected": true
+  },
+  {
+    "id": "G-camera-framing",
+    "category": "mobile",
+    "expectedGain": 1,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "legacy/mobile/R04",
+      "legacy/mobile/R08",
+      "legacy/desktop/R10"
+    ],
+    "benchmark": "retrobowl-1",
+    "fix": "Lower/tighten the live camera to a median player height of >=60 px desktop and >=40 CSS px at 390 px portrait; sky/stadium <=15% of the portrait frame; cap and offset nameplates above heads; author a landscape layout and add a landscape capture.",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-helmet-gloss-rim",
+    "category": "art",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "S",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/legacy/R14-carrier",
+      "crops/legacy/R04-slot_QB"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Clamp the fresnel rim term to <=15% of albedo; helmet material roughness <=0.25 (clearcoat if Physical) with a lamp highlight; jersey roughness >=0.8. Test: R04-slot_QB helmet shows a specular highlight and shoulders keep team color.",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-decal-ball-fixes",
+    "category": "art",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/legacy/R06-slot_C",
+      "crops/legacy/R04-slot_C",
+      "crops/legacy/R12-carrier"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Fix chest/shoulder decal UV winding and bake numbers into the jersey texture (no patch quad); regulation-size ball (~0.28 m) in close and replay cameras, enlargement only at the broadcast camera. Test: 63 and 92 read correctly in R06-slot_C; ball shorter than a forearm in R04-slot_C.",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-play-markers",
+    "category": "readability",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "crops/legacy/R11-carrier",
+      "crops/legacy/R18-turf_26_67_40",
+      "strips/legacy/R13"
+    ],
+    "benchmark": "legendbowl-2",
+    "fix": "Update the carrier ring from the carrier's root every render frame (center within 0.3 m of pelvis); keep ring and plate in replays; short light trail on the ball in flight. Test: ring contains the carrier's feet in every R10/R11 strip frame; R13 strip shows the plate.",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-ball-hand-throw-catch",
+    "category": "animation",
+    "expectedGain": 0.75,
+    "severity": 5,
+    "effort": "M",
+    "workstream": "WS4",
+    "evidence": [
+      "crops/legacy/R07-slot_QB",
+      "crops/legacy/R04-slot_C",
+      "strips/legacy/R07",
+      "strips/legacy/R09"
+    ],
+    "benchmark": "madden26-4",
+    "fix": "Bind the ball to a hand socket for snap grip, QB hold through the drop, throw and catch; keyed set/wind-up/release/follow-through poses; catch reach and secure; planted lean on cuts; at least 3 touchdown celebration poses. Test: ball within 0.15 m of a hand in R07-slot_QB; close QB strip shows wind-up and release.",
+    "priority": 0.563,
+    "selected": false
+  },
+  {
+    "id": "G-ui-panel-hygiene",
+    "category": "ui",
+    "expectedGain": 0.75,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "legacy/desktop/R01",
+      "legacy/desktop/R12",
+      "legacy/desktop/R05",
+      "legacy/desktop/R22"
+    ],
+    "benchmark": "madden26-1",
+    "fix": "Collapse the sidebar during kickoff/punt (full-width field) or fill it with a drive summary; show the result only in the field banner; one assignment glyph per defender with no overlap in the defense diagram; fit 10 plays in two columns or show a visible scroll affordance.",
+    "priority": 0.563,
+    "selected": false
+  },
+  {
+    "id": "G-hs-staging",
+    "category": "authenticity",
+    "expectedGain": 0.75,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS2",
+    "evidence": [
+      "legacy/desktop/R01",
+      "legacy/desktop/R02",
+      "crops/legacy/R01-crowd"
+    ],
+    "benchmark": "cfb26-2",
+    "fix": "Full running-track ring with lane lines; uniformed band block and school-color student section at the home 50; 6-8 cheerleaders on the track and a chain crew; aim the kickoff/punt camera so the home grandstand fills the upper third.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-tackle-contact-falls",
+    "category": "animation",
+    "expectedGain": 1,
+    "severity": 5,
+    "effort": "L",
+    "workstream": "WS4b",
+    "evidence": [
+      "crops/legacy/R13-carrier",
+      "strips/legacy/R10",
+      "crops/legacy/R12-carrier"
+    ],
+    "benchmark": "cfb26-4",
+    "fix": "Paired wrap pose at contact; 3-5 frame fall via ragdoll/physics blend with turf collision (no vertex below y=0) and capsule separation between bodies; ball stays in the carrier's arm through settle. Test: R10 strip shows >=2 falling frames before NO GAIN; R12-carrier has no interpenetration or floating ball.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-player-mesh",
+    "category": "art",
+    "expectedGain": 1,
+    "severity": 5,
+    "effort": "L",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/legacy/R04-slot_QB",
+      "crops/legacy/R03-slot_QB",
+      "crops/legacy/R16-slot_K"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Continuous skinned body (6-10k tris) with gloves, cleats, shoulder-pad shell and modelled facemask; 3 body types (line, skill, QB/K); MeshStandard jersey with fold normal map; helmet stripe flattened onto the shell. Test: no segment seams at shoulders, elbows or knees in R04-slot_QB.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-crowd-figures",
+    "category": "art",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS2",
+    "evidence": [
+      "crops/legacy/R01-crowd",
+      "crops/legacy/R13-carrier",
+      "legacy/desktop/R15"
+    ],
+    "benchmark": "cfb26-1",
+    "fix": "Instanced low-poly or impostor people (head/torso/arms silhouette, skin-tone variety, 4+ poses) in place of box figures; bleacher rows, aisles and railings; textured tree cards in place of black cones. Test: individual heads and shoulders read in R01-crowd.",
+    "priority": 0.375,
+    "selected": false
+  }
+]

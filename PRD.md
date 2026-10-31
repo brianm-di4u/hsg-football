@@ -256,7 +256,7 @@ season, settings and challenge marks. The game works when `localStorage` throws,
   throwing by tap work with real touch input.
 - **AC39** Autosave and Continue restore the exact game situation and season; with `localStorage`
   throwing, the game plays and says saving is unavailable.
-- **AC40** A single `index.html`, zero network requests, zero console errors.
+- **AC40** A single `index.html`, fully playable offline at the Low quality tier, with zero network requests and zero console errors. Optional Medium/High asset packs ship beside it as classic scripts in `assets/pack-*.js`: same folder, loaded lazily, `file://`-safe, never required (amended for the v3 visual tiers, VISUAL-PLAN-2.md). Painted art in `assets/*.webp` keeps its vector fallbacks.
 - **AC41** Performance meets §10.
 - **AC42** A Node balance tool shows plausible outcomes: run average 3–6 yd, completion 50–70%,
   sack 3–10%, INT 1.5–5%. AI-vs-AI games average 14–40 points per team at 12-minute quarters

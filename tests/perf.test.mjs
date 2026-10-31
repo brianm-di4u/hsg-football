@@ -16,7 +16,7 @@ export const tests = [
       t.log(`index.html ${kb.toFixed(1)} KB, loadMs ${t.loadMs}`);
       // v2 adds the 3D view: three.js (tree-shaken, ~555 KB) and the Blender meshes (~180 KB) inline
       t.expect(kb < 2048, 'HTML ≤ 2 MB');
-      t.expect(kb < 1300, 'HTML under the 1.3 MB target');
+      t.expect(kb < 1450, `HTML under the 1.45 MB target (${kb.toFixed(0)} KB; tier code, VISUAL-PLAN-2.md budgets)`);
       t.expect(t.loadMs === undefined || t.loadMs < 2000, 'interactive ≤ 2 s');
       const html = fs.readFileSync(file, 'utf8');
       t.expect(!/<script[^>]+src=/.test(html) && !/<link[^>]+href=/.test(html), 'no external scripts or styles');

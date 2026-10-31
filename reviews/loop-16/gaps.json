@@ -1,0 +1,199 @@
+[
+  {
+    "id": "G-presnap-backdrop-share",
+    "category": "readability",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R04",
+      "high/desktop/R05"
+    ],
+    "benchmark": "axis-1",
+    "fix": "Tighten the desktop pre-snap camera so backdrop is at most 25% of the 3D view and the QB is at least 60 px tall at 1280x800.",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-contact-feel",
+    "category": "animation",
+    "expectedGain": 1,
+    "severity": 5,
+    "effort": "L",
+    "workstream": "WS4b",
+    "evidence": [
+      "strips/high/R10",
+      "crops/high/R12-carrier",
+      "strips/high/R09",
+      "strips/high/R11"
+    ],
+    "benchmark": "cfb26-4",
+    "fix": "Add a 0.3-0.5 s punch-in or 0.5x slow motion plus turf particles at tackle contact; collision capsules so grounded bodies never interpenetrate in piles; a catch secure beat (ball to chest, arms closing, at least 6 ticks before the result toast); lateral pelvis and torso bank into sweep cuts.",
+    "priority": 0.375,
+    "selected": true
+  },
+  {
+    "id": "G-mobile-figure-size",
+    "category": "mobile",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "medium/mobile/R04",
+      "medium/mobile/R12",
+      "medium/mobile/R22"
+    ],
+    "benchmark": "retrobowl-1",
+    "fix": "Aim the portrait pre-snap so the LOS sits at about 65% of 3D height and the empty downfield half is cropped; scale portrait figures about 1.2x (linemen at least 28 CSS px); add a scroll cue to the play list; compact the results stack to at most 25% of the screen.",
+    "priority": 0.375,
+    "selected": true
+  },
+  {
+    "id": "G-close-up-figure-defects",
+    "category": "art",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R04-slot_C",
+      "crops/high/R06-slot_C-side",
+      "crops/high/R12-carrier",
+      "crops/high/R04-slot_QB"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Corrective shape or hip weights so crouched pants keep their silhouette; basic facial features on officials; a glove material distinct from the arm; rounder elbow topology; trim seat and pad proportions.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-empty-surround",
+    "category": "art",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS2",
+    "evidence": [
+      "high/desktop/R17",
+      "high/desktop/R14",
+      "strips/high/R13"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Replace the flat curved olive wall with built venue: chain-link fence and track edge, visitor bleachers, end-zone signage, a lit facade under the stands, and a light gradient from field to walls.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-blitz-panel-knot",
+    "category": "ui",
+    "expectedGain": 0.25,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R05"
+    ],
+    "benchmark": "madden26-2",
+    "fix": "Draw the side-panel defense from the same per-rusher gap targets as the field so arrows fan outward and none ends on the QB; keep at least 14 px between X glyphs.",
+    "priority": 0.375,
+    "selected": true
+  },
+  {
+    "id": "G-sidebar-width-jump",
+    "category": "ui",
+    "expectedGain": 0.25,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R04",
+      "high/desktop/R14"
+    ],
+    "fix": "Use one sidebar width across all play phases so the 3D view stays the same width (now 920 vs 1030 px).",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-glare-and-blowout",
+    "category": "lighting",
+    "expectedGain": 0.25,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS1",
+    "evidence": [
+      "high/desktop/R05",
+      "crops/high/R06-slot_C-side"
+    ],
+    "benchmark": "cfb26-3",
+    "fix": "Clamp or occlude the left-sideline haze sprite so field pixels inside the boundary stay under about 85% luminance, and cap the facemask specular. No R18 pool fix is needed.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-near-camera-official",
+    "category": "readability",
+    "expectedGain": 0.25,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R18",
+      "high/desktop/R10"
+    ],
+    "benchmark": "madden26-1",
+    "fix": "Fade or cull officials within about 8 m of the camera during live plays and replays.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-gameday-staging",
+    "category": "authenticity",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS2",
+    "evidence": [
+      "crops/high/R01-crowd",
+      "high/desktop/R01",
+      "high/desktop/R20"
+    ],
+    "benchmark": "cfb26-2",
+    "fix": "Add a uniformed band block, a cheer line on the track and a student section in a distinct colour to the home stand, and populate the visitor stand.",
+    "priority": 0.25,
+    "selected": false
+  },
+  {
+    "id": "G-toast-occlusion",
+    "category": "ui",
+    "expectedGain": 0.15,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R12",
+      "high/desktop/R14"
+    ],
+    "benchmark": "madden26-3",
+    "fix": "Raise the desktop result toast into the top band or re-aim the camera so the toast covers no player or official.",
+    "priority": 0.225,
+    "selected": false
+  },
+  {
+    "id": "G-phone-perf-headroom",
+    "category": "mobile",
+    "expectedGain": 0.25,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "medium/mobile/R10",
+      "medium/mobile/R04"
+    ],
+    "benchmark": "retrobowl-1",
+    "fix": "Bring 4x-throttled medium/mobile p95 under 25 ms on an idle machine (crowd and tree LOD, trim medium triangles from about 440k toward 300k), publish the throttled rows in the brief, and never auto-select High on phones (26 fps at 4x).",
+    "priority": 0.188,
+    "selected": false
+  }
+]

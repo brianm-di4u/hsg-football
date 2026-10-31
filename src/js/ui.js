@@ -3,7 +3,7 @@ import { ALL, REAL, teamDef, onColor, rivalryText } from './data.js';
 import { PLAYS, DEFS, SPECIALS, BADGES, BADGE_NAMES, SLOTS, playById } from './plays.js';
 import { POSITIONS, depth, composite } from './roster.js';
 import * as L from './league.js';
-import { specialsFor, yardLine, fgDistance, playerOfGame, statLine, kickRange } from './rules.js';
+import { specialsFor, yardLine, fgDistance, playerOfGame, statLine, kickRange, shownClock } from './rules.js';
 import { starters } from './roster.js';
 import { DIFFICULTY } from './ai.js';
 import { canThrow } from './sim.js';
@@ -11,12 +11,20 @@ import { offenseArt, defenseArt } from './playart.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const ord = (n) => ['', '1st', '2nd', '3rd', '4th'][n] || `${n}th`;
-const clockStr = (s) => { s = Math.max(0, Math.ceil(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
 const mascot = (id, size, cls = '') => `<canvas class="mascot ${cls}" data-team="${id}" width="${size}" height="${size}" style="width:${size}px;height:${size}px" aria-hidden="true"></canvas>`;
 export const mascotTag = (id, size) => mascot(id, size);
 const btn = (act, label, opts = {}) => `<button class="btn ${opts.cls || ''}" data-act="${act}"${opts.id ? ` data-id="${esc(opts.id)}"` : ''}${opts.auto ? ' data-autofocus' : ''}${opts.disabled ? ' disabled' : ''}${opts.aria ? ` aria-label="${esc(opts.aria)}"` : ''}>${label}</button>`;
 const swatches = (t) => `<span class="sw" style="background:${t.colors.primary}"></span><span class="sw" style="background:${t.colors.secondary}"></span>`;
 export const titleYears = (t) => t.titles.length ? t.titles.map((y) => (t.titleNote[y] ? `${y} (${t.titleNote[y]})` : String(y))).join(', ') : 'none';
+
+// Desktop live panel (loop 9): the drive situation and the last few plays under the controls, instead of empty panel.
+// Phones hide it (styles). Static during the play: it only changes when the panel re-renders.
+function liveContext(g) {
+  const goal = g.ballOn + g.toGo >= 100;
+  const log = g.log.slice(-3).reverse().map((l) => `<li><span class="lq">Q${Math.min(4, l.q)} ${l.clock}</span> ${esc(l.text)}</li>`).join('');
+  return `<div class="live-ctx"><p class="lc-situ"><b>${ord(g.down)} &amp; ${goal ? 'goal' : g.toGo}</b> · ${yardLine(g.ballOn)}</p>
+    <p class="lc-mark">${goal ? 'Goal line' : `Line to gain: ${yardLine(g.ballOn + g.toGo)}`}</p>${log ? `<ul class="log">${log}</ul>` : ''}</div>`;
+}
 
 function teamCard(t, sel, act, extra = '') {
   const tags = [];
@@ -31,6 +39,8 @@ function teamCard(t, sel, act, extra = '') {
 }
 
 // ---------------------------------------------------------------- screens
+const NEXT_PHASE = { pat: 'Next: the try', kickoff: 'Next: kickoff', freeKick: 'Next: free kick', endQuarter: 'End of the quarter', otNext: 'Next: overtime possession', final: 'Final' };
+
 export function screenHTML(S) {
   switch (S.scene) {
     case 'title': return titleHTML(S);
@@ -241,7 +251,7 @@ function helpHTML(S) {
     <li><b>Invented:</b> the Spa City Cup league, its playoff and trophy, Rivalry Week, all play names, and the towns of Quartz Hollow, Tufa Ridge and Cinnabar Flats.</li>
     <li><b>Venues</b> are named only where confirmed (Joe C. Reese Stadium; Wolf Stadium in Pearcy); others are shown as a school's home field.</li>
     <li><b>Halftime facts</b> come from the collection's audited trivia bank, each with its source.</li>
-    <li>Art is procedural canvas drawing; sound is WebAudio synthesis. No network requests.</li></ul>`;
+    <li>3D: three.js (MIT) with models built in Blender; field, stadium and crowd art are procedural; painted key art; fonts Graduate and Oswald (OFL). Sound is WebAudio synthesis. No network requests.</li></ul>`;
   return `<div class="panel-screen">${S.helpFromGame ? btn('closeOverlay', '← Back to game', { cls: 'ghost back' }) : back()}<h2>How to Play</h2>
     <div class="seg tabs" role="tablist">${tabs.map(([k, l]) => `<button role="tab" aria-selected="${tab === k}" class="${tab === k ? 'on' : ''}" data-act="helpTab" data-id="${k}">${l}</button>`).join('')}</div>
     <div class="tab-body prose">${body}</div></div>`;
@@ -259,7 +269,7 @@ function settingsHTML(S) {
       ${segRow('Theme', 'set:theme', [['night', 'Night game'], ['day', 'Day game']], s.theme)}
       ${S.ui.has3d || S.force2d ? segRow('Field view', 'set:graphics', [['auto', '3D stadium'], ['2d', '2D classic']], S.force2d ? '2d' : s.graphics) : '<p class="small">Field view: 2D classic (this browser has no WebGL 2).</p>'}
       ${segRow('Weather', 'set:weather', [['auto', 'Varies'], ['clear', 'Clear'], ['mist', 'Mist'], ['rain', 'Rain']], s.weather)}
-      ${S.ui.has3d ? segRow('Graphics', 'set:quality', [['auto', 'Auto'], ['high', 'High'], ['low', 'Low']], s.quality) : ''}
+      ${S.ui.has3d ? segRow('Graphics', 'set:quality', [['auto', 'Auto'], ['high', 'High'], ['medium', 'Medium'], ['low', 'Low']], s.quality) : ''}
       ${segRow('Text size', 'set:textScale', [[1, '100%'], [1.15, '115%'], [1.3, '130%']], s.textScale)}
       ${segRow('Quarters', 'set:quarterMin', [[4, '4 min'], [8, '8 min'], [12, '12 min']], s.quarterMin)}
       ${segRow('Difficulty', 'set:difficulty', Object.entries(DIFFICULTY).map(([k, v]) => [k, v.label]), s.difficulty)}
@@ -379,7 +389,7 @@ export function scorebugHTML(S) {
       <span class="sb-to" aria-label="${g.timeouts[i]} timeouts left">${to}</span></div>`;
   };
   const q = g.phase === 'break' ? (g.breakKind === 'half' ? 'HALFTIME' : `END Q${g.quarter - 1}`) : g.quarter > 4 ? `OT${g.quarter > 5 ? g.quarter - 4 : ''}` : `Q${g.quarter}`;
-  const shown = g.ot || g.phase === 'break' ? '' : clockStr(Math.max(0, g.clock - (g.phase === 'call' ? g.runoff : 0)));
+  const shown = g.ot || g.phase === 'break' ? '' : shownClock(g);
   const running = g.phase === 'call' && g.runoff > 0 && !g.ot;
   const dd = g.phase === 'break' || g.phase === 'otStart' ? '' : g.phase === 'result' && g.lastResult && g.lastResult.kind === 'td' ? 'Touchdown' : g.twoPoint ? 'Two-point try' : ['pat', 'kick'].includes(g.phase) && g.kick && g.kick.kind === 'pat' || g.phase === 'pat' ? 'Try' :
     ['kickoff'].includes(g.phase) ? (g.kickAnim && g.kickAnim.kind === 'punt' ? 'Punt' : g.kickAnim && g.kickAnim.kind === 'free' ? 'Free kick' : 'Kickoff') : `${ord(g.down)} & ${g.ballOn + g.toGo >= 100 ? 'goal' : g.toGo} · ${yardLine(g.ballOn)}`;
@@ -393,7 +403,7 @@ export function panelHTML(S) {
   const userOff = g.user !== null && g.poss === g.user;
   const T = teamDef(g.teams[g.poss].id);
   const situ = `${ord(g.down)} & ${g.ballOn + g.toGo >= 100 ? 'goal' : g.toGo} at the ${yardLine(g.ballOn)}`;
-  const toBtn = g.runoff > 0 && !g.ot && g.timeouts[g.user] > 0 ? btn('timeout', `Timeout (T) · ${g.timeouts[g.user]} left`, { cls: 'small-btn' }) : '';
+  const toBtn = g.runoff > 0 && !g.ot && g.timeouts[g.user] > 0 ? btn('timeout', `Timeout<span class="kb-only"> (T)</span> · ${g.timeouts[g.user]} left`, { cls: 'small-btn' }) : '';
   switch (g.phase) {
     case 'call': {
       const willEnd = g.runoff > 0 && !g.ot && g.clock - g.runoff <= 0;
@@ -406,7 +416,7 @@ export function panelHTML(S) {
           return `<button class="card special" data-act="call" data-id="${id}" aria-label="${p.name}${extra}, key ${key}"><span class="k">${key}</span><span class="nm">${p.name}${extra}</span><span class="ds">${p.desc}</span></button>`;
         }).join('');
         const cards = PLAYS.map((p, i) => `<button class="card play art" data-act="call" data-id="${p.id}"${i === 0 && !sp.length ? ' data-autofocus' : ''} aria-label="${p.name}, ${p.type}, key ${p.key}"><span class="art-box">${offenseArt(p.id)}<span class="k">${p.key}</span></span><span class="nm">${p.name}</span><span class="ty ${p.type}">${p.type === 'run' ? 'RUN' : 'PASS'}</span><span class="ds">${p.desc}</span></button>`).join('');
-        return `<div class="ph"><h2>${g.twoPoint ? 'Two-point try: call a play' : `Your ball: ${situ}`}</h2>${toBtn}</div>${warn}<div class="cards">${spc}${cards}</div>`;
+        return `<div class="ph"><h2>${g.twoPoint ? 'Two-point try: call a play' : `<span class="ph-lead">Your ball: </span>${situ}`}</h2>${toBtn}</div>${warn}<div class="cards">${spc}${cards}</div>`;
       }
       const cards = DEFS.map((d, i) => `<button class="card def art" data-act="defCall" data-id="${d.id}"${i === 0 ? ' data-autofocus' : ''} aria-label="${d.name}, strong versus ${d.vs}, key ${d.key}"><span class="art-box">${defenseArt(d.id)}<span class="k">${d.key}</span></span><span class="nm">${d.name}</span><span class="ty">vs ${d.vs}</span><span class="ds">${d.desc}</span></button>`).join('');
       return `<div class="ph"><h2>Defense: ${esc(T.short)} has it, ${situ}</h2>${toBtn}</div>${warn}<div class="cards">${cards}</div>`;
@@ -433,14 +443,17 @@ export function panelHTML(S) {
         const canJuke = P.ball.st === 'held' && (c.slot !== 'QB' || P.handed || P.scramble) && c.side === 'O';
         return `<div class="live-bar"><div class="ph"><h2>${esc(pd.name)}</h2></div><div class="art-big live-art">${offenseArt(pd.id)}</div>${recv ? `<div class="rcvs" role="group" aria-label="Receivers">${recv}</div>` : ''}
           ${btn('juke', 'JUKE <kbd>J</kbd>', { cls: 'juke', disabled: !canJuke })}
-          <p class="hint">${pd.type === 'pass' && !P.thrown ? 'Tap an open receiver<span class="kb-only">, or press his number</span>.' : 'Steer <span class="kb-only">with arrows/WASD or </span>by dragging on the field.'}</p></div>`;
+          <p class="hint">${pd.type === 'pass' && !P.thrown ? 'Tap an open receiver<span class="kb-only">, or press his number</span>.' : 'Steer <span class="kb-only">with arrows/WASD or </span>by dragging on the field.'}</p>${liveContext(g)}</div>`;
       }
       if (P.intRet) return `<div class="live-bar">${btn('juke', 'JUKE <kbd>J</kbd>', { cls: 'juke' })}<p class="hint">Interception! Steer the return.</p></div>`;
       return `<div class="live-bar"><div class="ph"><h2>Your defense: ${esc(DEFS.find((d) => d.id === g.defCall).name)}</h2><p class="sub">${esc(T.short)} runs ${esc(playById(g.offCall).name)}</p></div></div>`;
     }
     case 'result': {
       const log = g.log.slice(-4).reverse().map((l) => `<li><span class="lq">Q${Math.min(4, l.q)} ${l.clock}</span> ${esc(l.text)}</li>`).join('');
-      return `<div class="ph"><h2>${esc(g.lastResult ? g.lastResult.text : '')}</h2>${toBtn}</div>
+      // the field banner already carries the result: the panel says what comes next
+      // loop 16: the toast already says TOUCHDOWN / GOOD, so scores name the next phase too
+      const next = !g.lastResult ? '' : NEXT_PHASE[g.next] || `Next: ${ord(g.down)} & ${g.ballOn + g.toGo >= 100 ? 'goal' : g.toGo} · ${yardLine(g.ballOn)}`;
+      return `<div class="ph"><h2>${next}</h2>${toBtn}</div>
         <div class="actions">${btn('cont', 'Continue ▶ <kbd>Space</kbd>', { cls: 'primary', auto: true })}${S.ui.canReplay ? btn('replay', S.ui.replaying ? 'Replaying…' : 'Replay <kbd>R</kbd>', { disabled: !!S.ui.replaying }) : ''}</div><ul class="log">${log}</ul>`;
     }
     case 'pat': {
@@ -450,14 +463,15 @@ export function panelHTML(S) {
         <button class="card special" data-act="pat" data-id="two" aria-label="Go for two points, key 2"><span class="k">2</span><span class="nm">Go for 2</span><span class="ds">One play from the 3</span></button></div>`;
     }
     case 'kick': {
-      if (g.kick && g.kick.user && !S.settings.autoKick) return `<div class="ph"><h2>${g.kick.kind === 'pat' ? 'Kick the try' : `Field goal: ${g.kick.dist} yd`}</h2><p class="sub">Stop the needle in the green.</p></div>
+      if (g.kick && g.kick.user && !S.settings.autoKick) return `<div class="ph"><h2>${g.kick.kind === 'pat' ? 'Your try' : 'Your kick'}</h2></div>
         <div class="actions big">${btn('kick', 'KICK <kbd>Space</kbd>', { cls: 'primary huge', auto: true })}</div>`;
       return `<div class="ph"><h2>${g.kick && g.kick.kind === 'pat' ? 'The try…' : 'Field goal attempt…'}</h2></div>`;
     }
     case 'kickoff': case 'kickfly': {
       const k = g.kickAnim;
       const lbl = !k ? '' : k.kind === 'punt' ? 'Punt' : k.kind === 'free' ? 'Free kick' : k.kind === 'kickoff' ? 'Kickoff' : k.kind === 'pat' ? 'The try is up…' : 'The kick is up…';
-      return `<div class="ph"><h2>${lbl}</h2></div><div class="actions">${btn('skipAnim', 'Skip ▶', { auto: true })}</div>`;
+      const klog = g.log.slice(-3).reverse().map((l) => `<li><span class="lq">Q${Math.min(4, l.q)} ${l.clock}</span> ${esc(l.text)}</li>`).join('');
+      return `<div class="ph"><h2>${lbl}</h2><p class="sub">${esc(teamDef(g.teams[k && k.kicking !== undefined ? k.kicking : g.poss].id).short)} kicking</p></div><div class="actions">${btn('skipAnim', 'Skip ▶', { auto: true })}</div>${klog ? `<ul class="log">${klog}</ul>` : ''}`;
     }
     default: return '';
   }

@@ -1,0 +1,212 @@
+[
+  {
+    "id": "G-regression-readability",
+    "category": "readability",
+    "expectedGain": 0.5,
+    "severity": 5,
+    "effort": "S",
+    "workstream": "WS7",
+    "fix": "Find and undo what lowered readability since loop 10",
+    "priority": 99,
+    "selected": true
+  },
+  {
+    "id": "G-regression-mobile",
+    "category": "mobile",
+    "expectedGain": 0.5,
+    "severity": 5,
+    "effort": "S",
+    "workstream": "WS7",
+    "fix": "Find and undo what lowered mobile since loop 10",
+    "priority": 99,
+    "selected": true
+  },
+  {
+    "id": "G-toast-occludes-play",
+    "category": "ui",
+    "expectedGain": 0.4,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R16",
+      "high/desktop/R12",
+      "strips/high/R10",
+      "medium/landscape/R12"
+    ],
+    "benchmark": "madden26-3",
+    "fix": "Move the FG meter into a bar in the bottom 80 px below the kicker's feet (or top-left under the scorebug); frame the desktop result camera so the ball spot sits at or above 55% of canvas height and no player's box intersects the toast rect; give the landscape toast a solid rounded backing at most 18% of field height. Test: no player pixel under an overlay in R12, R16 and R10 frames 6-8.",
+    "priority": 0.6,
+    "selected": true
+  },
+  {
+    "id": "G-badge-detached",
+    "category": "readability",
+    "expectedGain": 0.4,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R04",
+      "medium/mobile/R04"
+    ],
+    "benchmark": "axis-1",
+    "fix": "Cap the badge offset at one helmet height above the owner's head and draw a 1 px tether to the helmet (or put the shape in a ground ring under the receiver). Test: in R04 on every viewport, each badge's nearest player is its owner.",
+    "priority": 0.6,
+    "selected": true
+  },
+  {
+    "id": "G-phone-framing",
+    "category": "mobile",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "medium/mobile/R21",
+      "medium/mobile/R04",
+      "medium/landscape/R12"
+    ],
+    "benchmark": "retrobowl-1",
+    "fix": "Centre the portrait result camera on the ball spot with about 8 yd of backfield visible above the toast; in portrait pre-snap put the LOS at about 45% of field-view height and trim the empty downfield turf so all five receivers fit; narrow the landscape live panel to about 200 px (keep JUKE); add a scroll cue to the portrait play-call grid.",
+    "priority": 0.375,
+    "selected": true
+  },
+  {
+    "id": "G-light-pools-and-falloff",
+    "category": "lighting",
+    "expectedGain": 0.4,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS1",
+    "evidence": [
+      "high/desktop/R17",
+      "high/desktop/R04",
+      "high/desktop/R14",
+      "high/desktop/R01"
+    ],
+    "benchmark": "cfb26-3",
+    "fix": "Strengthen the per-tower pools to about 20% luminance variation between pool centres and the gaps; light the near faces of stands and end-zone structures, falling to dark above; drop the sky band about 1 stop and desaturate the orange; vary wet-turf roughness so the rain specular streaks rather than forming one blob.",
+    "priority": 0.3,
+    "selected": true
+  },
+  {
+    "id": "G-panel-dead-space",
+    "category": "ui",
+    "expectedGain": 0.2,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R05",
+      "high/desktop/R16"
+    ],
+    "benchmark": "axis-1",
+    "fix": "Show the drive log (as on R14) or a down-and-distance and field-position card under the controls on defensive pre-snap and kicks, or collapse the panel to its content height.",
+    "priority": 0.3,
+    "selected": false
+  },
+  {
+    "id": "G-defense-presnap-id",
+    "category": "ui",
+    "expectedGain": 0.2,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R05"
+    ],
+    "benchmark": "madden26-2",
+    "fix": "Draw a ground ring and shape badge under the user-controlled defender and translucent zone-drop shapes on the turf pre-snap, in the same style as the offensive route art.",
+    "priority": 0.3,
+    "selected": false
+  },
+  {
+    "id": "G-contact-weight",
+    "category": "animation",
+    "expectedGain": 0.75,
+    "severity": 4,
+    "effort": "L",
+    "workstream": "WS4b",
+    "evidence": [
+      "crops/high/R07-slot_QB",
+      "strips/high/R07",
+      "strips/high/R13",
+      "crops/high/R12-carrier"
+    ],
+    "benchmark": "cfb26-4",
+    "fix": "Pass pro: pair each OL with a rusher (kick-slide, both arms into the chest plate, pads about 15 deg forward; the DL leans and shuffles, with bull/swim/rip variants). Tackles: shoulder meets the carrier's hip or torso, both arms wrap for 0.15 s before the existing recoil and drop, and the tackler's legs drive 2-3 steps. Enforce a minimum capsule separation between downed bodies.",
+    "priority": 0.281,
+    "selected": false
+  },
+  {
+    "id": "G-run-block-weight",
+    "category": "animation",
+    "expectedGain": 0.3,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS4",
+    "evidence": [
+      "strips/high/R10",
+      "strips/high/R11",
+      "crops/high/R06-slot_DL2-side",
+      "high/desktop/R15"
+    ],
+    "benchmark": "madden26-4",
+    "fix": "Per-player stance offsets (width +/-15%, head angle, stagger) with the down hand planted on the turf; staggered run-block bases with planted feet and an outside-foot plant before cuts; bench idle variants with uneven spacing.",
+    "priority": 0.225,
+    "selected": false
+  },
+  {
+    "id": "G-player-anatomy",
+    "category": "art",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "L",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R12-carrier",
+      "crops/high/R04-slot_QB",
+      "crops/high/R06-slot_C-side",
+      "crops/high/R14-carrier"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Pants roughness about 0.85 with a weave normal map; jersey fold/wrinkle normals at the waist and armpits; more segments or smoothed normals on the shoulder pads; extra edge loops or weights at the torso bend; move officials onto the player rig with split-finger hands (player gloves already have fingers).",
+    "priority": 0.188,
+    "selected": false
+  },
+  {
+    "id": "G-qb-windup-legibility",
+    "category": "animation",
+    "expectedGain": 0.1,
+    "severity": 1,
+    "effort": "S",
+    "workstream": "WS4",
+    "evidence": [
+      "high/desktop/R07",
+      "crops/high/R07-slot_QB"
+    ],
+    "benchmark": "axis-3",
+    "fix": "The cocked-ball pose exists; raise the QB to about 65-70% of frame height during the drop so it reads at frame scale.",
+    "priority": 0.15,
+    "selected": false
+  },
+  {
+    "id": "G-venue-life",
+    "category": "authenticity",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "L",
+    "workstream": "WS2",
+    "evidence": [
+      "high/desktop/R14",
+      "high/desktop/R15",
+      "high/desktop/R20",
+      "crops/high/R01-crowd"
+    ],
+    "benchmark": "cfb26-1",
+    "fix": "Seat a uniformed band block with instrument silhouettes and a matching-shirt student section with signs at one end of the home stand; put cheerleaders and a chain crew on the track; dress the Hot Springs end zones with a lit fieldhouse or fence and banners (like the R03 building); replace the cone trees with layered tree cards.",
+    "priority": 0.125,
+    "selected": false
+  }
+]

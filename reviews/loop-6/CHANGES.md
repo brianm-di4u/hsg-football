@@ -1,0 +1,22 @@
+Changes since loop 5 (facts only). Score **High** on desktop. Medium is the phone and mid tier. Low is the v2 look, captured to catch regressions.
+
+- **Phone, portrait, pre-snap and pass.** The pre-snap and quarterback-hold cameras on a portrait phone look down more steeply (about 46°) with a narrower lens and a smaller lens shift. The far stands, sky and scoreboard take about a tenth of the field view.
+  - Formation width still fits the outside receivers.
+  - Receiver badges are clamped inside the screen edge.
+- **Phone, after the play.** In the result phase the portrait camera centres on the ball, so the pile or huddle sits above the result band docked at the bottom of the field.
+- **Phone held sideways (844 × 390).** The side panel is 250 px wide, so the field gets about 70% of the width.
+  - The scorebug drops the "HOME" tag below 900 px wide, so all timeout dots fit.
+  - The pre-snap panel hides the play's one-line description, so HIKE and CHANGE PLAY both fit.
+  - Result and touchdown bands sit near the top of the field and are smaller: the touchdown headline is 1.8 rem, about a quarter of the field's height.
+- **Play list (desktop).** Play cards are more compact, so all ten fit in the panel at 1280 × 800. A long list fades out at the panel's bottom edge instead of cutting a card off.
+- **Secondary text.** Muted text (descriptions, log times, hints) is lighter: about 7:1 contrast on cards, up from 5.2:1. Card descriptions are at least 13 px, and result-band subtitles are larger.
+- **One game clock.** The scorebug, the stadium board and the play log all show the same time, rounded up to whole seconds. During the play call they include the coming run-off.
+- **Touch layouts.** The "(T)" keyboard hint is hidden on the timeout button on touch screens.
+- **Player model (Medium and High).**
+  - Sleeve openings are smoothed and set back onto their cut, so hems run straight.
+  - Hem stripes go all the way round the arm, with no wedges cut out by the sleeve number.
+  - Fingers are shorter, closer together and curled toward the palm.
+  - The mid detail level (seen at High in most frames) now has the facemask struts and clips that join the bars to the shell.
+- **Rain (Medium and High).** Wet turf is darker. Standing water forms in broad patches several yards across, the grass grain flattens, and the surface is glossier, so lamp light makes a soft sheen instead of glitter.
+- **Particles (all tiers).** Spray, dust and confetti particles are round, soft-edged sprites instead of squares.
+- **Unchanged since loop 5:** lighting rig, post chain, crowd, venue geometry, animation and motion, desktop camera framing, and the pants and seat silhouette.

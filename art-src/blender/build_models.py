@@ -88,7 +88,7 @@ def quad(name, c, w, h, normal_sign, model, bone, slot, up=False):
     if up:  # lying flat on the shoulder, readable from behind the player (+Y side)
         vs = [(c[0] - w / 2, c[1] - h / 2, c[2]), (c[0] + w / 2, c[1] - h / 2, c[2]), (c[0] + w / 2, c[1] + h / 2, c[2]), (c[0] - w / 2, c[1] + h / 2, c[2])]
         uvs = [(1, 1), (0, 1), (0, 0), (1, 0)]
-    elif normal_sign < 0:  # front
+    elif normal_sign < 0:  # front (verified in-game with tools/dev/number-check.mjs)
         vs = [(c[0] - w / 2, c[1], c[2] - h / 2), (c[0] + w / 2, c[1], c[2] - h / 2), (c[0] + w / 2, c[1], c[2] + h / 2), (c[0] - w / 2, c[1], c[2] + h / 2)]
         uvs = [(0, 0), (1, 0), (1, 1), (0, 1)]
     else:  # back, seen from +Y: left/right swap

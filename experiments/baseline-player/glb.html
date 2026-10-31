@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Baseline GLB Check</title>
+<link rel="icon" href="data:,">
+<!-- Checks models/hero.glb with the vendored GLTFLoader: bind pose next to the "reach for a catch" angles from
+     players3d.js Rig.pose (armL/armR x -2.5, z ±0.12, elbows -0.25) applied straight to the glTF joints.
+     Same night-stadium light as the showroom; the GLB carries flat preview colours, not the shader kits. -->
+<style>
+  html, body { margin: 0; height: 100%; background: #070b14; color: #e8ecf4; font: 14px system-ui, sans-serif; overflow: hidden; }
+  canvas { display: block; width: 100%; height: 100%; }
+  #info { position: fixed; left: 12px; top: 10px; }
+</style>
+<script type="importmap">{ "imports": { "three": "../../vendor/three/three.module.js", "three/addons/": "../../vendor/three/addons/" } }</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="info">hero.glb · loading…</div>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { clone } from 'three/addons/utils/SkeletonUtils.js';
+
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight, false);
+renderer.toneMapping = THREE.NeutralToneMapping; renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.enabled = true;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x070b14);
+const key = new THREE.DirectionalLight(0xf2f5ff, 3); key.position.set(-2.6, 6, 4.2); key.castShadow = true; key.shadow.mapSize.set(2048, 2048);
+Object.assign(key.shadow.camera, { left: -2.5, right: 2.5, top: 2.5, bottom: -0.5 });
+key.shadow.bias = -0.0002; key.shadow.normalBias = 0.02;
+scene.add(key, new THREE.DirectionalLight(0xc2d6ff, 1.4).translateX(1.5).translateY(4.5).translateZ(-5), new THREE.HemisphereLight(0x51627f, 0x0b160c, 0.9));
+const turf = new THREE.Mesh(new THREE.CircleGeometry(30, 48), new THREE.MeshStandardMaterial({ color: 0x1d4523, roughness: 0.95 }));
+turf.rotation.x = -Math.PI / 2; turf.receiveShadow = true; scene.add(turf);
+const camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 0.05, 100);
+camera.position.set(-1.6, 1.5, 5.2); camera.lookAt(0, 0.95, 0);
+
+const gltf = await new GLTFLoader().loadAsync('models/hero.glb');
+const rest = gltf.scene, posed = clone(gltf.scene);
+rest.position.x = -0.55; posed.position.x = 0.55;
+for (const s of [rest, posed]) { s.traverse((o) => { if (o.isMesh) o.castShadow = o.receiveShadow = true; }); scene.add(s); }
+const bone = (root, n) => root.getObjectByName(n);
+const restRot = ['pelvis', 'armL', 'foreL', 'head'].map((n) => bone(rest, n).quaternion.toArray().map((v) => +v.toFixed(4)));
+bone(posed, 'armL').rotation.set(-2.5, 0, 0.12); bone(posed, 'armR').rotation.set(-2.5, 0, -0.12);
+bone(posed, 'foreL').rotation.x = -0.25; bone(posed, 'foreR').rotation.x = -0.25;
+bone(posed, 'thighL').rotation.x = -0.6; bone(posed, 'shinL').rotation.x = 1.0;
+let tris = 0; rest.traverse((o) => { if (o.isMesh) tris += o.geometry.index.count / 3; });
+document.getElementById('info').textContent = `hero.glb · ${tris.toLocaleString('en-US')} tris · ${gltf.parser.json.skins[0].joints.length} joints · rest rotations ${JSON.stringify(restRot)} · left: bind pose, right: Rig.pose angles`;
+window.__glb = { ready: true, tris, restRot };
+renderer.render(scene, camera);
+</script>
+</body>
+</html>

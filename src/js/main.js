@@ -6,8 +6,8 @@ import * as AI from './ai.js';
 import * as L from './league.js';
 import { TICK, canThrow } from './sim.js';
 import { PLAYS, DEFS, SLOTS, playById } from './plays.js';
-import { view, resize, render, renderOverlay, proj, fieldToScreen, cameraTarget, stepCamera, receiverTargets, screenToField, agentAbs, ballAbs, kickDur, needleAt } from './field.js';
-import { F3, init3d, render3d, recordTick, clearFx3d, stepCamera3d, cameraSettled3d, project3d, fx3d, shake3d, snap3d, info3d, profile3d, canReplay, startReplay, stopReplay, replayDone, webglAvailable } from './field3d.js';
+import { view, resize, render, renderOverlay, proj, fieldToScreen, cameraTarget, stepCamera, receiverTargets, badgeSpots, screenToField, agentAbs, ballAbs, kickDur, needleAt } from './field.js';
+import { F3, init3d, render3d, recordTick, clearFx3d, stepCamera3d, cameraSettled3d, project3d, fx3d, shake3d, snap3d, info3d, profile3d, bbox3d, rigProbe3d, camLook3d, tierBusy, headScreen3d, canReplay, startReplay, stopReplay, replayDone, webglAvailable } from './field3d.js';
 import { mascotSprite, drawBackdrop, drawSplit, drawCup, makeConfetti, drawConfetti, clearArtCache } from './art.js';
 import { initAudio, sfx, audio, setVolume } from './audio.js';
 import * as UI from './ui.js';
@@ -109,7 +109,11 @@ function renderAll() {
     S.ui.canReplay = use3d() && S.game.phase === 'result' && canReplay();
     if (setHTML(els.scorebug, UI.scorebugHTML(S))) paintMascots(els.scorebug);
     const ph = UI.panelHTML(S);
-    setHTML(els.panel, ph);
+    // desktop: a slimmer panel while it holds little (kicks, live play, a touchdown, a replay), so the field takes the width (loops 10-11)
+    const g0 = S.game, slim = ['kickoff', 'kickfly', 'kick', 'live'].includes(g0.phase) || (g0.phase === 'result' && (S.ui.replaying || (g0.lastResult && g0.lastResult.kind === 'td')));
+    const slimChanged = els.game.classList.contains('slim') !== !!slim;
+    if (slimChanged) els.game.classList.toggle('slim', !!slim);
+    if (setHTML(els.panel, ph) || slimChanged || panelFitDirty) { panelFitDirty = false; fitPanel(); } // layout reads only when it changed
     const pk = `${S.game.phase}:${S.game.poss}:${S.game.down}:${S.game.plays}`;
     const lostP = !document.activeElement || document.activeElement === document.body || !document.activeElement.isConnected;
     if ((pk !== lastPanelKey || lostP) && !S.overlay) {
@@ -127,11 +131,12 @@ function renderAll() {
   if (S.scene === 'champion') drawChampion(performance.now());
 }
 
-function replayAct(at) {
+function replayAct(at, fromEnd) {
   const g = S.game;
   if (!g || g.phase !== 'result' || !use3d()) return false;
   if (!startReplay(performance.now())) return false;
-  if (at !== undefined && at !== null) F3.replay.frozen = at;
+  // negative (or fromEnd): seconds relative to the end, up to the 0.8 s the replay holds after the whistle
+  if (at !== undefined && at !== null) F3.replay.frozen = at < 0 || fromEnd ? Math.min(F3.replay.dur + 0.8, Math.max(0, F3.replay.dur + at)) : at;
   S.ui.replaying = true;
   renderToast(); renderAll(); wake();
   return true;
@@ -158,9 +163,10 @@ function drawField(now) {
   const on3d = use3d();
   if (els.field3d.hidden === on3d) { els.field3d.hidden = !on3d; els.field.classList.toggle('overlay2d', on3d); els.field.parentElement.classList.toggle('v3d', on3d); snap3d(); }
   proj.fn = on3d ? project3d : null;
+  proj.head = on3d ? headScreen3d : null;
   if (on3d) {
     const anim = render3d(S.game, S, now);
-    renderOverlay(ctx, S.game, S, now, { replay: !!F3.replay });
+    renderOverlay(ctx, S.game, S, now, { replay: !!F3.replay, replayPlay: F3.replay && F3.rec ? F3.rec.P : null, replayUser: F3.replay && F3.lastFrame ? F3.lastFrame.user : -1 });
     return anim;
   }
   render(ctx, S.game, S, now);
@@ -261,7 +267,7 @@ function drainEvents(g) {
   for (const e of P.ev.splice(0)) {
     if (e.k === 'hike') sfx('hike');
     else if (e.k === 'throw') sfx('click');
-    else if (e.k === 'catch') sfx('catch');
+    else if (e.k === 'catch') { sfx('catch'); if (!S.reduced) S.slowUntil = performance.now() + 380; } // a beat of slow motion on the catch (loop 13)
     else if (e.k === 'int') sfx('groan');
     else if (e.k === 'dead') {
       sfx('whistle');
@@ -306,7 +312,7 @@ function update(dt, now) {
     busy = true;
     if (!S.paused) {
       const userOff = g.play && g.play.offTeam === g.user;
-      const speed = S.settings.playSpeed * (userOff || g.play.intRet ? 1 : 1.5);
+      const speed = S.settings.playSpeed * (userOff || g.play.intRet ? 1 : 1.5) * (performance.now() < (S.slowUntil || 0) ? 0.35 : 1);
       acc += dt * speed;
       let n = Math.min(Math.floor(acc / TICK), 30);
       acc -= n * TICK;
@@ -780,11 +786,22 @@ function onPointerDown(e) {
   // tap a receiver to throw
   if (g.play && canThrow(g.play) && g.play.offTeam === g.user) {
     let best = null, bd = Math.max(26, view.ppy * 2.2);
-    for (const t of receiverTargets(g)) { const d = Math.hypot(t.x - px, t.y - py); if (d < bd) { bd = d; best = t; } }
+    for (const t of (use3d() ? badgeSpots(g) : receiverTargets(g))) { const d = Math.min(Math.hypot(t.x - px, t.y - py), t.bx === undefined ? 1e9 : Math.hypot(t.bx - px, t.by - py)); if (d < bd) { bd = d; best = t; } }
     if (best) { inp.throwSlot = best.slot; return; }
   }
   inp.drag = { x0: px, y0: py, dx: 0, dy: 0, active: false, id: e.pointerId };
   try { els.field.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointers */ }
+}
+// Loop 9 review (G-text-clipping): the play list's bottom fade only when the panel really scrolls, and a log never shows
+// an entry cut by the panel's bottom edge (whole entries only; the panel's own controls are never hidden).
+let panelFitDirty = true;
+function fitPanel() {
+  const p = els.panel;
+  for (const li of p.querySelectorAll('.log li')) li.hidden = false;
+  const bottom = p.getBoundingClientRect().bottom - parseFloat(getComputedStyle(p).paddingBottom || 0);
+  const lis = [...p.querySelectorAll('.log li')];
+  for (let i = lis.length - 1; i > 0 && lis[i].getBoundingClientRect().bottom > bottom + 1; i--) lis[i].hidden = true;
+  p.classList.toggle('scrolls', p.scrollHeight > p.clientHeight + 1);
 }
 function onPointerMove(e) {
   S.ptrMove = (S.ptrMove || 0) + 1;
@@ -851,7 +868,7 @@ function isIdle() {
   if (S.ui.transT > 0) return false;
   if (S.scene === 'champion') return S.reduced || S.frozen !== null || S.ui.confT >= 6;
   if (S.scene !== 'game' || !g || S.overlay) return true;
-  if (F3.artLoading && use3d()) return false;
+  if ((F3.artLoading || tierBusy()) && use3d()) return false;
   if (S.frozen !== null) return true;
   if (g.phase === 'live') return false;
   if ((g.phase === 'kickoff' || g.phase === 'kickfly') && g.kickAnim) return false;
@@ -907,6 +924,10 @@ const HOOKS = {
       if (gp.phase && gp.phase !== S.game.phase) Object.assign(S.game, { kickAnim: null, kick: null, pendingPunt: null, pendingKick: null, aiOff: null });
       deepMerge(S.game, gp);
       if (gp.phase && gp.phase !== 'pre' && gp.phase !== 'live') S.game.play = null;
+      if (gp.ballOn !== undefined && !gp.log) { // staged spot: end the log where the ball now is
+        const sg = S.game;
+        R.logLine(sg, `${teamDef(sg.teams[sg.poss].id).short} drive reaches the ${R.yardLine(sg.ballOn)}.`);
+      }
     }
     if (p.season && S.season) deepMerge(S.season, p.season);
     if (p.exhib) deepMerge(S.exhib, p.exhib);
@@ -1025,7 +1046,11 @@ const HOOKS = {
         onResultMaybe(); renderAll();
         return snapshot().game;
       }
-      case 'replay': return replayAct(a[0]);
+      case 'replay': return replayAct(a[0], a[1]);
+      case 'clock': { F3.clockMs = a[0] === null || a[0] === undefined ? null : a[0]; if (g && S.scene === 'game') drawField(performance.now()); return F3.clockMs; }
+      case 'bbox': return bbox3d(a[0]);
+      case 'rigProbe': return rigProbe3d(a[0]);
+      case 'camLook': { const ok = camLook3d(a[0], a[1], a[2], a[3]); if (g && S.scene === 'game') drawField(performance.now()); return ok; }
       case 'gfx': return info3d();
       case 'gfxProfile': return profile3d(a[0]);
       case 'save': return save();
@@ -1073,7 +1098,7 @@ function boot() {
   els.field.addEventListener('pointermove', onPointerMove);
   els.field.addEventListener('pointerup', onPointerUp);
   els.field.addEventListener('pointercancel', onPointerUp);
-  window.addEventListener('resize', () => { view.layerKey = ''; renderAll(); });
+  window.addEventListener('resize', () => { view.layerKey = ''; panelFitDirty = true; renderAll(); });
   if (window.matchMedia) { try { window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', () => { applySettings(); renderAll(); }); } catch (e) { /* old browsers */ } }
   window.__game = HOOKS;
   go('title');

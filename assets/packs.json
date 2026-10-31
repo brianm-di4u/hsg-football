@@ -1,0 +1,35 @@
+{
+  "crowd": {
+    "file": "assets/pack-crowd.js",
+    "v": 2,
+    "hash": "0b0a7561dfb27246",
+    "bytes": 371049,
+    "tiers": [
+      "medium",
+      "high"
+    ],
+    "deps": []
+  },
+  "players": {
+    "file": "assets/pack-players.js",
+    "v": 11,
+    "hash": "d64a7c4aa8bc9a8d",
+    "bytes": 2161905,
+    "tiers": [
+      "medium",
+      "high"
+    ],
+    "deps": []
+  },
+  "three-hi": {
+    "file": "assets/pack-three-hi.js",
+    "v": 2,
+    "hash": "f4584b13e867ef57",
+    "bytes": 264531,
+    "tiers": [
+      "medium",
+      "high"
+    ],
+    "deps": []
+  }
+}

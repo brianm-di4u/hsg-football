@@ -1,0 +1,210 @@
+[
+  {
+    "id": "G-regression-mobile",
+    "category": "mobile",
+    "expectedGain": 0.5,
+    "severity": 5,
+    "effort": "S",
+    "workstream": "WS7",
+    "fix": "Find and undo what lowered mobile since loop 4",
+    "priority": 99,
+    "selected": true
+  },
+  {
+    "id": "G-phone-bands-cover-play",
+    "category": "mobile",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/mobile/R12",
+      "high/mobile/R21",
+      "high/landscape/R14"
+    ],
+    "benchmark": "retrobowl-2",
+    "fix": "On phone viewports dock result/touchdown bands to the top edge of the field view or re-aim the post-play camera so the pile's screen y sits above the band's top edge; cap the landscape touchdown banner at 25% of field-view height. Test: carrier ring fully visible in mobile/R12, mobile/R21, landscape/R14.",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-type-clip-contrast",
+    "category": "typography",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R22",
+      "high/desktop/R03",
+      "high/desktop/R01",
+      "high/desktop/R21"
+    ],
+    "benchmark": "legendbowl-4",
+    "fix": "Play list gets a bottom fade and scroll cue, or compact cards so all 10 fit at 800 px; raise rail description, log and band-subtitle text to at least 4.5:1 contrast and at least 13 px. Test: no glyph cut at any container edge in R03/R22.",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-mesh-tears-gloves-facemask",
+    "category": "art",
+    "expectedGain": 0.4,
+    "severity": 4,
+    "effort": "S",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R06-slot_C-side",
+      "crops/high/R06-slot_LG",
+      "high/desktop/R14"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Weld/merge sleeve-hem and stripe geometry that breaks into sawteeth; shorten glove fingers and curl into a relaxed fist; seat the facemask on the shell with side clips.",
+    "priority": 0.6,
+    "selected": true
+  },
+  {
+    "id": "G-phone-framing",
+    "category": "mobile",
+    "expectedGain": 0.6,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "high/mobile/R04",
+      "high/landscape/R04"
+    ],
+    "benchmark": "retrobowl-1",
+    "fix": "Portrait pre-snap: pitch down so stadium/sky/scoreboard take at most 15% of the field view, clamp receiver icons inside a 24 px safe area, scale the formation about 1.3x. Landscape: collapse the rail to HIKE plus a mini diagram during live play so the field gets at least 70% of width.",
+    "priority": 0.45,
+    "selected": true
+  },
+  {
+    "id": "G-rain-surface",
+    "category": "lighting",
+    "expectedGain": 0.3,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS5",
+    "evidence": [
+      "high/desktop/R18",
+      "crops/high/R18-turf_26_67_40"
+    ],
+    "benchmark": "cfb26-3",
+    "fix": "In rain darken turf albedo about 20% and lower roughness so lamp reflections streak at gameplay distance; replace high-frequency sparkle noise with broad low-frequency puddle sheen; make square splash quads round soft-alpha sprites.",
+    "priority": 0.45,
+    "selected": true
+  },
+  {
+    "id": "G-hud-consistency",
+    "category": "ui",
+    "expectedGain": 0.3,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R12",
+      "high/landscape/R04",
+      "high/mobile/R12"
+    ],
+    "benchmark": "axis-1",
+    "fix": "Drive scorebug, stadium board and log clocks from one value (no 3:18 vs 3:17); fit timeout dots under 900 px by dropping the HOME tag; hide keyboard hints such as (T) and Space on touch devices.",
+    "priority": 0.45,
+    "selected": true
+  },
+  {
+    "id": "G-pants-silhouette",
+    "category": "art",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R04-slot_QB",
+      "crops/high/R10-carrier"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Cut glute/hip volume about 30% and taper into the thigh, add thigh and knee pad planes, re-weight the deep-stance seat, add OL/skill/QB body scales.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-establishing-shot",
+    "category": "authenticity",
+    "expectedGain": 0.3,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R01"
+    ],
+    "benchmark": "cfb26-1",
+    "fix": "Re-aim the R01 kickoff establishing camera to frame the lit home stands, crowd and scoreboard; keep the stadium board below the scorebug instead of under it.",
+    "priority": 0.3,
+    "selected": false
+  },
+  {
+    "id": "G-replay-smudge",
+    "category": "lighting",
+    "expectedGain": 0.2,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS1",
+    "evidence": [
+      "high/desktop/R13",
+      "strips/high/R13"
+    ],
+    "fix": "Remove or cull the near-camera occluder that draws the dark vertical bar at bottom centre of the sideline replay.",
+    "priority": 0.3,
+    "selected": false
+  },
+  {
+    "id": "G-tackle-catch-beats",
+    "category": "animation",
+    "expectedGain": 0.75,
+    "severity": 5,
+    "effort": "L",
+    "workstream": "WS4b",
+    "evidence": [
+      "strips/high/R13",
+      "strips/high/R09",
+      "crops/high/R12-carrier"
+    ],
+    "benchmark": "cfb26-4",
+    "fix": "Hands-to-ball catch reach keyed 6-8 ticks before arrival; 3-4 pose stumble-and-fall blend after contact; parent the ball to the carrier's hand bone through the fall; body-separation offsets in piles; drive-and-fall in the sideline replay. Capture R09/R10/R13 strips at even tick intervals across the catch and fall so the beats are verifiable.",
+    "priority": 0.281,
+    "selected": false
+  },
+  {
+    "id": "G-run-play-body-language",
+    "category": "animation",
+    "expectedGain": 0.6,
+    "severity": 4,
+    "effort": "L",
+    "workstream": "WS4",
+    "evidence": [
+      "crops/high/R10-carrier",
+      "crops/high/R11-carrier",
+      "strips/high/R11"
+    ],
+    "benchmark": "madden26-4",
+    "fix": "Carrier: forward torso lean proportional to speed, lateral lean plus a plant frame on cuts. Blockers: engage-and-drive cycle (hands extended, step, torso response) instead of a held half-squat.",
+    "priority": 0.225,
+    "selected": false
+  },
+  {
+    "id": "G-officials-model",
+    "category": "art",
+    "expectedGain": 0.3,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R03-slot_QB",
+      "high/desktop/R04"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Move officials onto the new body with attached striped sleeves, a cap and a face.",
+    "priority": 0.225,
+    "selected": false
+  }
+]

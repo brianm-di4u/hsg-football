@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Regenerates data/ from the shared sources (never edits them):
 //   data/schools.json  ← shared/data/schools.json (verbatim copy)
-//   data/facts.json    ← halftime facts: audited trivia ids (games/trivia/data/questions.json) + two schools.json notes
+//   data/facts.json    ← halftime facts: audited trivia ids (shared/data/trivia-questions.json) + two schools.json notes
 // Usage: node tools/build-data.mjs
 import fs from 'node:fs';
 import path from 'node:path';

@@ -4,8 +4,9 @@
 import { W, HASH, toAbs, canThrow, predictRoute } from './sim.js';
 import { teamDef, onColor, contrast } from './data.js';
 import { mascotSprite } from './art.js';
-import { playById, SLOTS, BADGES } from './plays.js';
+import { playById, SLOTS, BADGES, ZONES } from './plays.js';
 import { kickTolerance } from './kick.js';
+import { clamp } from './rng.js';
 
 export const view = { cssW: 300, cssH: 300, dpr: 1, ppy: 8, ox: 0, camY: 35, shake: 0, layer: null, layerKey: '' };
 const Y0 = -10, Y1 = 130;
@@ -231,10 +232,80 @@ export function receiverTargets(g) {
     const a = P.A[P.idx[s]];
     if (!a || a.role !== 'route' || !a.route) return;
     const [x, y] = agentAbs(P, a);
-    const [px, py] = fieldToScreen(x, y, proj.fn ? 2.9 : 0);
-    out.push({ slot: s, k, x: px, y: py });
+    const [px, py] = fieldToScreen(x, y, proj.fn ? 2.75 : 0); // just over the helmet (loop 12: loop 11's 3.4 drifted onto players behind)
+    const [hx, hy] = proj.fn ? fieldToScreen(x, y, 2.05) : [px, py]; // the helmet top, for the tether
+    out.push({ slot: s, k, x: px, y: py, hx, hy });
   });
   return out;
+}
+
+// 3D overlay badge placement: over each receiver's head, kept inside a safe margin when a wideout stands at or past
+// the frame edge (phones). Badges clamped onto the same spot stack downward instead of hiding each other (loop 8).
+export function badgeSpots(g) {
+  const { cssW } = view;
+  const size = cssW < 500 ? 13 : 12, edge = size + 12, out = [];
+  for (const t of [...receiverTargets(g), ...flightTarget(g)]) {
+    const bx = clamp(t.x, edge, cssW - edge);
+    let by = t.y - size * 0.6;
+    for (let n = 0; n < 5; n++) {
+      const hit = out.find((q) => Math.abs(q.bx - bx) < size * 2.6 && Math.abs(q.by - by) < size * 2.6);
+      if (!hit) break;
+      by = hit.by + size * 2.8; // clear of the chevron tab (loop 10)
+    }
+    out.push({ ...t, bx, by, size, off: bx !== t.x ? Math.sign(t.x - bx) : 0 });
+  }
+  return out;
+}
+// While a pass is in the air, the intended receiver keeps his badge (the others drop theirs at the throw: loop 9).
+function flightTarget(g) {
+  const P = g.play;
+  if (!P || g.user === null || P.offTeam !== g.user || P.ball.st !== 'air' || !(P.ball.to >= 0)) return [];
+  const a = P.A[P.ball.to], k = SLOTS.indexOf(a.slot);
+  if (k < 0) return [];
+  const [x, y] = agentAbs(P, a), [px, py] = fieldToScreen(x, y, proj.fn ? 2.75 : 0);
+  const [hx, hy] = proj.fn ? fieldToScreen(x, y, 2.05) : [px, py];
+  return [{ slot: a.slot, k, x: px, y: py, hx, hy, flight: true }];
+}
+// Your defensive call drawn on the turf before the snap (loop 14): rush lanes as red arrows into the backfield, zone drops
+// as shaded ovals at their landmarks, man coverage as a dashed line to the receiver, and a ring around a spy.
+function defenseArt(ctx, P) {
+  const los = playLos(P), dir = playDir(P), qb = P.A[P.idx.QB];
+  const toS = (px, py, h = 0.05) => { const [ax, ay] = toAbs(px, py, los, dir); return fieldToScreen(ax, ay, h); };
+  ctx.save(); ctx.lineCap = 'round';
+  for (const a of P.A) {
+    if (a.side !== 'D') continue;
+    const p0 = toS(a.x, a.y);
+    if (a.role === 'rush') {
+      // a short arrow straight into this rusher's gap (loop 16: fanned out, they no longer converge on the QB into a knot)
+      const gx = a.x + (a.x - P.bx) * 0.25, p1 = toS(gx, a.y - 2.6);
+      ctx.setLineDash([]);
+      for (const [col, w] of [['rgba(10,12,20,0.7)', 5], ['rgba(255,84,64,0.95)', 2.5]]) { ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(p0[0], p0[1]); ctx.lineTo(p1[0], p1[1]); ctx.stroke(); }
+      arrow(ctx, p0[0], p0[1], p1[0], p1[1]);
+    } else if (a.role === 'zone') {
+      const z = ZONES[a.assign] || ZONES.hookM, zx = Math.max(1, Math.min(W - 1, P.bx + z[0])), zy = Math.min(z[1], P.toGoal + 3);
+      const ring = [];
+      for (let k = 0; k < 16; k++) { const t = (k / 16) * Math.PI * 2; ring.push(toS(zx + Math.cos(t) * 4.2, zy + Math.sin(t) * (z[1] >= 12 ? 3.4 : 2.4))); }
+      ctx.beginPath(); ring.forEach((q, k) => (k ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]))); ctx.closePath();
+      ctx.fillStyle = 'rgba(79,195,255,0.18)'; ctx.fill(); ctx.strokeStyle = 'rgba(79,195,255,0.8)'; ctx.lineWidth = 1.5; ctx.setLineDash([]); ctx.stroke();
+      const c = toS(zx, zy); ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(p0[0], p0[1]); ctx.lineTo(c[0], c[1]); ctx.stroke();
+    } else if (a.role === 'man' && a.assign && P.idx[a.assign] !== undefined) {
+      const m = P.A[P.idx[a.assign]], p1 = toS(m.x, m.y);
+      ctx.setLineDash([3, 4]); ctx.strokeStyle = 'rgba(255,214,90,0.9)'; ctx.lineWidth = 1.8; ctx.beginPath(); ctx.moveTo(p0[0], p0[1]); ctx.lineTo(p1[0], p1[1]); ctx.stroke();
+    } else if (a.role === 'spy') {
+      ctx.setLineDash([]); ctx.strokeStyle = 'rgba(255,214,90,0.95)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(p0[0], p0[1], 14, 6, 0, 0, Math.PI * 2); ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+// A dark tab behind an edge-clamped badge, with a chevron pointing at the off-screen receiver.
+function edgeTab(ctx, x, y, off, s) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(11,10,20,0.72)';
+  ctx.beginPath(); ctx.arc(x, y, s * 1.25, 0, Math.PI * 2); ctx.fill();
+  const tx = x + off * s * 1.25;
+  ctx.beginPath(); ctx.moveTo(tx + off * s * 0.7, y); ctx.lineTo(tx - off * 0.1, y - s * 0.62); ctx.lineTo(tx - off * 0.1, y + s * 0.62); ctx.closePath();
+  ctx.fillStyle = '#FFC233'; ctx.fill();
+  ctx.restore();
 }
 
 export function render(ctx, g, S, now) {
@@ -386,15 +457,16 @@ export function needleAt(t) { return Math.sin(t * 3.6); }
 
 function drawMeter(ctx, g, now) {
   const k = g.kick;
-  const w = Math.min(view.cssW - 32, 560), h = 40, x = (view.cssW - w) / 2, y = Math.min(view.cssH - 70, view.cssH * 0.78);
+  // at the top of the field, over the sky and far stands, so the holder and the line stay in view (loop 12)
+  const w = Math.min(view.cssW - 32, 560), h = 40, x = (view.cssW - w) / 2, y = 50;
   const tol = Math.max(0.03, kickTolerance(k.kck, k.dist));
   ctx.save();
   ctx.fillStyle = 'rgba(11,10,20,0.88)'; ctx.fillRect(x - 12, y - 46, w + 24, h + 78);
   ctx.fillStyle = '#D4AF37'; ctx.fillRect(x - 12, y - 46, w + 24, 4);
   ctx.fillStyle = '#FFF6E0'; ctx.font = '700 20px Oswald, "Arial Narrow", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
   ctx.fillText(`${k.kind === 'pat' ? 'TRY' : 'FIELD GOAL'} · ${k.dist} YD`, x + w / 2, y - 18);
-  ctx.font = '500 13px Oswald, "Arial Narrow", sans-serif'; ctx.fillStyle = '#D8CFBD';
-  ctx.fillText('Stop the needle between the uprights', x + w / 2, y + h + 25);
+  ctx.font = '500 15px Oswald, "Arial Narrow", sans-serif'; ctx.fillStyle = '#E4DCCB'; // one instruction, as the panel's (loop 8)
+  ctx.fillText('Stop the needle in the green', x + w / 2, y + h + 26);
   const gr = ctx.createLinearGradient(x, 0, x + w, 0);
   gr.addColorStop(0, '#7A2020'); gr.addColorStop(0.5, '#A8862A'); gr.addColorStop(1, '#7A2020');
   ctx.fillStyle = gr; ctx.fillRect(x, y, w, h);
@@ -408,6 +480,17 @@ function drawMeter(ctx, g, now) {
   const nx = x + w / 2 + (e * w) / 2;
   ctx.fillStyle = '#111111'; ctx.fillRect(nx - 4, y - 10, 8, h + 20);
   ctx.fillStyle = '#FFFFFF'; ctx.fillRect(nx - 2.5, y - 9, 5, h + 18);
+  ctx.restore();
+}
+
+function idTag(ctx, c, [px, py]) {
+  const label = `${c.num}  ${String(c.last || '').toUpperCase()}`;
+  ctx.save();
+  ctx.font = '700 12px Oswald, "Arial Narrow", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const w = ctx.measureText(label).width + 14;
+  ctx.fillStyle = 'rgba(11,10,20,0.82)'; ctx.fillRect(px - w / 2, py - 9, w, 18);
+  ctx.fillStyle = '#FFC233'; ctx.fillRect(px - w / 2, py + 7, w, 2);
+  ctx.fillStyle = '#FFF6E0'; ctx.fillText(label, px, py + 0.5);
   ctx.restore();
 }
 
@@ -443,22 +526,31 @@ export function renderOverlay(ctx, g, S, now, extra = {}) {
       }
       ctx.restore();
     }
-    const size = cssW < 500 ? 13 : 12;
-    for (const t of receiverTargets(g)) drawBadge(ctx, t.x, t.y - size * 0.6, t.k, size);
+    if (P.phase === 'pre' && g.user !== null && P.offTeam !== g.user && S.settings.routes !== false) defenseArt(ctx, P);
+    for (const t of badgeSpots(g)) {
+      if (t.off) edgeTab(ctx, t.bx, t.by, t.off, t.size);
+      else if (t.hy !== undefined && t.hy - t.by > t.size) { // a short tether ties the badge to its receiver's helmet (loop 12)
+        ctx.save(); ctx.strokeStyle = 'rgba(255,246,224,0.85)'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(t.bx, t.by + t.size * 0.85); ctx.lineTo(t.hx, t.hy); ctx.stroke(); ctx.restore();
+      }
+      drawBadge(ctx, t.bx, t.by, t.k, t.size);
+    }
     // broadcast ID tag over the ball carrier (fictional players)
     const c = P.A[P.carrier];
-    if (c && P.ball.st === 'held' && P.phase !== 'pre' && (P.handed || P.thrown || P.scramble || P.intRet || c.slot !== 'QB')) {
+    // (in 3D it rides the rendered body's head, and goes once the whistle blows)
+    if (c && P.ball.st === 'held' && P.phase !== 'pre' && P.phase !== 'dead' && (P.handed || P.thrown || P.scramble || P.intRet || c.slot !== 'QB')) {
       const [ax, ay] = agentAbs(P, c);
-      const [px, py] = fieldToScreen(ax, ay, 3.1);
-      const label = `${c.num}  ${String(c.last || '').toUpperCase()}`;
-      ctx.save();
-      ctx.font = '700 12px Oswald, "Arial Narrow", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      const w = ctx.measureText(label).width + 14;
-      ctx.fillStyle = 'rgba(11,10,20,0.82)'; ctx.fillRect(px - w / 2, py - 9, w, 18);
-      ctx.fillStyle = '#FFC233'; ctx.fillRect(px - w / 2, py + 7, w, 2);
-      ctx.fillStyle = '#FFF6E0'; ctx.fillText(label, px, py + 0.5);
-      ctx.restore();
+      // the user's runner heads up the screen, so the plate trails below his feet instead of covering the defenders
+      // ahead of him (loop 8 portrait, loop 9 every layout)
+      const below = P.offTeam === g.user && !P.intRet;
+      const at = below ? fieldToScreen(ax, ay, 0) : (proj.head && proj.head(P.carrier)) || fieldToScreen(ax, ay, 3.1);
+      idTag(ctx, c, below ? [at[0], at[1] + 16] : at);
     }
+  }
+  // replays keep the tag on whoever has the ball in the replayed frame
+  if (extra.replay && extra.replayPlay && extra.replayUser >= 0 && proj.head) {
+    const c = extra.replayPlay.A[extra.replayUser], at = proj.head(extra.replayUser);
+    if (c && at) idTag(ctx, c, at);
   }
   if (g.phase === 'kick' && g.kick && g.kick.user && !S.settings.autoKick) drawMeter(ctx, g, now);
   if (extra.replay) {

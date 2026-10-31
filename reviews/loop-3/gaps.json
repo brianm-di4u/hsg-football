@@ -1,0 +1,206 @@
+[
+  {
+    "id": "G-regression-ui",
+    "category": "ui",
+    "expectedGain": 0.5,
+    "severity": 5,
+    "effort": "S",
+    "workstream": "WS7",
+    "fix": "Find and undo what lowered ui since loop 2",
+    "priority": 99,
+    "selected": true
+  },
+  {
+    "id": "G-live-camera-beats",
+    "category": "animation",
+    "expectedGain": 1,
+    "severity": 5,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "strips/high/R07",
+      "strips/high/R09",
+      "strips/high/R10"
+    ],
+    "benchmark": "cfb26-4",
+    "fix": "On release, catch and tackle contact, dolly the live camera so the involved player is at least 60 px tall at 1280x800 for 0.6-0.8 s; 0.4x time-scale hold for 0.3 s at contact plus a turf-pellet burst of 12 or more particles; capture strips within +/-0.2 s of catch and contact.",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-jersey-decals",
+    "category": "art",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "S",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R06-slot_C",
+      "crops/high/R04-slot_QB",
+      "crops/high/R12-carrier"
+    ],
+    "fix": "Alpha-test number decals (discard below 0.5 alpha) so no rectangle shows; flip U on decal instances with a negative-determinant transform so 63 and 47 read correctly.",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-dark-kit-contrast",
+    "category": "art",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "S",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R04-slot_QB",
+      "crops/high/R11-carrier",
+      "sheets/compare-01"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Light-grey or accent facemask material (relative luminance at least 0.45) on dark-shell helmets so cage and face read; raise base value of near-black school kits (Lake Hamilton maroon) until the hue reads under the night grade.",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-toast-band",
+    "category": "mobile",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/mobile/R21",
+      "high/mobile/R12"
+    ],
+    "benchmark": "retrobowl-2",
+    "fix": "Draw result toasts in a band at least 90% opaque docked to the top or bottom edge of the 3D view, and switch edges whenever the rect intersects the projected ball-spot or huddle bounding box.",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-player-model-closeup",
+    "category": "art",
+    "expectedGain": 1.5,
+    "severity": 5,
+    "effort": "L",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R06-slot_C",
+      "crops/high/R11-carrier",
+      "crops/high/R04-slot_QB"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Tapered calves with a sock line and shaped cleat, gloves with a thumb and finger split, pants with knee breaks and a fold normal map, continuous shoulder-arm joints, and 2-3 body builds by position.",
+    "priority": 0.563,
+    "selected": false
+  },
+  {
+    "id": "G-replay-turf-smear",
+    "category": "lighting",
+    "expectedGain": 0.3,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS1",
+    "evidence": [
+      "high/desktop/R13",
+      "strips/high/R13"
+    ],
+    "fix": "Find the near-camera shadow caster (pole or camera rig) in the replay shadow frustum and exclude it from casting or clamp the shadow near plane so the R13/R15 foreground is clean.",
+    "priority": 0.45,
+    "selected": true
+  },
+  {
+    "id": "G-ball-flight-marker",
+    "category": "readability",
+    "expectedGain": 0.3,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R08",
+      "high/mobile/R08"
+    ],
+    "benchmark": "retrobowl-2",
+    "fix": "Soft ground-shadow disc under the ball scaled and faded by height, a landing ring at the predicted catch point, and a lifted rim and lace highlight.",
+    "priority": 0.45,
+    "selected": true
+  },
+  {
+    "id": "G-line-stance",
+    "category": "animation",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS4",
+    "evidence": [
+      "crops/high/R06-slot_C",
+      "crops/high/R04-slot_QB"
+    ],
+    "fix": "3-point stance for OL and DL (hand on turf, flat back, weight forward), 2-point for skill players, center's hands on the ball, and a get-off burst within 3 ticks of the snap.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-tackle-clip",
+    "category": "animation",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS4b",
+    "evidence": [
+      "crops/high/R12-carrier"
+    ],
+    "benchmark": "cfb26-4",
+    "fix": "Resolve capsules in the settle pose so no body part intersects another, offset the tackler laterally, add contact AO or shadow visible outside the carrier ring, and author at least 3 fall variants.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-phone-presnap-framing",
+    "category": "mobile",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "high/mobile/R04"
+    ],
+    "benchmark": "retrobowl-1",
+    "fix": "Tighten the phone pre-snap camera so the formation and wideouts span at least 70% of the width, figures reach at least 20 CSS px, the LOS sits near the vertical middle, and the stadium board is fully in or fully out of view.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-desktop-live-panel",
+    "category": "ui",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R01",
+      "high/desktop/R08",
+      "high/mobile/R21"
+    ],
+    "benchmark": "axis-1",
+    "fix": "During kickoff and live play collapse the side panel into an overlay no wider than 200 px and widen the 3D view; bound the play list with whole rows; always print the player name in log lines; drive the board clock from the HUD clock.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-stands-falloff-haze",
+    "category": "lighting",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS1",
+    "evidence": [
+      "high/desktop/R01",
+      "high/desktop/R04",
+      "strips/high/R07"
+    ],
+    "benchmark": "cfb26-3",
+    "fix": "Light the stand seating and crowd to about 25-35% of field luminance in the kickoff and punt cameras with visible lamp-bank heads and bloom; confine lamp scattering to the light cones so the upper-corner haze disappears.",
+    "priority": 0.375,
+    "selected": false
+  }
+]

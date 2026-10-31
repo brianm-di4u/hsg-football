@@ -1,0 +1,21 @@
+Changes since loop 7 (facts only). Score **High** on desktop. Medium is the phone and mid tier. Low is the v2 look, captured to catch regressions.
+
+- **Kickoff establishing shot (R01).** Until the kicker's boot (about 0.4 s), the kickoff camera is low (about 14° down) and wide, behind the kicking team, turned about 17° toward the home grandstand.
+  - The home grandstand crowd, a light tower with its lamp bloom, the far goalpost and the scoreboard take the top third.
+  - After the boot, the camera cranes up into the existing high chase view.
+  - Punts are unchanged.
+  - Portrait phones get the low shot without the turn.
+- **Lamp spill around the field (Medium and High, night).** The ground around the field is lit near the field and falls off to the dark ground about 45 yd out, so the apron, track and areas behind the end zones read as a lit gradient instead of a flat black band. Low is unchanged.
+- **Bloom (High).** The bloom threshold is raised (1.5, was 0.95, linear HDR), so lamp heads bloom and lit white field paint does not. Strength is slightly higher (0.5, was 0.42) to keep the lamp halos.
+- **Receiver badges (3D view, mostly phones).**
+  - Badges clamped to the same screen edge stack downward instead of hiding each other, so every eligible receiver has a badge.
+  - A badge clamped at the edge sits on a dark disc with a gold chevron pointing toward its off-screen receiver. This also separates it from painted yard numbers.
+  - Tapping a badge throws to that receiver, as tapping the receiver does.
+- **Carrier name plate (portrait phones).** When your own runner has the ball, his name plate trails just below his feet instead of riding over his head, so it no longer covers the defenders ahead of him.
+- **Stances and blocks (all tiers).** The pelvis tips forward with the torso (20% of the lean) and the thighs give the angle back, so feet stay planted and the hips bend through the pelvis as well as the spine.
+- **Player model (Medium and High).**
+  - The glutes are shallower and narrower, and the back of the thigh and the outer hip and thigh pads are slimmer.
+  - In a lineman's stance from behind, the seat is narrower than the back and less round.
+- **Field-goal meter.** The meter's sub-label now gives the same instruction as the panel, "Stop the needle in the green", at 15 px (was 13 px).
+- **Capture note.** Two repeat checks differ by more than 0.5/255 in this capture: R10 on High desktop (1.47) and R12 on Low landscape (0.59). Both frames are taken while play is live. Loop 7's committed code gives the same R10 difference today (1.70), so this is test-rig timing noise rather than a change in this loop. R04 and every other checked frame repeat within 0.5/255.
+- **Unchanged since loop 7:** lighting rig and exposure, tone mapping and grade, crowd, venue geometry, animation clips and falls, the officials, jersey and helmet, desktop live and pre-snap cameras, and rain.

@@ -1,0 +1,214 @@
+[
+  {
+    "id": "G-regression-lighting",
+    "category": "lighting",
+    "expectedGain": 0.5,
+    "severity": 5,
+    "effort": "S",
+    "workstream": "WS7",
+    "fix": "Find and undo what lowered lighting since loop 6",
+    "priority": 99,
+    "selected": true
+  },
+  {
+    "id": "G-establishing-camera",
+    "category": "authenticity",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R01",
+      "high/desktop/R15"
+    ],
+    "benchmark": "cfb26-2",
+    "fix": "Re-aim the R01/kickoff camera so its top third frames the lit home grandstand, both light towers with bloom and the existing visitor stands; test: stands and towers readable in high/desktop/R01.",
+    "priority": 0.5,
+    "selected": true
+  },
+  {
+    "id": "G-pants-seat-volume",
+    "category": "art",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R04-slot_C",
+      "crops/high/R04-slot_QB",
+      "crops/high/R06-slot_C",
+      "crops/high/R16-slot_K",
+      "crops/high/R06-slot_LG"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Re-weight pelvis and glute vertices so the seat stays within the jersey width under hip flexion; smooth the jagged sleeve hem; add a cloth normal map with hip and knee folds. Test: the seat is no wider than the torso in crops/high/R04-slot_C.",
+    "priority": 0.375,
+    "selected": true
+  },
+  {
+    "id": "G-portrait-receiver-badges",
+    "category": "mobile",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "high/mobile/R04",
+      "high/mobile/R10"
+    ],
+    "benchmark": "retrobowl-1",
+    "fix": "Always draw an edge-clamped badge with an arrow for every eligible receiver (WR2 is missing); nudge badges off painted yard numbers; offset the carrier name plate so it doesn't cover the defenders ahead.",
+    "priority": 0.375,
+    "selected": true
+  },
+  {
+    "id": "G-bowl-spill-bloom",
+    "category": "lighting",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS1",
+    "evidence": [
+      "high/desktop/R08",
+      "high/desktop/R12",
+      "high/desktop/R18",
+      "high/desktop/R19"
+    ],
+    "benchmark": "cfb26-3",
+    "fix": "Lamp spill onto the stands and apron so live cameras show the grandstand as a lit gradient rather than a flat dark band; raise the bloom threshold so only lamp heads bloom, not white field markings.",
+    "priority": 0.375,
+    "selected": true
+  },
+  {
+    "id": "G-board-occlusion",
+    "category": "ui",
+    "expectedGain": 0.25,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/landscape/R21",
+      "high/landscape/R12",
+      "high/mobile/R14"
+    ],
+    "benchmark": "madden26-3",
+    "fix": "Extend the scoreboard sliver rule: hide the board face when a toast covers part of it or when it is clipped horizontally at the viewport edge.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-ball-visibility",
+    "category": "readability",
+    "expectedGain": 0.25,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R08",
+      "crops/high/R08-ball"
+    ],
+    "benchmark": "legendbowl-2",
+    "fix": "Soft ground-shadow disc under the ball in flight and a brighter lace or stripe highlight on the ball; separately, fix the R08-ball crop target in the capture rig (not a scored defect).",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-tackle-resolution",
+    "category": "animation",
+    "expectedGain": 0.75,
+    "severity": 5,
+    "effort": "L",
+    "workstream": "WS4b",
+    "evidence": [
+      "strips/high/R13",
+      "strips/high/R09",
+      "strips/high/R10",
+      "crops/high/R12-carrier",
+      "crops/high/R13-carrier"
+    ],
+    "benchmark": "cfb26-4",
+    "fix": "On contact, play a 2-3 frame carrier stagger and a fall arc driven by hit direction instead of an instant prone pose; keep the ball attached to the carrier's hand; add capsule separation so torsos can't pass through each other in the pile. Test: strips/high/R13 shows the carrier going down, crops/high/R12-carrier shows no interpenetration.",
+    "priority": 0.281,
+    "selected": false
+  },
+  {
+    "id": "G-band-student-section",
+    "category": "authenticity",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS2",
+    "evidence": [
+      "crops/high/R01-crowd",
+      "high/desktop/R15",
+      "high/desktop/R20"
+    ],
+    "benchmark": "legendbowl-4",
+    "fix": "Add a uniformed band block with instruments and a solid-colour student section to the home grandstand; vary crowd activity by group (seated or standing); loosen the evenly spaced sideline. Test: both groups visible in R01, R15 or R20.",
+    "priority": 0.25,
+    "selected": false
+  },
+  {
+    "id": "G-fg-copy-labels",
+    "category": "typography",
+    "expectedGain": 0.25,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R16"
+    ],
+    "benchmark": "madden26-3",
+    "fix": "Use one field-goal instruction (the panel says 'in the green', the meter says 'between the uprights') and a 12px minimum for secondary labels such as the meter sub-label.",
+    "priority": 0.25,
+    "selected": false
+  },
+  {
+    "id": "G-wet-turf",
+    "category": "lighting",
+    "expectedGain": 0.25,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS5",
+    "evidence": [
+      "high/desktop/R18",
+      "crops/high/R18-turf_26_67_40"
+    ],
+    "benchmark": "legendbowl-1",
+    "fix": "Darker wet albedo, multi-scale roughness and normal breakup, stretched lamp reflections; clamp the specular hotspot so grass texture survives through it. Test: high/desktop/R18 reads wet at gameplay distance.",
+    "priority": 0.188,
+    "selected": false
+  },
+  {
+    "id": "G-officials-mannequin",
+    "category": "art",
+    "expectedGain": 0.25,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R03-slot_QB",
+      "crops/high/R12-carrier"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Give officials the player head and skin shader with a face, fingered hands, a brim on the existing white cap, a belt and shoes.",
+    "priority": 0.188,
+    "selected": false
+  },
+  {
+    "id": "G-live-panel-dead-space",
+    "category": "ui",
+    "expectedGain": 0.25,
+    "severity": 2,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R08",
+      "high/desktop/R07"
+    ],
+    "benchmark": "axis-1",
+    "fix": "During live play, fill the desktop panel with live context (target, yards to the marker) or collapse it to widen the field; keep the dimmed-JUKE state.",
+    "priority": 0.188,
+    "selected": false
+  }
+]

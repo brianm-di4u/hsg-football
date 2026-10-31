@@ -1,0 +1,257 @@
+[
+  {
+    "id": "G-regression-art",
+    "category": "art",
+    "expectedGain": 0.5,
+    "severity": 5,
+    "effort": "S",
+    "workstream": "WS7",
+    "fix": "Find and undo what lowered art since loop 14",
+    "priority": 99,
+    "selected": true
+  },
+  {
+    "id": "G-regression-animation",
+    "category": "animation",
+    "expectedGain": 0.5,
+    "severity": 5,
+    "effort": "S",
+    "workstream": "WS7",
+    "fix": "Find and undo what lowered animation since loop 14",
+    "priority": 99,
+    "selected": true
+  },
+  {
+    "id": "G-regression-ui",
+    "category": "ui",
+    "expectedGain": 0.5,
+    "severity": 5,
+    "effort": "S",
+    "workstream": "WS7",
+    "fix": "Find and undo what lowered ui since loop 14",
+    "priority": 99,
+    "selected": true
+  },
+  {
+    "id": "G-regression-readability",
+    "category": "readability",
+    "expectedGain": 0.5,
+    "severity": 5,
+    "effort": "S",
+    "workstream": "WS7",
+    "fix": "Find and undo what lowered readability since loop 14",
+    "priority": 99,
+    "selected": true
+  },
+  {
+    "id": "G-regression-authenticity",
+    "category": "authenticity",
+    "expectedGain": 0.5,
+    "severity": 5,
+    "effort": "S",
+    "workstream": "WS7",
+    "fix": "Find and undo what lowered authenticity since loop 14",
+    "priority": 99,
+    "selected": true
+  },
+  {
+    "id": "G-portrait-wideouts-offscreen",
+    "category": "mobile",
+    "expectedGain": 0.6,
+    "severity": 4,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/mobile/R04",
+      "medium/mobile/R04",
+      "medium/landscape/R04"
+    ],
+    "benchmark": "retrobowl-1",
+    "fix": "Fit the portrait pre-snap camera by projecting every offensive player's bounding sphere to screen space and solving for a distance with all inside 6% side margins; LOS at ~62% of field-viewport height; zoom into the freed upfield space. Test: no edge-clamped badge arrows in mobile R04 and linemen >= 20 CSS px. Also +0.3 readability.",
+    "priority": 0.9,
+    "selected": true
+  },
+  {
+    "id": "G-run-carrier-framing",
+    "category": "readability",
+    "expectedGain": 0.3,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R10",
+      "high/desktop/R18",
+      "strips/high/R10"
+    ],
+    "benchmark": "madden26-1",
+    "fix": "On live runs, raise the camera and offset the look-at so the carrier ring stays between 55% and 70% of field-viewport height (currently ~y735/800); 2 px team-colour outline on the carrier when >50% occluded.",
+    "priority": 0.45,
+    "selected": true
+  },
+  {
+    "id": "G-assignment-clarity",
+    "category": "readability",
+    "expectedGain": 0.3,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R05"
+    ],
+    "benchmark": "axis-1",
+    "fix": "One short curved, dark-outlined arrow per rusher to its gap, fanned with lateral offsets so no two strokes overlap; coverage drops as thin dashed lines at 50% opacity.",
+    "priority": 0.45,
+    "selected": true
+  },
+  {
+    "id": "G-ui-redundancy-and-empty-rail",
+    "category": "ui",
+    "expectedGain": 0.3,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R16",
+      "medium/mobile/R14",
+      "high/desktop/R05"
+    ],
+    "benchmark": "madden26-3",
+    "fix": "Remove the duplicate FIELD GOAL 45 YD panel title and the duplicate TOUCHDOWN! panel heading; fill the empty rail with a drive summary (plays, yards, time of possession); fully opaque toast with a 12 px top fade so bodies don't cut its edge; label timeouts 'TO'.",
+    "priority": 0.45,
+    "selected": false
+  },
+  {
+    "id": "G-block-engagement-poses",
+    "category": "animation",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS4",
+    "evidence": [
+      "crops/high/R10-carrier",
+      "crops/high/R13-carrier",
+      "crops/high/R09-slot_Z",
+      "strips/high/R10"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Orient engaged pairs face-to-face along the engagement axis 0.6-0.8 m apart (not chest-to-back); hips low, 20-30 deg lean, both hands IK'd to the opponent's chest plate, staggered planted feet; drift the pair 5-15 cm per tick toward the winner. Also +0.2 readability.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-tackle-contact",
+    "category": "animation",
+    "expectedGain": 0.4,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS4b",
+    "evidence": [
+      "strips/high/R13",
+      "crops/high/R12-carrier"
+    ],
+    "benchmark": "madden26-4",
+    "fix": "At first contact a 2-3 frame hit-pause and a 0.15 s wrap pose (tackler arms IK'd around the carrier's waist) before the fall; turf or spray puff and a small camera nudge; fall direction from the approach vector; per-body resting poses chosen so limbs don't overlap in the pile.",
+    "priority": 0.3,
+    "selected": false
+  },
+  {
+    "id": "G-official-and-anatomy",
+    "category": "art",
+    "expectedGain": 0.4,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R03-slot_QB",
+      "crops/high/R12-carrier",
+      "crops/high/R06-slot_DL2-side"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Officials: weld sleeves to the shoulders, use the players' split-thumb hand, add a brimmed cap, face, belt and white shoes. Players: lengthen the crouched thigh segment and smooth shoulder normals. Player hands are already fine.",
+    "priority": 0.3,
+    "selected": false
+  },
+  {
+    "id": "G-rain-integration",
+    "category": "lighting",
+    "expectedGain": 0.2,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS5",
+    "evidence": [
+      "high/desktop/R18",
+      "crops/high/R18-turf_26_67_40"
+    ],
+    "benchmark": "cfb26-3",
+    "fix": "In rain lower turf roughness so tower reflections streak at gameplay distance, scale streak length and opacity by depth, add splash dots at players' feet, darken and gloss jerseys.",
+    "priority": 0.3,
+    "selected": false
+  },
+  {
+    "id": "G-desktop-presnap-pitch",
+    "category": "readability",
+    "expectedGain": 0.2,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R04",
+      "high/desktop/R05"
+    ],
+    "benchmark": "axis-1",
+    "fix": "Tilt the desktop pre-snap camera down so the far goalposts sit at ~25% of viewport height (sky currently ~45%), then use the width fit to enlarge players.",
+    "priority": 0.3,
+    "selected": false
+  },
+  {
+    "id": "G-endzone-void-and-venue-dressing",
+    "category": "authenticity",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS2",
+    "evidence": [
+      "high/desktop/R14",
+      "high/desktop/R16",
+      "crops/high/R01-crowd",
+      "high/desktop/R20"
+    ],
+    "benchmark": "cfb26-2",
+    "fix": "Per venue: an end-zone berm or small bleacher with standing fans, chain-link fence and a track ring closing behind both end zones, lit by the nearest tower; a uniformed band block and a denser school-colour student section in the home stand; a 6-8 member cheer squad on the home track. Also +0.2 art, +0.2 lighting.",
+    "priority": 0.25,
+    "selected": false
+  },
+  {
+    "id": "G-closeup-camera-occlusion",
+    "category": "art",
+    "expectedGain": 0.1,
+    "severity": 1,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "crops/high/R03-slot_QB",
+      "crops/high/R06-slot_C-side"
+    ],
+    "benchmark": "cfb26-4",
+    "fix": "Raycast from close and replay cameras to the target, orbit until the line is clear, fade bodies within 1 m of the near plane.",
+    "priority": 0.15,
+    "selected": false
+  },
+  {
+    "id": "G-athletic-motion",
+    "category": "animation",
+    "expectedGain": 0.3,
+    "severity": 3,
+    "effort": "L",
+    "workstream": "WS4",
+    "evidence": [
+      "crops/high/R11-carrier",
+      "strips/high/R11",
+      "strips/high/R09"
+    ],
+    "benchmark": "madden26-4",
+    "fix": "10-20 deg torso and pelvis lean into cuts with a planted outside foot on the cut frame; after the catch, reach, secure to the chest and tuck under the outside arm within 0.3 s instead of holding the arm up.",
+    "priority": 0.112,
+    "selected": false
+  }
+]

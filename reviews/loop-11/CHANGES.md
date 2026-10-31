@@ -1,0 +1,25 @@
+Changes since loop 10 (facts only). Score **High** on desktop. Medium is the phone and mid tier. Low is the v2 look, captured to catch regressions.
+
+- **The catch.**
+  - The target receiver raises his hands from 0.6 s before the ball arrives (was 0.45 s).
+  - He keeps them up for 0.3 s after the catch, then tucks the ball.
+  - While he's reaching and catching, the ball sits in his hands rather than at his chest.
+- **Tackles and falls.**
+  - A downed body's fall is timed from the hit rather than eased by render frames, so it plays the same live, in replays and in still captures.
+  - The ball carrier recoils for about a third of a second (torso snaps back, arms flare), then drops over about half a second, easing into the turf.
+  - A falling carrier holds the ball in his hand. It no longer floats above the pile.
+  - Replays keep playing the falls for 0.8 s after the whistle (before, the replay's last frames held the pre-whistle pose).
+- **Capture rig.**
+  - Motion strips now advance the test clock along with the sim steps, so effects timed from the whistle (falls, punch-ins) play out across the strip.
+  - The R13 replay strip now covers 0.5 s before the whistle to 0.55 s after it (was 1.4–0.7 s before), so it shows the takedown.
+  - Frames that wait for the game to go idle (results, touchdowns, play calls) are shown 2 s after the setup on the test clock, so falls have finished. Players also stop running in place half a second after the whistle (a game change too). Together these make R12 repeat exactly.
+  - The camera punch-in after a catch or a hit now applies only during live play. Once the result shows, the result framing takes over (a game change too).
+  - In the full capture, 25 of 27 repeat checks are within 0.5/255. High desktop R10 is at 0.69 (gait-phase noise in a paused live frame, seen before). On Low desktop R12, the second (reloaded) capture showed an earlier moment of the play. The first capture, which is the one under review, matches High's R12, and R12 repeats exactly on every tier when captured alone. This is a rig issue, not a change in the game.
+  - Perf was measured on an unloaded machine this loop (loop 10's numbers were taken under load).
+- **Desktop cameras and panel.**
+  - Pre-snap, a lens shift puts the formation lower in the view. The empty turf behind the offense is about 19% of the field view (was about 30%), and more of the stadium shows above.
+  - During live play the side panel is 250 px wide (as for kicks, touchdowns and replays), so the field gets the width. Its play diagram is smaller to fit.
+- **Portrait pre-snap.** The camera's width is capped at 25 yd (was 29), so linemen are about 24 CSS px. Wide receivers past the edge keep edge badges.
+- **Receiver badges.** Drawn higher above the helmet, so they sit clear of the players behind.
+- **Desktop result toasts.** The headline is larger (about 37 px type, roughly 28 px cap height; was about 22 px), the subtitle is larger, and the backing is solid with rounded corners rather than fading at the edges.
+- **Unchanged since loop 10:** player and official models, run cycles, blocking, crowd, venue, lighting and grade, wet turf, landscape and portrait pass cameras, and the play-call layout.

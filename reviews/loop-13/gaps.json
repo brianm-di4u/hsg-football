@@ -1,0 +1,226 @@
+[
+  {
+    "id": "G-regression-ui",
+    "category": "ui",
+    "expectedGain": 0.5,
+    "severity": 5,
+    "effort": "S",
+    "workstream": "WS7",
+    "fix": "Find and undo what lowered ui since loop 12",
+    "priority": 99,
+    "selected": true
+  },
+  {
+    "id": "G-regression-authenticity",
+    "category": "authenticity",
+    "expectedGain": 0.5,
+    "severity": 5,
+    "effort": "S",
+    "workstream": "WS7",
+    "fix": "Find and undo what lowered authenticity since loop 12",
+    "priority": 99,
+    "selected": true
+  },
+  {
+    "id": "G-ui-defense-presnap",
+    "category": "ui",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R05",
+      "medium/desktop/R05"
+    ],
+    "benchmark": "madden26-2",
+    "fix": "Draw the called blitz/coverage on the turf (red rush arrows from each blitzer, shaded zone ovals), ring the user-controlled defender, and badge the two biggest offensive threats.",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-mobile-portrait-scale",
+    "category": "mobile",
+    "expectedGain": 0.75,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "medium/mobile/R04",
+      "high/mobile/R04",
+      "medium/mobile/R22"
+    ],
+    "benchmark": "retrobowl-1",
+    "fix": "Merged with G-formation-framing. Place the portrait LOS at 55-60% of field-view height and zoom until OL are >=26 CSS px, keeping edge badges for off-frame WRs; move the badge off the 1ST & 10 paint; show a peeking 7th card or scroll cue on the play-call screen.",
+    "priority": 0.563,
+    "selected": true
+  },
+  {
+    "id": "G-anim-contact-falls",
+    "category": "animation",
+    "expectedGain": 0.75,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS4b",
+    "evidence": [
+      "strips/high/R10",
+      "strips/high/R09",
+      "strips/high/R13",
+      "crops/high/R12-carrier"
+    ],
+    "benchmark": "madden26-4",
+    "fix": "Merged with G-contact. The wrap+fall set exists (R12, R13) but does not fire on interior pile stops or after a catch: route every whistle through it, add one side-twist fall variant, and put 2-3 nearby defenders on the ground before the result plate.",
+    "priority": 0.563,
+    "selected": true
+  },
+  {
+    "id": "G-rain-sheen-readable",
+    "category": "lighting",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS5",
+    "evidence": [
+      "high/desktop/R18",
+      "high/desktop/R10",
+      "crops/high/R18-turf_26_67_40"
+    ],
+    "benchmark": "legendbowl-1",
+    "fix": "View-dependent elongated lamp-bank reflections on wet turf toward the camera so wet reads in the play-distance frame; brighten rain streaks inside lamp cones; enlarge the existing cleat splash flecks.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-lighting-falloff-haze",
+    "category": "lighting",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS1",
+    "evidence": [
+      "crops/high/R01-crowd",
+      "high/desktop/R15",
+      "high/desktop/R19"
+    ],
+    "benchmark": "cfb26-3",
+    "fix": "Merged with G-atmospheric-depth. Soft fog cone under each lamp bank at night; top bleacher rows at <=40% of front-row luminance; spill light on walls behind stands; depth-weighted day mist so the R19 background keeps silhouettes.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-ui-plate-occludes",
+    "category": "ui",
+    "expectedGain": 0.25,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R12",
+      "high/desktop/R14",
+      "high/desktop/R16"
+    ],
+    "fix": "On desktop move the result plate into the empty right panel or a <=60 px lower-third strip so the pile and downed carrier stay visible; remove the duplicate FIELD GOAL title in R16.",
+    "priority": 0.375,
+    "selected": true
+  },
+  {
+    "id": "G-art-player-identity",
+    "category": "art",
+    "expectedGain": 0.75,
+    "severity": 4,
+    "effort": "L",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R14-carrier",
+      "crops/high/R06-slot_C-side",
+      "crops/high/R04-slot_C",
+      "crops/high/R03-slot_QB"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Merged with G-player-anatomy. Skin-toned forearm/wrist between sleeve and a separate glove; brow/nose/jaw shading under the facemask; per-position scale (OL/DL torso and hips 1.15x, WR/DB leaner); blend shoulder pads into the torso; fix pant ballooning in stance; normal-mapped jersey folds and tuck.",
+    "priority": 0.281,
+    "selected": false
+  },
+  {
+    "id": "G-venue-offangle-void",
+    "category": "authenticity",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS2",
+    "evidence": [
+      "high/desktop/R15",
+      "high/desktop/R17",
+      "high/desktop/R14",
+      "high/desktop/R13"
+    ],
+    "benchmark": "cfb26-2",
+    "fix": "Replace the flat wall behind the replay angle with a full visitor bleacher run and press box; cap cone trees at light-pole height and push them behind the stands; dress both end zones with chain-link fence, track bend and a lit berm.",
+    "priority": 0.25,
+    "selected": false
+  },
+  {
+    "id": "G-auth-band-student",
+    "category": "authenticity",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS2",
+    "evidence": [
+      "crops/high/R01-crowd",
+      "high/desktop/R01"
+    ],
+    "benchmark": "cfb26-1",
+    "fix": "Merged with the overlapping part of G-crowd-repetition. Add a uniformed band block with instruments in a home section, a team-shirt student section with signs, cheer squad and mascot on the track, and +/-10% crowd height/build variance with seated clusters breaking the grid.",
+    "priority": 0.25,
+    "selected": false
+  },
+  {
+    "id": "G-typo-down-distance",
+    "category": "typography",
+    "expectedGain": 0.25,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R04",
+      "high/desktop/R21"
+    ],
+    "benchmark": "axis-1",
+    "fix": "Down-and-distance is already in the condensed face: set it all caps at clock size in its own scorebug cell, and raise the HOME tag to >=12 px.",
+    "priority": 0.25,
+    "selected": false
+  },
+  {
+    "id": "G-weight-and-catch",
+    "category": "animation",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "L",
+    "workstream": "WS4",
+    "evidence": [
+      "strips/high/R11",
+      "strips/high/R09",
+      "crops/high/R13-carrier"
+    ],
+    "benchmark": "cfb26-4",
+    "fix": "Planted cut step with torso counter-rotation on sweeps, a visible catch-to-tuck transition, and the ball carried on the camera-side arm.",
+    "priority": 0.188,
+    "selected": false
+  },
+  {
+    "id": "G-perf-phone-hitch",
+    "category": "mobile",
+    "expectedGain": 0.25,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "medium/mobile/R10",
+      "medium/landscape/R10"
+    ],
+    "benchmark": "retrobowl-2",
+    "fix": "Merged with G-phone-frame-time. Profile the 71.4 ms p95 spikes in Medium phone replay under 4x throttle (crowd matrix updates, GC, shader warm-up); impostor/LOD the phone-tier crowd; target p95 <=40 ms.",
+    "priority": 0.188,
+    "selected": false
+  }
+]

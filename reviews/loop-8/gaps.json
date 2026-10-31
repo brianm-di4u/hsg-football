@@ -1,0 +1,229 @@
+[
+  {
+    "id": "G-regression-authenticity",
+    "category": "authenticity",
+    "expectedGain": 0.5,
+    "severity": 5,
+    "effort": "S",
+    "workstream": "WS7",
+    "fix": "Find and undo what lowered authenticity since loop 7",
+    "priority": 99,
+    "selected": true
+  },
+  {
+    "id": "G-banner-overlap",
+    "category": "ui",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/landscape/R12",
+      "high/landscape/R21",
+      "high/landscape/R14",
+      "high/desktop/R14",
+      "high/mobile/R14",
+      "high/landscape/R10"
+    ],
+    "benchmark": "madden26-3",
+    "fix": "In landscape (844x390) put result banners in the bottom slot of the field view as desktop does in high/desktop/R21. Move the desktop TOUCHDOWN banner to the same bottom slot so it clears the uprights and board. Frame the TD camera so the 3D scoreboard is fully inside or fully outside the frame. Trail the landscape carrier plate below the feet as on portrait. Test: no banner pixel overlaps the 3D board's screen rect in high/landscape/R12, R14, R21 and high/desktop/R14, and the board is not cut by a frame edge in high/mobile/R14. Gain split 0.25 ui, 0.25 mobile.",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-bloom-veil",
+    "category": "lighting",
+    "expectedGain": 0.3,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS1",
+    "evidence": [
+      "high/desktop/R04",
+      "medium/desktop/R04",
+      "strips/high/R07",
+      "strips/high/R09",
+      "high/desktop/R08"
+    ],
+    "benchmark": "cfb26-3",
+    "fix": "On High, clamp lamp-head emissive (or bloom only above the clamp) so the lamp rack grid survives as it does on Medium. Cap the bloom radius and fog in-scatter from lamps outside the frustum so they can't wash the frame. Test: the racks are resolvable in high/desktop/R04 as in medium/desktop/R04, and the top-corner sky luminance in strips/high/R07 is within 10% of strips/medium/R07.",
+    "priority": 0.45,
+    "selected": true
+  },
+  {
+    "id": "G-ball-visibility",
+    "category": "readability",
+    "expectedGain": 0.3,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS4",
+    "evidence": [
+      "crops/high/R08-ball",
+      "crops/high/R10-carrier",
+      "crops/high/R11-carrier",
+      "high/desktop/R08"
+    ],
+    "benchmark": "retrobowl-2",
+    "fix": "Carry the ball on the carrier's sideline-side (outside) arm so it shows from behind and the side. Give the ball a light stripe or rim and a short faint flight trail. Aim the ball close-up camera at the ball's world position. Test: the ball is visible in crops/high/R08-ball, R10-carrier and R11-carrier, and a trail shows in high/desktop/R08.",
+    "priority": 0.45,
+    "selected": true
+  },
+  {
+    "id": "G-live-panel",
+    "category": "ui",
+    "expectedGain": 0.3,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R08",
+      "high/desktop/R18",
+      "high/desktop/R10"
+    ],
+    "benchmark": "axis-1",
+    "fix": "On desktop, collapse the right panel to a slim strip after the snap so the 3D view widens, and show JUKE as an on-field pill. Keep the numbered receiver tags on receivers through pass plays. Test: the field view is at least 90% of the width in high/desktop/R08 and R10, and numbered tags are visible on receivers in high/desktop/R08. Gain split 0.15 ui, 0.15 readability.",
+    "priority": 0.45,
+    "selected": true
+  },
+  {
+    "id": "G-contact",
+    "category": "animation",
+    "expectedGain": 1,
+    "severity": 5,
+    "effort": "L",
+    "workstream": "WS4b",
+    "evidence": [
+      "strips/high/R13",
+      "strips/high/R09",
+      "strips/high/R10",
+      "crops/high/R12-carrier",
+      "crops/high/R09-slot_Z",
+      "crops/high/R13-carrier"
+    ],
+    "benchmark": "cfb26-4",
+    "fix": "Add paired contact poses: the tackler wraps and drives, and the carrier absorbs, loses balance and falls in the direction of momentum over at least 3 strip frames. Add a 3-4 frame hit-stop plus about 0.3 s of slow motion at contact. Run a capsule separation pass so downed bodies stack instead of fusing. Keep the ball attached to the carrying hand through impact. Test: strips/high/R13 shows a wrap frame; strips/high/R09 and R10 show an intermediate falling frame between upright and prone; no limb passes through another body in crops/high/R12-carrier or R09-slot_Z.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-falloff",
+    "category": "lighting",
+    "expectedGain": 0.4,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS1",
+    "evidence": [
+      "high/desktop/R17",
+      "high/desktop/R02",
+      "high/desktop/R01",
+      "high/desktop/R13"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Add light pools under each tower on the field (10-15% luminance variation). Make the apron and track fall off radially from each tower base instead of a uniform khaki band. Add lamp spill on the front crowd rows. Test: apron luminance drops steadily away from the tower bases in high/desktop/R02 and R17, and visible brighter pools sit under the towers on the field.",
+    "priority": 0.3,
+    "selected": true
+  },
+  {
+    "id": "G-anatomy",
+    "category": "art",
+    "expectedGain": 0.7,
+    "severity": 4,
+    "effort": "L",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R04-slot_C",
+      "crops/high/R06-slot_C-side",
+      "crops/high/R03-slot_QB",
+      "crops/high/R06-slot_C"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Cut the stance seat volume to no wider than the hips. Replace solid-colour arms with short sleeves, skin-tone forearms and separate gloves. Blend the shoulder-torso and pelvis-thigh transitions. Rebuild officials on the player body with continuous striped sleeves, black pants and a face. Test: the #69 seat is narrower than his hip width in crops/high/R04-slot_C, forearms and gloves read in crops/high/R06-slot_C-side, and the official's sleeves are continuous in crops/high/R03-slot_QB.",
+    "priority": 0.262,
+    "selected": false
+  },
+  {
+    "id": "G-venue-life",
+    "category": "authenticity",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS2",
+    "evidence": [
+      "high/desktop/R01",
+      "crops/high/R01-crowd",
+      "high/desktop/R14",
+      "high/desktop/R20"
+    ],
+    "benchmark": "cfb26-2",
+    "fix": "Add a uniformed band block (one uniform colour, with instrument glints) and a student-section block (a shared shirt colour, with props) to the home stand, and cheerleaders on the track in front of it. Make sure they appear in the R01 establishing shot and the TD shot. Test: band and student section are identifiable in crops/high/R01-crowd and high/desktop/R01, and cheerleaders are visible in high/desktop/R14.",
+    "priority": 0.25,
+    "selected": false
+  },
+  {
+    "id": "G-venue-backdrop",
+    "category": "authenticity",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS2",
+    "evidence": [
+      "high/desktop/R13",
+      "high/desktop/R01",
+      "high/desktop/R07",
+      "crops/high/R13-carrier",
+      "crops/high/R12-carrier"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Replace the flat grey wall planes behind the end zones and the visitor stand with a modelled chain-link fence and a lamp-rimmed tree-line card. Swap the black cone trees for textured tree cards. The press box and field house already exist. Test: no untextured flat grey plane covers more than 10% of the frame in high/desktop/R01, R13 and R15. Gain split 0.3 authenticity, 0.2 art.",
+    "priority": 0.25,
+    "selected": false
+  },
+  {
+    "id": "G-wet-turf",
+    "category": "lighting",
+    "expectedGain": 0.3,
+    "severity": 2,
+    "effort": "M",
+    "workstream": "WS5",
+    "evidence": [
+      "crops/high/R18-turf_26_67_40",
+      "high/desktop/R18"
+    ],
+    "benchmark": "cfb26-4",
+    "fix": "In rain, darken the turf albedo and lower its roughness with multi-scale variation, so lamp reflections become elongated streaks across the field instead of one hotspot. Add wet helmet speculars and splash particles at players' feet. Test: crops/high/R18-turf_26_67_40 shows specular streaks in at least three separate turf regions, and helmet highlights are brighter than in dry R04.",
+    "priority": 0.225,
+    "selected": false
+  },
+  {
+    "id": "G-r01-crowd-framing",
+    "category": "authenticity",
+    "expectedGain": 0.2,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R01",
+      "crops/high/R01-crowd"
+    ],
+    "benchmark": "cfb26-1",
+    "fix": "Turn the pre-boot kickoff establishing camera a further 10-15 degrees toward the home grandstand, or widen its FOV, so the stand and tower fill the left third as the brief intended. Test: the crowd covers at least 25% of the frame width in high/desktop/R01.",
+    "priority": 0.2,
+    "selected": true
+  },
+  {
+    "id": "G-locomotion",
+    "category": "animation",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "L",
+    "workstream": "WS4",
+    "evidence": [
+      "crops/high/R11-carrier",
+      "strips/high/R11",
+      "strips/high/R07"
+    ],
+    "benchmark": "madden26-4",
+    "fix": "Add planted cut steps for the carrier: drop the pelvis, lean the torso at least 15 degrees into the cut, and keep the plant foot fixed for the plant frame. Add a forward weight transfer on the QB release. Test: crops/high/R11-carrier shows a visible lean toward the cut, and strips/high/R11 shows a plant frame.",
+    "priority": 0.188,
+    "selected": false
+  }
+]

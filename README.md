@@ -4,6 +4,13 @@ High school football. Part of **Hot Springs Games**, an open-source (MIT) collec
 Hot Springs, Arkansas. The game ships as a self-contained `index.html`: art is drawn in code or painted into
 `assets/`, sound is synthesized with WebAudio, and nothing loads from the network.
 
+**Visual v3** adds three quality tiers to the 3D stadium:
+- **Low** is the original look and needs only `index.html`.
+- **Medium** and **High** add physically based lighting, shadows, post-processing, HD Blender players and a card crowd.
+- Medium and High load optional classic-script packs from `assets/pack-*.js`, which work from `file://` too.
+
+The visual campaign's scores and remaining gaps are in `VISUAL-REPORT.md` (v3 section).
+
 All games in the collection are original designs. Real places, schools and businesses appear as setting and
 history only; no logos are reproduced and nothing implies endorsement. School rosters are fictional.
 
@@ -15,11 +22,25 @@ Open `index.html` in a browser, or serve the folder (`python -m http.server 8765
 
 ```bash
 npm run setup   # installs Playwright and Chromium for the test harness
-npm run build   # rebuilds index.html from src/ (edit src/, not index.html)
+npm run build   # regenerates data/, rebuilds index.html from src/ and checks size budgets (edit src/, not index.html)
 npm test        # runs tests/*.test.mjs; screenshots land in screenshots/
 ```
 
-Design docs: `PRD.md`, `MECHANICS.md`, `DEV-PLAN.md`, `REPORT.md`, `VISUAL-PLAN.md`, `VISUAL-REPORT.md`.
+**Build.** `node tools/build.mjs` is the full build:
+- three.js core plus the addon pack (needs `cd tools/dev && npm install` once);
+- fonts, art, data and packs;
+- the inline step and the budget check.
+
+`--blender` also rebuilds the Blender models first.
+
+**Visual review tools.**
+- `tools/shots-gpu.mjs`: captures the 22 review moments on a real GPU.
+- `tools/perf-gpu.mjs`: measures performance per tier, including a 4× CPU-throttled phone proxy.
+- `tools/review-prep.mjs` and `tools/review-tally.mjs`: run the adversarial review loop described in `reviews/PROTOCOL.md`.
+
+The benchmark screenshots that the reviews compare against are of other games. They stay local (`benchmarks/` is git-ignored).
+
+Design docs: `PRD.md`, `MECHANICS.md`, `DEV-PLAN.md`, `REPORT.md`, `VISUAL-PLAN.md`, `VISUAL-PLAN-2.md`, `VISUAL-REPORT.md`.
 
 ## Vendored from the collection
 

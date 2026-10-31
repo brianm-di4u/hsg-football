@@ -11,7 +11,7 @@
   --pa-route: #FFF6E0; --pa-run: #FFC233; --pa-off: #E9EEF5; --pa-qb: #FFC233; --pa-def: #FF8A7A; --pa-cov: #9CC7FF; --pa-blitz: #FF6B5A;
   --radius-sm: 3px; --radius-md: 6px; --radius-lg: 12px; --radius-pill: 999px;
   /* dark (deco-neon) */
-  --color-bg: #14121F; --color-surface: #1F1C2E; --color-text: #D8CFBD; --color-muted: #9A95A0;
+  --color-bg: #14121F; --color-surface: #1F1C2E; --color-text: #D8CFBD; --color-muted: #B8B2BE;
   --color-primary: #D4AF37; --color-on-primary: #14121F; --color-accent: #FF5A5A; --color-on-accent: #14121F;
   --color-success: #5FD38A; --color-danger: #FF6B6B; --color-highlight: #4FC3FF; --color-border: #3A3550;
   --scrim: rgba(20, 18, 31, 0.86); --card: #26223A; --card-hover: #302B48;
@@ -194,7 +194,7 @@ kbd { font-family: var(--font-mono); font-size: 0.75em; border: 1px solid curren
 .card .ty { grid-area: ty; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.06em; color: var(--color-muted); }
 .card .ty.run { color: var(--color-success); } .card .ty.pass { color: var(--color-highlight); }
 :root[data-theme="light"] .card .ty.pass { color: #1F4E9C; }
-.card .ds { grid-area: ds; font-size: 0.8rem; color: var(--color-muted); }
+.card .ds { grid-area: ds; font-size: 0.82rem; line-height: 1.25; color: var(--color-muted); }
 .card.special { border-color: var(--color-primary); }
 .live-bar { display: flex; flex-direction: column; gap: 10px; }
 .rcvs { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -211,7 +211,7 @@ kbd { font-family: var(--font-mono); font-size: 0.75em; border: 1px solid curren
 /* --------------------------------------------------------------- phones */
 @media (max-width: 760px) {
   #game { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
-  #panel { grid-column: 1; grid-row: 3; border-left: 0; border-top: 2px solid var(--color-border); max-height: 46vh; padding: 8px 10px 12px; }
+  #panel { grid-column: 1; grid-row: 3; border-left: 0; border-top: 2px solid var(--color-border); max-height: 46vh; padding: 8px 10px calc(12px + env(safe-area-inset-bottom)); }
   #scorebug { flex-wrap: wrap; padding: 4px 6px; gap: 4px; }
   .sb-team { padding: 3px 6px; gap: 5px; flex: 1 1 40%; }
   .sb-team .mascot { display: none; }
@@ -270,8 +270,8 @@ kbd { font-family: var(--font-mono); font-size: 0.75em; border: 1px solid curren
 .sb-home { font-family: var(--font-cond); font-weight: 500; }
 
 /* play cards with diagrams */
-.card.art { grid-template-columns: auto 1fr auto; grid-template-areas: "art nm ty" "art ds ds"; padding: 6px 8px 6px 6px; }
-.art-box { grid-area: art; position: relative; display: block; width: 74px; height: 46px; }
+.card.art { grid-template-columns: auto 1fr auto; grid-template-areas: "art nm ty" "art ds ds"; padding: 4px 8px 4px 5px; min-height: 0; }
+.art-box { grid-area: art; position: relative; display: block; width: 66px; height: 40px; }
 .art-box .k { position: absolute; left: -2px; top: -2px; background: var(--color-bg); font-size: 0.72rem; padding: 0 4px; line-height: 1.3; }
 .pa { display: block; width: 100%; height: 100%; }
 .pa-bg { fill: #1D4A2C; }
@@ -354,5 +354,104 @@ kbd { font-family: var(--font-mono); font-size: 0.75em; border: 1px solid curren
 /* touch devices: no keyboard hints */
 @media (hover: none) and (pointer: coarse) { kbd, .kb-only { display: none !important; } }
 /* ordinary results as a lower third; touchdowns stay up top */
-#toast.low { top: auto; bottom: 7%; }
+#toast, #toast.low { top: auto; bottom: 7%; } /* touchdowns too: the top of the view holds the posts and the board (loop 9) */
 #toast.low .toast-in b { font-size: 1.35rem; }
+
+/* v3 type system (review loop 0, G-type-system): one condensed display face (Oswald) for every in-game headline and
+   number, one text face for body copy; Graduate stays only on the title logo. No monospace: key chips, play numbers
+   and log timestamps use the condensed face with tabular numerals. 12 px is the floor for secondary text. */
+kbd, .card .k, .lq { font-family: var(--font-cond); font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: 0.03em; }
+kbd { font-size: 0.72em; padding: 0 5px; }
+.lq { font-size: 0.8rem; }
+.toast-in b { font-family: var(--font-cond); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; font-variant-numeric: tabular-nums; }
+.toast-in span { font-family: var(--font-cond); font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; font-size: max(12px, 0.95rem); }
+.log { font-size: max(12px, 0.85rem); }
+.art-box .k { font-size: max(12px, 0.72rem); }
+
+/* Phones (review loop 3, G-toast-band): result toasts dock as an opaque band at the bottom edge of the field, clear of
+   the huddle and the ball, instead of floating translucent over the players. */
+@media (max-width: 760px) {
+  #toast, #toast.low { top: auto; bottom: 0; }
+  #toast .toast-in, #toast.low .toast-in { width: 100%; max-width: 100%; border-radius: 0; background: rgba(11, 10, 20, 0.94); padding: 6px 12px; }
+  #toast .toast-in.k-td { background: linear-gradient(90deg, var(--td1, #6D1A2B), var(--td1, #6D1A2B)); }
+}
+
+/* Review loop 4 (G-result-band): the band is solid from its first frame and only its text fades in, so a result never
+   ghosts over the players; the desktop band's center is near-opaque too. */
+.toast-in:not(.k-td) { background: linear-gradient(90deg, rgba(11,10,20,0), rgba(11,10,20,0.97) 12%, rgba(11,10,20,0.97) 88%, rgba(11,10,20,0)); }
+@keyframes toastIn { from { transform: translateY(-10px); } to { transform: none; } }
+@keyframes toastText { from { opacity: 0; } to { opacity: 1; } }
+.toast-in > * { animation: toastText 0.16s ease-out; }
+:root[data-motion="reduced"] .toast-in > * { animation: none; }
+@media (max-width: 760px) {
+  @keyframes toastIn { from { transform: translateY(6px); } to { transform: none; } }
+  #toast .toast-in:not(.k-td), #toast.low .toast-in:not(.k-td) { background: rgba(11, 10, 20, 0.97); }
+}
+
+/* Review loop 5 (G-mobile-framing): a phone held sideways gets the desktop layout but only ~320 px of panel height;
+   shrink the play diagram and the snap button so HIKE stays on screen without scrolling the panel */
+@media (min-width: 761px) and (max-height: 520px) {
+  #game { grid-template-columns: 1fr 250px; } /* the field keeps about 70% of the width (loop 5) */
+  /* result and touchdown bands stay a strip at the bottom of the field, clear of the scoreboard and posts (loop 9),
+     at most about a quarter of the field's height */
+  #toast, #toast.low { top: auto; bottom: 3%; }
+  .toast-in { padding: 4px 28px; }
+  .toast-in b, #toast.low .toast-in b { font-size: 1.3rem; }
+  .toast-in.k-td b { font-size: 1.8rem; }
+  .art-big { max-width: 190px; margin: 4px auto 6px; }
+  #panel .ph h2 { font-size: 1.05rem; }
+  #panel .ph .sub { display: none; } /* the diagram carries the play; its one-liner would push the buttons off screen */
+  .actions.big { margin: 6px 0; }
+  .btn.huge { min-height: 44px; padding: 8px 20px; font-size: 1.1rem; }
+  /* loop 7 (G-landscape-playlist): one-line titles and header, no descriptions, so four or more cards show */
+  #panel .ph h2 { font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; margin: 2px 0 4px; }
+  .ph-lead { display: none; }
+  .card.art { grid-template-areas: "art nm" "art ty"; grid-template-columns: auto 1fr; padding: 3px 6px 3px 4px; }
+  .card.art .ds { display: none; }
+  .card.art .art-box { width: 54px; height: 32px; }
+  .card .nm { font-size: 15px; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .card .ty { font-size: 11px; }
+  .cards { gap: 5px; }
+  #scorebug { padding: 3px 6px; }
+  .sb-team { padding: 2px 8px; }
+  .sb-team .mascot { width: 28px; height: 28px; }
+  .sb-score { font-size: 1.35rem; }
+  .sb-clock { font-size: 1.05rem; }
+  .sb-down { font-size: 0.78rem; }
+}
+
+/* Review loop 5 (G-hud-consistency): below 900 px the HOME tag gives its room to the timeout dots */
+@media (max-width: 900px) { .sb-home { display: none; } }
+/* Review loop 5 (G-type-clip-contrast): a long play list fades out at the panel's bottom edge instead of cutting a card
+   off hard, and result subtitles grow toward their headline */
+#panel.scrolls:has(.cards)::after { content: ''; position: sticky; bottom: -16px; display: block; height: 28px; margin: -28px -12px -16px; background: linear-gradient(transparent, var(--color-bg)); pointer-events: none; }
+.toast-in span { font-size: max(13px, 1.05rem); }
+
+/* Review loop 9 (G-live-panel): the desktop live panel carries the drive situation and the last plays below the
+   controls. Phones (portrait and short landscape) keep the field room instead. */
+.live-ctx { margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--color-border); }
+.live-ctx .lc-situ { margin: 0; font-family: var(--font-cond); font-size: 1.15rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text); }
+.live-ctx .lc-situ b { font-weight: 700; }
+.live-ctx .lc-mark { margin: 2px 0 0; font-size: 0.9rem; color: var(--color-muted); }
+@media (max-width: 760px) { .live-ctx { display: none; } }
+@media (min-width: 761px) and (max-height: 520px) { .live-ctx { display: none; } }
+
+/* Review loop 10 (G-desktop-panel-deadspace): kicks, touchdowns and replays need little panel; the field takes the width. */
+@media (min-width: 761px) and (min-height: 521px) { #game.slim { grid-template-columns: 1fr 250px; } }
+
+/* Review loop 11 (G-toast-hierarchy): desktop result toasts get a primary line about 28 px in cap height and a solid
+   backing, so figures don't show through faded edges. */
+@media (min-width: 761px) and (min-height: 521px) {
+  #toast.low .toast-in b { font-size: 2.3rem; }
+  #toast .toast-in:not(.k-td) { background: rgba(11, 10, 20, 0.96); border-radius: 6px; }
+  #toast .toast-in span { font-size: 1.1rem; }
+  .live-bar .art-big { max-width: 226px; }
+}
+
+/* Review loop 12 (G-phone-framing, G-toast-occludes-play): a phone held sideways gives live play and kicks a 200 px panel
+   (JUKE still fits), and its result toast is a solid rounded plate, not an edge-faded band. */
+@media (min-width: 761px) and (max-height: 520px) {
+  #game.slim { grid-template-columns: 1fr 200px; }
+  #toast .toast-in:not(.k-td) { background: rgba(11, 10, 20, 0.96); border-radius: 6px; }
+  .toast-in { padding: 2px 22px; }
+}

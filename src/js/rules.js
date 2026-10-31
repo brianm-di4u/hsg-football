@@ -50,9 +50,13 @@ function pstat(g, side, p) {
 const findP = (g, side, pid) => g.teams[side].players.find((p) => p.id === pid);
 const nameOf = (g, side, pid) => { const p = findP(g, side, pid); return p ? `${p.first[0]}. ${p.last}` : 'the runner'; };
 
-function logLine(g, text) {
-  const m = Math.floor(Math.max(0, g.clock) / 60), s = Math.floor(Math.max(0, g.clock) % 60);
-  g.log.push({ q: g.quarter, clock: `${m}:${String(s).padStart(2, '0')}`, text });
+// One clock format for the scorebug, the stadium board and the log: whole seconds rounded up (0.4 s left shows 0:01),
+// and while a play is being called the clock already shows the run-off it will lose.
+export const clockText = (s) => { s = Math.max(0, Math.ceil(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+export const shownClock = (g) => clockText(g.clock - (g.phase === 'call' ? g.runoff : 0));
+
+export function logLine(g, text) {
+  g.log.push({ q: g.quarter, clock: clockText(g.clock), text });
   if (g.log.length > 60) g.log.shift();
 }
 
@@ -119,15 +123,15 @@ function punt(g, rng) {
   else { const ret = Math.max(0, Math.round(rng.normal(5, 5))); ballOn = clamp(Math.round(100 - land) + ret, 1, 99); text = ret > 0 ? `returned ${ret} yd` : 'downed'; }
   if (!g.ot) g.clock = Math.max(0, g.clock - 6);
   g.kickAnim = { kind: 'punt', kicking: side, from: g.ballOn, land: Math.min(land, 105), ballOn, t: 0, touchback: land >= 100 };
-  logLine(g, `${tdef(g, side).short} punts ${Math.round(net)} yd, ${text}.`);
   g.stats.team[side].plays++;
   g.phase = 'kickoff';
-  g.pendingPunt = { other, ballOn, text };
+  g.pendingPunt = { side, other, ballOn, text, net }; // logged in finishPunt, once the ball is dead
 }
 
 export function finishPunt(g) {
   const p = g.pendingPunt;
   g.pendingPunt = null; g.kickAnim = null;
+  logLine(g, `${tdef(g, p.side).short} punts ${Math.round(p.net)} yd, ${p.text}.`);
   changePossession(g, p.other, p.ballOn);
   setResult(g, { text: 'PUNT', sub: `${p.text[0].toUpperCase()}${p.text.slice(1)}: ${tdef(g, p.other).short} ball on the ${yardLine(p.ballOn)}`, kind: 'kick' }, checkClockAfter(g));
 }
@@ -295,7 +299,9 @@ export function applyResult(g, r, rng) {
     g.runoff = r.clockStops ? 0 : RUNOFF;
   }
   const off = g.teams[side], D = g.teams[other];
-  const cname = r.carrierPid ? nameOf(g, r.carrierSide === 'O' ? side : other, r.carrierPid) : '';
+  // crafted results (tests, review captures) may name the carrier by slot
+  if (!r.carrierPid && r.carrierSlot) r = { ...r, carrierPid: st(g, r.carrierSide === 'D' ? other : side)[r.carrierSlot]?.id };
+  const cname =r.carrierPid ? nameOf(g, r.carrierSide === 'O' ? side : other, r.carrierPid) : '';
   const qbP = st(g, side).QB;
   // Spot of the ball (absolute x), on the nearer hash when outside them.
   if (r.x !== undefined && !['inc', 'throwaway'].includes(r.kind)) {

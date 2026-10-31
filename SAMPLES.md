@@ -105,7 +105,8 @@ and QB), and separation. Concepts only.
 
 | What | Version / source | License | Where | How it ships |
 |---|---|---|---|---|
-| three.js | `three@0.186.1` from npm (`build/three.module.js`, `build/three.core.js`) | MIT, © 2010-2026 Three.js Authors (`vendor/three/LICENSE`) | `vendor/three/` | `tools/build-three.mjs` tree-shakes it to the classes we use into `src/js/three-lib.js` (≈555 KB), which is inlined |
+| three.js | `three@0.186.1` from npm (`build/three.module.js`, `build/three.core.js`) | MIT, © 2010-2026 Three.js Authors (`vendor/three/LICENSE`) | `vendor/three/` | `tools/build-three.mjs` tree-shakes it to the classes we use into `src/js/three-lib.js` (≈595 KB), which is inlined |
+| three.js addons (v3 visuals) | `three@0.186.1` from npm, `examples/jsm`: EffectComposer, RenderPass, ShaderPass, UnrealBloomPass, GTAOPass, SMAAPass, OutputPass, LUTPass, BokehPass with their shaders; GLTFLoader, KTX2Loader, HDRLoader; meshopt decoder (MIT, meshoptimizer); Basis transcoder (Apache-2.0, Binomial); CCDIKSolver; SkeletonUtils | MIT (`vendor/three/addons/LICENSE`); Basis Universal Apache-2.0 | `vendor/three/addons/` (copied unmodified) | `tools/build-three.mjs` bundles them into `assets/pack-three-hi.js`, a lazy classic-script pack loaded only at the High tier |
 | Graduate (varsity display face) | `@fontsource/graduate@5.2.5` from npm, latin 400 | SIL OFL 1.1 (`vendor/fonts/LICENSE-graduate.txt`) | `vendor/fonts/` | `tools/build-fonts.mjs` embeds it as base64 in `src/styles/fonts.css` (file:// can't load font files) |
 | Oswald (condensed UI face) | `@fontsource/oswald@5.2.5` from npm, latin 500 and 700 | SIL OFL 1.1 (`vendor/fonts/LICENSE-oswald.txt`) | `vendor/fonts/` | same |
 | esbuild | `esbuild@0.25.10` from npm | MIT | `tools/dev/` (git-ignored `node_modules`) | build-time only, never shipped |

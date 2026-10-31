@@ -1,0 +1,22 @@
+Changes since loop 4 (facts only). Score **High** on desktop. Medium is the phone and mid tier. Low is the v2 look, captured to catch regressions.
+
+- **New player model (Medium and High).** Players are a new, more detailed body, built in Blender from scratch. They wear the same 11-bone rig and poses as before. They have shaped helmets with a facemask, chin strap and side decal. Jerseys are cut at real hems and tucked into belted pants. Players also have compression undersleeves, gloves with fingers, socks and cleats.
+  - Detail level: each player gets one of three detail levels (about 15k, 6k and 2k triangles) based on their height on screen. The finest level is used at High and in close-ups.
+  - Officials keep the previous model.
+- **Team kits (Medium and High).** Every school has its own home and away uniform, built from its colours: jersey, pants, helmet shell and facemask, sleeve, pant and sock stripes, and number fill and outline. The helmet decal is the school's mascot art.
+  - Home teams wear their colour; visitors wear white.
+  - Low keeps the previous palette look.
+- **Shoulder numbers.** The new model has no number panels on top of the shoulders. Numbers sit on the chest, the back and the outside of each sleeve.
+- **Waist and hip skinning.** In deep stances the waistband, seat and jersey hem bend smoothly instead of splitting into spikes.
+- **Line stances (all tiers).** Offensive linemen sit in a three-point stance, with their hips near knee height, a flat back and the right hand on the turf. Their left forearm rests across the thigh.
+  - Center: his hand rests on top of the ball, which sits on the turf under it.
+  - Defensive line: the ends mirror the stance (left hand down) and the inside tackles go down on both hands.
+- **Carrier marker.**
+  - The ring under the ball carrier is centred between his hips and feet, and on his hips once he goes down.
+  - In replays the ring and the "number NAME" tag stay on whoever has the ball.
+- **Phone, portrait, pre-snap.** The camera fits the formation's width with a small margin. The line of scrimmage sits about three-quarters of the way down the field view, so the frame shows less turf behind the offense and more of the field ahead.
+- **Phone held sideways.** There is a new landscape capture (844 × 390). In that layout the side panel's play diagram and snap button are smaller, so HIKE is on screen without scrolling.
+- **Result band.** The band is fully opaque from its first frame; only its text fades in. A run result names the runner.
+- **Stadium scoreboard.** Digits are lamp-style seven-segment numerals, with unlit segments faintly visible.
+- **R09 (catch).** The capture now uses a play where the pass is caught (the old setup was a drop). Its motion strip spans the catch.
+- **Unchanged since loop 4:** lighting setup, post chain, crowd, turf, venue geometry, HUD layout and type, and the run, throw, tackle and celebration motions.

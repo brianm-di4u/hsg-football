@@ -1,0 +1,57 @@
+{
+  "loop": 0,
+  "judge": {
+    "art": 4,
+    "lighting": 5,
+    "animation": 4,
+    "ui": 6,
+    "typography": 5.5,
+    "readability": 5.5,
+    "mobile": 6,
+    "authenticity": 6
+  },
+  "total": 42,
+  "critics": {
+    "critic-claude": {
+      "art": 4.5,
+      "lighting": 5,
+      "animation": 4.5,
+      "ui": 5.5,
+      "typography": 5.5,
+      "readability": 5.5,
+      "mobile": 6,
+      "authenticity": 5.5
+    },
+    "critic-codex": {
+      "art": 3.5,
+      "lighting": 4.5,
+      "animation": 3.5,
+      "ui": 6,
+      "typography": 5.5,
+      "readability": 5,
+      "mobile": 5.5,
+      "authenticity": 5.5
+    },
+    "advocate": {
+      "art": 4.5,
+      "lighting": 5,
+      "animation": 4.5,
+      "ui": 6,
+      "typography": 5.5,
+      "readability": 5.5,
+      "mobile": 6,
+      "authenticity": 6
+    }
+  },
+  "gates": {
+    "art": 7,
+    "lighting": 7,
+    "animation": 7,
+    "ui": 7,
+    "typography": 7,
+    "readability": 7,
+    "mobile": 7,
+    "authenticity": 6
+  },
+  "verdict": "continue"
+}

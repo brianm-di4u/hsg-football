@@ -150,6 +150,9 @@ export const tests = [
       await t.page.waitForTimeout(150);
       s = await t.state();
       t.equal(s.fx, 0, 'no TD burst under reduced motion');
+      // no camera moves or shake to wait for; allow a few frames for shader compiles and poses to land
+      const t0 = Date.now();
+      while (!(await t.game('isIdle')) && Date.now() - t0 < 1000) await t.page.waitForTimeout(50);
       t.equal(await t.game('isIdle'), true, 'nothing to wait on (instant camera, no shake)');
       await t.shot('44-reduced-motion');
     },

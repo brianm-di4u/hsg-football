@@ -1,0 +1,218 @@
+[
+  {
+    "id": "G-regression-authenticity",
+    "category": "authenticity",
+    "expectedGain": 0.5,
+    "severity": 5,
+    "effort": "S",
+    "workstream": "WS7",
+    "fix": "Find and undo what lowered authenticity since loop 3",
+    "priority": 99,
+    "selected": true
+  },
+  {
+    "id": "G-chest-number-flip",
+    "category": "art",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "S",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R04-slot_C",
+      "crops/high/R06-slot_C",
+      "crops/high/R03-slot_QB"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Parent the chest-number quad to the chest bone with fixed local orientation (no world-up lookAt); test that #90 reads '90' upright (R03-slot_QB) and in stance (R04-slot_C).",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-line-stance",
+    "category": "animation",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS4",
+    "evidence": [
+      "crops/high/R06-slot_C",
+      "crops/high/R04-slot_C",
+      "crops/high/R16-slot_K",
+      "crops/high/R11-carrier"
+    ],
+    "benchmark": "axis-1",
+    "fix": "Author OL/DL three- and four-point stances with a hand on the turf; center's hands on the ball; holder's hand on the ball tip; replace the R11 split-leap cut frame with a planted-outside-foot cut pose (hip spread <= 90 degrees).",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-carrier-tracking",
+    "category": "readability",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "strips/high/R13",
+      "high/desktop/R15",
+      "crops/high/R11-carrier"
+    ],
+    "benchmark": "legendbowl-2",
+    "fix": "Lock the carrier ring to the carrier's pelvis XZ every frame (including airborne) and keep the name plate on in replays; ring must be occupied in all 8 panels of strips/high/R13.",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-result-band",
+    "category": "ui",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/mobile/R21",
+      "strips/high/R10",
+      "high/desktop/R21"
+    ],
+    "benchmark": "madden26-3",
+    "fix": "Result band background opaque from frame one on desktop and phone (fade text only); always include the runner's name in toast and log line.",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-mobile-framing",
+    "category": "mobile",
+    "expectedGain": 0.75,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "high/mobile/R04",
+      "high/mobile/R08",
+      "high/mobile/R21"
+    ],
+    "benchmark": "retrobowl-1",
+    "fix": "Tighten portrait pre-snap and pass cameras so players are >= 20 CSS px tall, crop empty turf behind the offense, keep the in-world board clear of the HUD; add a landscape capture and a High 4x-throttle perf row with p95 <= 33 ms.",
+    "priority": 0.563,
+    "selected": true
+  },
+  {
+    "id": "G-contact-beats",
+    "category": "animation",
+    "expectedGain": 1,
+    "severity": 5,
+    "effort": "L",
+    "workstream": "WS4b",
+    "evidence": [
+      "strips/high/R10",
+      "strips/high/R13",
+      "crops/high/R12-carrier"
+    ],
+    "benchmark": "madden26-4",
+    "fix": "Phased tackle (wrap, 0.25 s drive, impact-direction fall, ground settle) with capsule separation and the ball held in the carrier's hand; sample R10/R13 strips at <= 0.1 s across the contact window.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-mannequin-detail",
+    "category": "art",
+    "expectedGain": 1,
+    "severity": 5,
+    "effort": "L",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R06-slot_C",
+      "crops/high/R14-carrier",
+      "crops/high/R03-slot_QB"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Shaped knees/elbows, gloves with finger splits, sock/cleat separation, thigh and knee pad bulges, jersey fold/mesh normal map; officials get simple faces and sleeves attached to the torso.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-catch-beat",
+    "category": "animation",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS4",
+    "evidence": [
+      "strips/high/R09",
+      "crops/high/R09-slot_Z"
+    ],
+    "benchmark": "cfb26-4",
+    "fix": "Re-time the R09 frame and strip to span ball arrival +/-0.3 s; reach IK to the predicted ball point from 0.35 s before arrival, secure pose on arrival; receiver/defender capsule separation.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-perimeter-light",
+    "category": "lighting",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS1",
+    "evidence": [
+      "high/desktop/R01",
+      "high/desktop/R17",
+      "high/desktop/R15",
+      "crops/high/R18-turf_26_67_40"
+    ],
+    "benchmark": "cfb26-3",
+    "fix": "Spill from the light banks onto end-zone wall, apron and stand fascia with distance falloff; model lit risers under the crowd box; in rain add wetness to player materials and swap square splash sprites for ring/streak sprites.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-sidebar-live",
+    "category": "ui",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R10",
+      "high/desktop/R22",
+      "high/desktop/R16"
+    ],
+    "benchmark": "axis-1",
+    "fix": "Collapse the right panel to a 64 px rail during live play and widen the field; playbook gets a scroll affordance or two columns so no card is clipped; remove the duplicate FG title.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-scoreboard-font",
+    "category": "typography",
+    "expectedGain": 0.25,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "crops/high/R01-board",
+      "high/desktop/R04",
+      "high/desktop/R22"
+    ],
+    "benchmark": "madden26-3",
+    "fix": "7-segment/dot-matrix face for the in-world scoreboard; field '1ST & 10' paint in the HUD condensed family; description grey raised to >= 4.5:1 on navy.",
+    "priority": 0.375,
+    "selected": true
+  },
+  {
+    "id": "G-team-identity",
+    "category": "authenticity",
+    "expectedGain": 0.25,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS3",
+    "evidence": [
+      "high/desktop/R03",
+      "high/desktop/R22",
+      "high/desktop/R20"
+    ],
+    "benchmark": "cfb26-1",
+    "fix": "Drive jersey, pant and helmet colours from the HUD team palette (maroon Lake Hamilton, purple Jessieville, teal Tufa Ridge accents), no shared orange pants; R03 and R22 huddles must be distinguishable at frame scale.",
+    "priority": 0.25,
+    "selected": false
+  }
+]

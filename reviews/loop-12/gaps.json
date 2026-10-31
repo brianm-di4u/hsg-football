@@ -1,0 +1,203 @@
+[
+  {
+    "id": "G-result-occlusion",
+    "category": "mobile",
+    "expectedGain": 0.4,
+    "severity": 4,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "medium/landscape/R12",
+      "high/landscape/R12",
+      "high/desktop/R12"
+    ],
+    "benchmark": "retrobowl-2",
+    "fix": "At 844x390 aim the result camera so the spot sits ~40% from the top of the 3D viewport, or render the result line inside the widened side panel instead of over the field; test: downed carrier's full body visible above any overlay in landscape R12. Desktop already clear.",
+    "priority": 0.6,
+    "selected": true
+  },
+  {
+    "id": "G-phone-framing",
+    "category": "readability",
+    "expectedGain": 0.6,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "medium/mobile/R04",
+      "high/mobile/R04",
+      "medium/landscape/R10",
+      "high/landscape/R10"
+    ],
+    "benchmark": "retrobowl-1",
+    "fix": "Fit the portrait pre-snap camera to the bounding box of all eligible receivers plus a 2 yd margin; aim the landscape live camera so the carrier sits at 55-60% of viewport height with the horizon no higher than 25% from the top; test: no clamped badges in portrait R04, carrier ring and tag fully visible in landscape R10.",
+    "priority": 0.45,
+    "selected": true
+  },
+  {
+    "id": "G-wet-surface",
+    "category": "lighting",
+    "expectedGain": 0.3,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS5",
+    "evidence": [
+      "high/desktop/R18",
+      "crops/high/R18-turf_26_67_40"
+    ],
+    "benchmark": "cfb26-3",
+    "fix": "In rain, lower turf roughness field-wide through a noise-broken wetness mask, add stretched tower reflection streaks toward the gameplay camera, and clamp peak specular so the hotspot spreads instead of clipping white.",
+    "priority": 0.45,
+    "selected": true
+  },
+  {
+    "id": "G-contact",
+    "category": "animation",
+    "expectedGain": 0.6,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS4b",
+    "evidence": [
+      "strips/high/R13",
+      "strips/high/R10",
+      "strips/high/R09",
+      "crops/high/R12-carrier"
+    ],
+    "benchmark": "madden26-4",
+    "fix": "0.3 s slow-motion plus camera punch-in on live catch and tackle contact with a turf-spray particle burst; wrap-then-fall reaching the ground inside the 8-frame strip window; catch-to-tuck blend before the result cut; capsule separation between piled bodies.",
+    "priority": 0.45,
+    "selected": true
+  },
+  {
+    "id": "G-stand-falloff",
+    "category": "lighting",
+    "expectedGain": 0.3,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS1",
+    "evidence": [
+      "high/desktop/R13",
+      "high/desktop/R14",
+      "high/desktop/R17"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Bake or vertex-colour a light falloff gradient from the tower pools onto stand fronts, berm and backdrop wall, darkening with distance from the field, and add a faint additive light cone under each tower head.",
+    "priority": 0.225,
+    "selected": true
+  },
+  {
+    "id": "G-venue-surrounds-empty",
+    "category": "authenticity",
+    "expectedGain": 0.4,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS2",
+    "evidence": [
+      "high/desktop/R14",
+      "high/desktop/R16",
+      "high/desktop/R17",
+      "high/desktop/R15",
+      "high/desktop/R13"
+    ],
+    "benchmark": "cfb26-2",
+    "fix": "End-zone chain-link fence with standing fans, a concession stand or field house at the open end, a textured grass berm with walkway, and card-foliage trees replacing the grey cones; texture the flat wall behind the visitor stand.",
+    "priority": 0.2,
+    "selected": false
+  },
+  {
+    "id": "G-player-construction",
+    "category": "art",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "L",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R06-slot_C-side",
+      "crops/high/R04-slot_QB",
+      "crops/high/R03-slot_QB",
+      "crops/high/R12-carrier"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Glove meshes with grouped fingers for players and officials; officials' striped sleeves skinned to the torso and simple facial features on the existing skin-toned heads; jersey normal map with folds and seams; 2-3 body-type variants (lineman vs skill).",
+    "priority": 0.188,
+    "selected": false
+  },
+  {
+    "id": "G-school-crowd",
+    "category": "authenticity",
+    "expectedGain": 0.3,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS2",
+    "evidence": [
+      "crops/high/R01-crowd",
+      "high/desktop/R01"
+    ],
+    "benchmark": "cfb26-1",
+    "fix": "Uniformed band block with instrument silhouettes at one end of the home stands and a themed student section (orange-out) in the front rows near the 50, with 3+ crowd pose variants and school banners.",
+    "priority": 0.15,
+    "selected": false
+  },
+  {
+    "id": "G-weight",
+    "category": "animation",
+    "expectedGain": 0.4,
+    "severity": 3,
+    "effort": "L",
+    "workstream": "WS4",
+    "evidence": [
+      "strips/high/R11",
+      "crops/high/R11-carrier"
+    ],
+    "benchmark": "madden26-4",
+    "fix": "Lean the carrier 10 degrees or more into cuts with the hips over the plant foot, and give blockers distinct brace, push and release phases.",
+    "priority": 0.15,
+    "selected": false
+  },
+  {
+    "id": "G-qb-under-center",
+    "category": "animation",
+    "expectedGain": 0.1,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS4",
+    "evidence": [
+      "crops/high/R06-slot_C"
+    ],
+    "fix": "Crouched under-center QB pose with hands at the center's seat and the ball in the center's hand on under-center plays; R04 shotgun is correct.",
+    "priority": 0.15,
+    "selected": false
+  },
+  {
+    "id": "G-phone-hitches",
+    "category": "mobile",
+    "expectedGain": 0.2,
+    "severity": 2,
+    "effort": "M",
+    "workstream": "WS1",
+    "evidence": [
+      "medium/mobile/R10",
+      "medium/landscape/R10"
+    ],
+    "benchmark": "retrobowl-2",
+    "fix": "Re-run the 4x CPU proxy on an idle machine first (this loop's rig was loaded and Low shows a similar tail); if Medium p95 stays above 50 ms, halve phone-tier shadow-map size and caster count and cap bloom to one mip chain.",
+    "priority": 0.15,
+    "selected": false
+  },
+  {
+    "id": "G-fg-meter-overlap",
+    "category": "ui",
+    "expectedGain": 0.1,
+    "severity": 1,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R16",
+      "high/desktop/R04"
+    ],
+    "benchmark": "retrobowl-3",
+    "fix": "Narrow the FG meter ~60 px or shift it left to clear the in-world scoreboard, drop the duplicate side-panel copy, and offset overlapping route arrows by 6 px.",
+    "priority": 0.1,
+    "selected": false
+  }
+]

@@ -1,0 +1,224 @@
+[
+  {
+    "id": "G-regression-typography",
+    "category": "typography",
+    "expectedGain": 0.5,
+    "severity": 5,
+    "effort": "S",
+    "workstream": "WS7",
+    "fix": "Find and undo what lowered typography since loop 8",
+    "priority": 99,
+    "selected": true
+  },
+  {
+    "id": "G-regression-mobile",
+    "category": "mobile",
+    "expectedGain": 0.5,
+    "severity": 5,
+    "effort": "S",
+    "workstream": "WS7",
+    "fix": "Find and undo what lowered mobile since loop 8",
+    "priority": 99,
+    "selected": true
+  },
+  {
+    "id": "G-text-clipping",
+    "category": "typography",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R22",
+      "high/landscape/R12"
+    ],
+    "benchmark": "madden26-3",
+    "fix": "Remove the play-list fade mask when the list fits, or make it scroll with an explicit 'more' cue; clamp the landscape log to whole entries so no text is cut.",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-desktop-panel-deadspace",
+    "category": "ui",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R14",
+      "high/desktop/R17",
+      "high/desktop/R01"
+    ],
+    "benchmark": "axis-1",
+    "fix": "Narrow the 360 px panel to about 260 px or collapse it in kickoff, punt, field-goal, touchdown and replay states, and give the field the recovered width.",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-midground-flat",
+    "category": "lighting",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS1",
+    "evidence": [
+      "high/desktop/R17",
+      "high/desktop/R14",
+      "high/desktop/R10"
+    ],
+    "benchmark": "cfb26-3",
+    "fix": "Raise lamp-pool contrast to 25-35%, darken the apron and walls beyond the pools by about 30%, add a mild vignette and fill light on dark jerseys; keep the existing multi-source shadows.",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-kick-ball-readability",
+    "category": "readability",
+    "expectedGain": 0.3,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R17",
+      "high/desktop/R02"
+    ],
+    "benchmark": "retrobowl-1",
+    "fix": "Reuse the pass ribbon on kickoffs, punts and field goals and draw a landing ring under the ball.",
+    "priority": 0.45,
+    "selected": true
+  },
+  {
+    "id": "G-phone-framing",
+    "category": "mobile",
+    "expectedGain": 0.6,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "high/mobile/R04",
+      "high/mobile/R08",
+      "high/landscape/R12"
+    ],
+    "benchmark": "retrobowl-1",
+    "fix": "Portrait pre-snap camera fits all eligible receivers with the formation in the lower 60%; portrait pass camera tracks the ball-to-target corridor so receivers are at least 40 CSS px; separate overlapping edge pointers; landscape banner clears the pile.",
+    "priority": 0.45,
+    "selected": true
+  },
+  {
+    "id": "G-player-construction",
+    "category": "art",
+    "expectedGain": 0.6,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R03-slot_QB",
+      "crops/high/R04-slot_QB",
+      "crops/high/R12-carrier"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Officials: attach sleeves to the torso, add face shading and fingered hands, keep the existing caps and skin. Players: reduce the shoulder bulb by about 15%, widen the hips and thicken the shins; keep the helmet and jersey materials.",
+    "priority": 0.45,
+    "selected": false
+  },
+  {
+    "id": "G-wet-turf",
+    "category": "lighting",
+    "expectedGain": 0.4,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS5",
+    "evidence": [
+      "high/desktop/R18",
+      "crops/high/R18-turf_26_67_40"
+    ],
+    "benchmark": "axis-3",
+    "fix": "In rain, lower turf roughness across the whole field with stretched lamp reflections visible from the game camera, break the highlight with grass-scale roughness noise, clamp the single blown hotspot, keep the splashes.",
+    "priority": 0.3,
+    "selected": false
+  },
+  {
+    "id": "G-contact-resolution",
+    "category": "animation",
+    "expectedGain": 0.7,
+    "severity": 4,
+    "effort": "L",
+    "workstream": "WS4b",
+    "evidence": [
+      "strips/high/R10",
+      "strips/high/R09",
+      "crops/high/R12-carrier"
+    ],
+    "benchmark": "cfb26-4",
+    "fix": "At least two intermediate falling poses between upright and grounded, a visible wrap, a bent-limb ground pose in place of the plank dive, a post-whistle settle and roll, and the ball attached to the carrier's hand on the ground.",
+    "priority": 0.262,
+    "selected": false
+  },
+  {
+    "id": "G-sideline-staging",
+    "category": "authenticity",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS2",
+    "evidence": [
+      "strips/high/R13",
+      "high/desktop/R01",
+      "high/desktop/R20"
+    ],
+    "benchmark": "cfb26-1",
+    "fix": "Cluster and jitter sideline teams with varied idles and coaches with headsets; add a band block and a student section in the home stands, cheerleaders on the track and a chain crew.",
+    "priority": 0.25,
+    "selected": false
+  },
+  {
+    "id": "G-feel-camera",
+    "category": "animation",
+    "expectedGain": 0.3,
+    "severity": 2,
+    "effort": "M",
+    "workstream": "WS4",
+    "evidence": [
+      "strips/high/R09",
+      "strips/high/R13",
+      "strips/high/R07"
+    ],
+    "benchmark": "madden26-4",
+    "fix": "Keep the catch push-in; add a 0.25-0.4 s time-scale dip to about 0.35x and turf-spray particles at first contact, and frame the QB larger through the throw beat.",
+    "priority": 0.225,
+    "selected": false
+  },
+  {
+    "id": "G-locomotion-weight",
+    "category": "animation",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "L",
+    "workstream": "WS4",
+    "evidence": [
+      "strips/high/R11",
+      "strips/high/R13"
+    ],
+    "benchmark": "madden26-4",
+    "fix": "Planted outside-foot cuts with pelvis drop on direction changes; blocking pairs that shift under pressure instead of a fixed embrace.",
+    "priority": 0.188,
+    "selected": false
+  },
+  {
+    "id": "G-venue-voids",
+    "category": "authenticity",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "L",
+    "workstream": "WS2",
+    "evidence": [
+      "strips/high/R13",
+      "high/desktop/R14",
+      "crops/high/R13-carrier"
+    ],
+    "benchmark": "cfb26-2",
+    "fix": "Replace the floating visitor box with a structured stand, the empty end-zone plane with a fence and field house, black cones with textured tree cards, and add a tan or red track with lane lines.",
+    "priority": 0.125,
+    "selected": false
+  }
+]

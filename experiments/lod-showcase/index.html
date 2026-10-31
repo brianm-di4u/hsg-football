@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Player LOD Showcase</title>
+<link rel="icon" href="data:,">
+<!-- Six levels of detail of the same Friday Night Spa City player, side by side under one night-stadium light rig.
+     Needs http (GLBs can't be fetched from file://):  node experiments/lod-showcase/serve.mjs
+     URL options: ?solo=3 (one level, full size), ?still (no turntable), ?game=2 (start at an in-game distance). -->
+<style>
+  :root { --bg: #070b14; --panel: #0e1524; --line: #1d2940; --text: #e8ecf4; --muted: #8d9ab3; --accent: #d4a017; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 14px/1.35 system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+  header { position: fixed; top: 0; left: 0; right: 0; height: 56px; display: flex; align-items: center; gap: 16px; padding: 0 16px;
+           background: linear-gradient(#0b1220, rgba(11, 18, 32, 0.85)); border-bottom: 1px solid var(--line); z-index: 2; }
+  h1 { font-size: 16px; margin: 0; white-space: nowrap; }
+  h1 span { color: var(--muted); font-weight: 400; }
+  .controls { display: flex; gap: 8px; align-items: center; margin-left: auto; flex-wrap: wrap; }
+  button, select { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; font: inherit; cursor: pointer; }
+  button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+  #grid { position: fixed; top: 56px; left: 0; right: 0; bottom: 0; display: grid; gap: 6px; padding: 6px; grid-template-columns: repeat(6, 1fr); pointer-events: none; z-index: 1; }
+  #grid.solo { grid-template-columns: 1fr; }
+  .cell { position: relative; border: 1px solid var(--line); border-radius: 8px; min-height: 0; }
+  .label { position: absolute; left: 0; right: 0; bottom: 0; padding: 8px 10px; background: linear-gradient(transparent, rgba(5, 8, 15, 0.92) 35%); border-radius: 0 0 8px 8px; }
+  .label b { font-size: 18px; color: var(--accent); }
+  .label .nums { font-variant-numeric: tabular-nums; }
+  .label .what { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .label .gm { font-size: 12px; margin-top: 4px; font-variant-numeric: tabular-nums; display: none; }
+  body.game .label .gm { display: block; }
+  #hint { position: fixed; right: 12px; bottom: 8px; color: var(--muted); font-size: 12px; z-index: 2; pointer-events: none; }
+  @media (max-width: 1100px) { #grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 640px) { #grid { grid-template-columns: repeat(2, 1fr); } header { height: auto; min-height: 56px; flex-wrap: wrap; padding: 8px 16px; } h1 span { display: none; } }
+</style>
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/three.module.js", "three/addons/": "../../vendor/three/addons/" } }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<header>
+  <h1>Player LOD <span>· same player, six levels of detail</span></h1>
+  <div class="controls">
+    <button id="spin" aria-pressed="true">Turntable</button>
+    <button id="wire" aria-pressed="false">Wireframe</button>
+    <select id="game" aria-label="Viewing distance">
+      <option value="-1">Close inspection</option>
+      <option value="0">In game · 3 m (replay)</option>
+      <option value="1">In game · 8 m (behind the play)</option>
+      <option value="2">In game · 20 m (broadcast)</option>
+      <option value="3">In game · 45 m (wide)</option>
+    </select>
+  </div>
+</header>
+<div id="grid"></div>
+<div id="hint">Drag to orbit · wheel to zoom</div>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const WHAT = [
+  'Four-sided prisms, flat shaded. One facemask bar, no number.',
+  'Smooth lofted limbs, ellipsoid helmet, two-bar mask, chest number.',
+  'Rounded ends, jaw pads, three-bar mask, gloves with thumbs, soles, belt, sleeve bands, back number.',
+  'Game HD level: 4 + 3 bar mask, chin strap, ear holes, pad rims, knee pads, shoulder numbers.',
+  'Modelled fingers, mask struts, clips and welds, V-neck collar, outlined numbers, sock bands, cleat studs, face features.',
+  'Cloth folds, sock ribbing, sculpted face, laces, knuckles, helmet pinstripes, rolled sleeve hems.',
+];
+// in-game viewing distances; the game camera's vertical FOV is 40 degrees (src/js/field3d.js), reference screen 1080 px tall
+const GAME = [{ d: 3, name: '3 m' }, { d: 8, name: '8 m' }, { d: 20, name: '20 m' }, { d: 45, name: '45 m' }];
+const GAME_FOV = 40, SCREEN_H = 1080, PLAYER_H = 1.89, FRAME_H = 2.3;
+
+const qs = new URLSearchParams(location.search);
+const solo = qs.has('solo') ? Math.max(1, Math.min(6, +qs.get('solo'))) - 1 : -1;
+const view = { az: -0.55, el: 0.1, dist: 4.4, fov: 30, target: new THREE.Vector3(0, 0.95, 0) };
+const state = { spin: !qs.has('still'), wire: false, game: qs.has('game') ? +qs.get('game') : -1, stats: {}, frame: 0, deltas: null };
+
+// ---------------------------------------------------------------- renderer, scene, night-stadium lighting
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.NeutralToneMapping;  // keeps the team colours honest (ACES bleaches the gold)
+renderer.toneMappingExposure = 1.0;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFShadowMap;
+const BG = new THREE.Color(0x070b14);
+
+const scene = new THREE.Scene();
+scene.background = BG;
+scene.environment = nightEnvironment();
+scene.environmentIntensity = 0.5;
+
+const key = new THREE.DirectionalLight(0xf2f5ff, 3.0);
+key.position.set(-2.6, 6, 4.2);
+key.castShadow = true;
+key.shadow.mapSize.set(4096, 4096);
+Object.assign(key.shadow.camera, { left: -1.3, right: 1.3, top: 2.2, bottom: -0.6, near: 1, far: 16 });
+key.shadow.bias = -0.0002; key.shadow.normalBias = 0.02;
+key.target.position.set(0, 0.9, 0);
+scene.add(key, key.target);
+const fill = new THREE.DirectionalLight(0xffd8a8, 0.7);   // warm spill from the home stands
+fill.position.set(4, 2.5, 2.5);
+const rim = new THREE.DirectionalLight(0xc2d6ff, 1.6);    // a second light tower behind
+rim.position.set(1.5, 4.5, -5);
+scene.add(fill, rim, new THREE.HemisphereLight(0x2a3a5c, 0x0b160c, 0.35));
+
+const turf = new THREE.Mesh(new THREE.CircleGeometry(60, 64), new THREE.MeshStandardMaterial({ color: 0x1d4523, roughness: 0.95 }));
+turf.rotation.x = -Math.PI / 2; turf.receiveShadow = true;
+scene.add(turf);
+const line = new THREE.Mesh(new THREE.PlaneGeometry(0.1, 120), new THREE.MeshStandardMaterial({ color: 0xe9ecef, roughness: 0.9 }));
+line.rotation.x = -Math.PI / 2; line.position.set(0.9, 0.001, 0); line.receiveShadow = true;
+scene.add(line);
+
+// A small HDR scene (dark sky, four banks of stadium lights, the field) baked to a PMREM environment map.
+function nightEnvironment() {
+  const env = new THREE.Scene();
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(50, 32, 16), new THREE.ShaderMaterial({
+    side: THREE.BackSide, depthWrite: false,
+    vertexShader: 'varying vec3 p; void main(){ p = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    fragmentShader: 'varying vec3 p; void main(){ float h = normalize(p).y; vec3 c = mix(vec3(0.035, 0.06, 0.035), vec3(0.03, 0.045, 0.09), smoothstep(-0.05, 0.05, h)); c = mix(c, vec3(0.008, 0.012, 0.03), smoothstep(0.1, 0.8, h)); gl_FragColor = vec4(c, 1.0); }',
+  }));
+  env.add(sky);
+  const lamp = new THREE.MeshBasicMaterial({ color: new THREE.Color(14, 14, 13) });
+  for (let i = 0; i < 4; i++) {
+    const a = Math.PI / 4 + i * Math.PI / 2, bank = new THREE.Mesh(new THREE.BoxGeometry(9, 3, 0.5), lamp);
+    bank.position.set(Math.sin(a) * 34, 22, Math.cos(a) * 34); bank.lookAt(0, 0, 0);
+    env.add(bank);
+  }
+  const stands = new THREE.MeshBasicMaterial({ color: new THREE.Color(0.25, 0.22, 0.2) });
+  for (const z of [-30, 30]) { const s = new THREE.Mesh(new THREE.BoxGeometry(70, 8, 2), stands); s.position.set(0, 4, z); env.add(s); }
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const tex = pmrem.fromScene(env, 0.02).texture;
+  pmrem.dispose();
+  return tex;
+}
+
+// ---------------------------------------------------------------- cells, labels, models
+const grid = document.getElementById('grid');
+if (solo >= 0) grid.classList.add('solo');
+const cells = [];
+for (let i = 0; i < 6; i++) {
+  const el = document.createElement('div');
+  el.className = 'cell';
+  el.innerHTML = `<div class="label"><b>L${i + 1}</b> <span class="nums">loading…</span><div class="what">${WHAT[i]}</div><div class="gm"></div></div>`;
+  if (solo < 0 || solo === i) grid.appendChild(el);
+  cells.push({ el, nums: el.querySelector('.nums'), gm: el.querySelector('.gm') });
+}
+
+const models = [], materials = new Set();
+const camera = new THREE.PerspectiveCamera(30, 1, 0.05, 300);
+const makeRT = () => {
+  const t = new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, samples: 4 });
+  t.texture.magFilter = t.texture.minFilter = THREE.NearestFilter;
+  return t;
+};
+const rt = makeRT(), rtBig = makeRT();
+// Shows a low-res render magnified with hard pixel edges. With n > 1 the source is n x n times larger and each output
+// pixel is the box average of its n x n block: a supersampled reference at the same pixel size.
+const blit = new THREE.ShaderMaterial({
+  depthTest: false, depthWrite: false,
+  uniforms: { tex: { value: null }, lo: { value: new THREE.Vector2(1, 1) }, n: { value: 1 } },
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+  fragmentShader: `uniform sampler2D tex; uniform vec2 lo; uniform float n; varying vec2 vUv;
+    void main(){
+      vec2 p = floor(vUv * lo); vec3 c = vec3(0.0);
+      for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++)
+        if (float(i) < n && float(j) < n) c += texture2D(tex, (p * n + vec2(i, j) + 0.5) / (lo * n)).rgb;
+      gl_FragColor = vec4(c / (n * n), 1.0);
+      #include <tonemapping_fragment>
+      #include <colorspace_fragment>
+    }`,
+});
+const blitScene = new THREE.Scene(), blitCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+blitScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), blit));
+
+const fmt = (n) => n.toLocaleString('en-US');
+async function load() {
+  state.stats = await (await fetch('models/stats.json', { cache: 'no-store' })).json();
+  const loader = new GLTFLoader();
+  const gltfs = await Promise.all([1, 2, 3, 4, 5, 6].map((l) => loader.loadAsync(`models/L${l}.glb`)));
+  gltfs.forEach((g, i) => {
+    let tris = 0;
+    g.scene.traverse((o) => {
+      if (!o.isMesh) return;
+      o.castShadow = o.receiveShadow = true;
+      materials.add(o.material);
+      tris += o.geometry.index ? o.geometry.index.count / 3 : o.geometry.attributes.position.count / 3;
+    });
+    g.scene.userData.tris = tris;
+    g.scene.visible = false;
+    scene.add(g.scene); models.push(g.scene);
+    const s = state.stats[`L${i + 1}`];
+    cells[i].nums.textContent = `${fmt(tris)} tris · ${fmt(s.verts)} verts · ${(s.bytes / 1024).toFixed(1)} KB`;
+  });
+}
+
+// ---------------------------------------------------------------- rendering
+function cellRect(i) {
+  const r = cells[i].el.getBoundingClientRect();
+  return { x: r.left, y: window.innerHeight - r.bottom, w: r.width, h: r.height, onScreen: r.width > 2 && r.bottom > 0 && r.top < window.innerHeight };
+}
+
+function placeCamera(dist, fov, aspect) {
+  const { az, el, target } = view;
+  camera.fov = fov; camera.aspect = aspect;
+  camera.position.set(target.x + Math.sin(az) * Math.cos(el) * dist, target.y + Math.sin(el) * dist, target.z + Math.cos(az) * Math.cos(el) * dist);
+  camera.lookAt(target); camera.updateProjectionMatrix();
+}
+
+// In-game mode: the player is rendered at the pixel size it gets on a 1080p screen at that distance through the game's
+// 40-degree camera, then magnified with nearest filtering so the real pixels are visible.
+function gamePixels(d) {
+  const screenH = 2 * d * Math.tan(THREE.MathUtils.degToRad(GAME_FOV / 2));
+  return { frame: SCREEN_H * FRAME_H / screenH, player: SCREEN_H * PLAYER_H / screenH };
+}
+
+function render(show = (i) => i, ss = 1) {
+  const W = window.innerWidth, H = window.innerHeight, dpr = renderer.getPixelRatio();
+  if (canvas.width !== Math.floor(W * dpr) || canvas.height !== Math.floor(H * dpr)) renderer.setSize(W, H, false);
+  renderer.setScissorTest(false); renderer.setClearColor(BG); renderer.clear();
+  renderer.setScissorTest(true);
+  for (let i = 0; i < 6; i++) {
+    if (solo >= 0 && i !== solo) continue;
+    const r = cellRect(i);
+    if (!r.onScreen) continue;
+    models.forEach((m, j) => { m.visible = j === show(i); });
+    if (state.game < 0) {
+      placeCamera(view.dist, view.fov, r.w / r.h);
+      renderer.setViewport(r.x, r.y, r.w, r.h); renderer.setScissor(r.x, r.y, r.w, r.h);
+      renderer.render(scene, camera);
+    } else {
+      const d = GAME[state.game].d, px = gamePixels(d);
+      const rh = Math.max(8, Math.min(Math.round(px.frame), Math.round(r.h * dpr))), rw = Math.max(4, Math.round(rh * r.w / r.h));
+      const target = ss > 1 ? rtBig : rt;
+      if (target.width !== rw * ss || target.height !== rh * ss) target.setSize(rw * ss, rh * ss);
+      blit.uniforms.tex.value = target.texture; blit.uniforms.lo.value.set(rw, rh); blit.uniforms.n.value = ss;
+      view.target.y = 0.95;
+      placeCamera(d, THREE.MathUtils.radToDeg(2 * Math.atan(FRAME_H / 2 / d)), r.w / r.h);
+      renderer.setRenderTarget(target); renderer.setScissorTest(false); renderer.setClearColor(BG); renderer.clear();
+      renderer.render(scene, camera);
+      renderer.setRenderTarget(null); renderer.setScissorTest(true);
+      renderer.setViewport(r.x, r.y, r.w, r.h); renderer.setScissor(r.x, r.y, r.w, r.h);
+      renderer.render(blitScene, blitCam);
+    }
+  }
+}
+
+// Pixel comparison in the current view against a reference: L6 rendered 4 x 4 supersampled (16 samples per pixel) in the
+// in-game modes, plain L6 in close inspection. Of the pixels the player and its shadow cover, how many differ visibly
+// (any channel > 12/255) and by how much on average. Read straight from the drawing buffer after each render.
+function readCells() {
+  const gl = renderer.getContext(), dpr = renderer.getPixelRatio(), out = [];
+  for (let i = 0; i < 6; i++) {
+    const r = cellRect(i), x = Math.round(r.x * dpr), y = Math.round(r.y * dpr), w = Math.floor(r.w * dpr), h = Math.floor(r.h * dpr);
+    const buf = new Uint8Array(w * h * 4);
+    gl.readPixels(x, y, w, h, gl.RGBA, gl.UNSIGNED_BYTE, buf);
+    out.push({ w, h, buf });
+  }
+  return out;
+}
+function measure() {
+  if (solo >= 0) return null;
+  render(() => -1); const empty = readCells();
+  render(() => 5, state.game >= 0 ? 4 : 1); const ref = readCells();
+  render(); const now = readCells();
+  const res = [];
+  for (let i = 0; i < 6; i++) {
+    const a = now[i], b = ref[i], e = empty[i], w = Math.min(a.w, b.w, e.w), h = Math.min(a.h, b.h, e.h);
+    let mask = 0, changed = 0, sum = 0;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const ia = (y * a.w + x) * 4, ib = (y * b.w + x) * 4, ie = (y * e.w + x) * 4;
+      const fg = Math.max(Math.abs(b.buf[ib] - e.buf[ie]), Math.abs(b.buf[ib + 1] - e.buf[ie + 1]), Math.abs(b.buf[ib + 2] - e.buf[ie + 2])) > 12
+              || Math.max(Math.abs(a.buf[ia] - e.buf[ie]), Math.abs(a.buf[ia + 1] - e.buf[ie + 1]), Math.abs(a.buf[ia + 2] - e.buf[ie + 2])) > 12;
+      if (!fg) continue;
+      mask++;
+      const d = Math.max(Math.abs(a.buf[ia] - b.buf[ib]), Math.abs(a.buf[ia + 1] - b.buf[ib + 1]), Math.abs(a.buf[ia + 2] - b.buf[ib + 2]));
+      sum += (Math.abs(a.buf[ia] - b.buf[ib]) + Math.abs(a.buf[ia + 1] - b.buf[ib + 1]) + Math.abs(a.buf[ia + 2] - b.buf[ib + 2])) / 3;
+      if (d > 12) changed++;
+    }
+    res.push({ level: i + 1, playerPixels: mask, changedPct: mask ? 100 * changed / mask : 0, meanDiff: mask ? sum / mask : 0 });
+  }
+  state.deltas = res;
+  return res;
+}
+
+function updateLabels() {
+  if (state.game < 0) return;
+  const px = gamePixels(GAME[state.game].d);
+  cells.forEach((c, i) => {
+    const dl = state.deltas && state.deltas[i];
+    c.gm.textContent = `player ≈ ${Math.round(px.player)} px tall at 1080p` + (dl ? ` · ${dl.changedPct.toFixed(1)}% of its pixels differ visibly from a 16x-supersampled L6` : '');
+  });
+}
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  if (state.spin) view.az += dt * 0.35;
+  render();
+  if (state.game >= 0 && solo < 0 && state.frame++ % 30 === 0) { measure(); updateLabels(); }
+  requestAnimationFrame(frame);
+}
+
+// ---------------------------------------------------------------- controls
+function setWire(on) { state.wire = on; materials.forEach((m) => { m.wireframe = on; }); document.getElementById('wire').setAttribute('aria-pressed', on); }
+function setSpin(on) { state.spin = on; document.getElementById('spin').setAttribute('aria-pressed', on); }
+function setGame(g) { state.game = g; document.body.classList.toggle('game', g >= 0); document.getElementById('game').value = String(g); if (g < 0) view.target.y = 0.95; state.deltas = null; updateLabels(); }
+document.getElementById('spin').onclick = () => setSpin(!state.spin);
+document.getElementById('wire').onclick = () => setWire(!state.wire);
+document.getElementById('game').onchange = (e) => setGame(+e.target.value);
+let drag = null;
+canvas.addEventListener('pointerdown', (e) => { drag = { x: e.clientX, y: e.clientY }; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointermove', (e) => {
+  if (!drag) return;
+  view.az -= (e.clientX - drag.x) * 0.008; view.el = Math.max(-0.2, Math.min(1.2, view.el + (e.clientY - drag.y) * 0.006));
+  drag = { x: e.clientX, y: e.clientY };
+});
+canvas.addEventListener('pointerup', () => { drag = null; });
+canvas.addEventListener('wheel', (e) => { e.preventDefault(); view.dist = Math.max(0.6, Math.min(12, view.dist * Math.pow(1.1, Math.sign(e.deltaY)))); }, { passive: false });
+
+// test hook used by shots.mjs
+window.__lod = {
+  ready: false,
+  setView(v) { if (v.target) view.target.set(...v.target); for (const k of ['az', 'el', 'dist', 'fov']) if (v[k] !== undefined) view[k] = v[k];
+    if (v.spin !== undefined) setSpin(v.spin); if (v.wire !== undefined) setWire(v.wire); if (v.game !== undefined) setGame(v.game); render(); },
+  measure: () => { const m = measure(); updateLabels(); render(); return m; },
+  gpu() { const gl = renderer.getContext(), x = gl.getExtension('WEBGL_debug_renderer_info'); return x ? gl.getParameter(x.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER); },
+  stats: () => state.stats,
+  sceneTris: () => models.map((m) => m.userData.tris),
+};
+
+setGame(state.game);
+load().then(() => { window.__lod.ready = true; requestAnimationFrame(frame); }).catch((e) => { console.error(e); cells.forEach((c) => { c.nums.textContent = 'failed to load: ' + e.message; }); });
+</script>
+</body>
+</html>

@@ -1,0 +1,214 @@
+[
+  {
+    "id": "G-regression-art",
+    "category": "art",
+    "expectedGain": 0.5,
+    "severity": 5,
+    "effort": "S",
+    "workstream": "WS7",
+    "fix": "Find and undo what lowered art since loop 5",
+    "priority": 99,
+    "selected": true
+  },
+  {
+    "id": "G-log-coherence",
+    "category": "ui",
+    "expectedGain": 0.4,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R17",
+      "high/desktop/R21",
+      "high/desktop/R15",
+      "high/desktop/R14"
+    ],
+    "benchmark": "madden26-3",
+    "fix": "Write kick and punt results to the log only when the ball is dead, and seed each staged scenario's log so its entries end at the current spot (touchback at the 20 leads to a snap at the 20; a TD from 20 yd out follows a drive that reached the 20). Test: no log line in R14, R15, R17 or R21 contradicts the scorebug spot or the ball state.",
+    "priority": 0.6,
+    "selected": true
+  },
+  {
+    "id": "G-portrait-presnap-scale",
+    "category": "mobile",
+    "expectedGain": 0.8,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "high/mobile/R04",
+      "high/mobile/R08"
+    ],
+    "benchmark": "retrobowl-1",
+    "fix": "Frame the portrait pre-snap and QB-hold cameras on the formation box (LOS +/-12 yd) with the LOS at about 60% of screen height. Set the FOV so a lineman is at least 22 CSS px tall and the outside receivers sit within 8% of the edges; the far end zone leaves the shot. Also lifts readability about +0.3. Merges G-phone-framing.",
+    "priority": 0.6,
+    "selected": true
+  },
+  {
+    "id": "G-landscape-playlist",
+    "category": "typography",
+    "expectedGain": 0.4,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/landscape/R22",
+      "medium/landscape/R22"
+    ],
+    "benchmark": "madden26-3",
+    "fix": "At 844x390, set play titles on one line (condensed, about 15 px, with an ellipsis fallback), shorten the header to '1ST & 10 · OWN 30', compact the cards so at least 4 show, and cut the scorebug to about 56-64 px tall. Test: no wrapped title or header in high/landscape/R22.",
+    "priority": 0.6,
+    "selected": true
+  },
+  {
+    "id": "G-portrait-safe-area",
+    "category": "mobile",
+    "expectedGain": 0.3,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/mobile/R10",
+      "high/mobile/R18",
+      "high/landscape/R14"
+    ],
+    "benchmark": "retrobowl-2",
+    "fix": "Add bottom safe-area padding so the steering hint renders fully on portrait. Hide the 3D board's lower rows whenever less than 60% of the board is visible under the HUD.",
+    "priority": 0.45,
+    "selected": true
+  },
+  {
+    "id": "G-player-silhouette",
+    "category": "art",
+    "expectedGain": 0.6,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R04-slot_QB",
+      "crops/high/R06-slot_LG",
+      "crops/high/R16-slot_K"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Cut the pants and seat volume 25-35%, tapering the thighs into the knee and keeping the hips inside the shoulder line. Add a deltoid and forearm taper to the arms. Remove the hem-stripe V-notch under the sleeve number and add sleeve-outline segments. The fingers already exist; leave them out of scope.",
+    "priority": 0.45,
+    "selected": true
+  },
+  {
+    "id": "G-hint-panel",
+    "category": "ui",
+    "expectedGain": 0.2,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R07",
+      "high/desktop/R10"
+    ],
+    "benchmark": "axis-1",
+    "fix": "Raise the steering-hint contrast to at least 7:1 to match the other muted text, and fill the empty live-play side panel with personnel, the defensive look and the hot read.",
+    "priority": 0.3,
+    "selected": false
+  },
+  {
+    "id": "G-lamp-veil",
+    "category": "lighting",
+    "expectedGain": 0.2,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS1",
+    "evidence": [
+      "strips/high/R09",
+      "high/desktop/R08",
+      "high/desktop/R19"
+    ],
+    "benchmark": "cfb26-3",
+    "fix": "Fade the off-screen lamp flare by its on-screen distance (or cap its bloom contribution) so no grey veil covers the sky in R08 and R09 frames 1-3. Cut the bloom on the nearest painted yard lines in the day-mist frame.",
+    "priority": 0.3,
+    "selected": false
+  },
+  {
+    "id": "G-catch-cut-block",
+    "category": "animation",
+    "expectedGain": 0.4,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS4",
+    "evidence": [
+      "strips/high/R09",
+      "strips/high/R11",
+      "crops/high/R09-slot_Z"
+    ],
+    "benchmark": "madden26-4",
+    "fix": "Reach the receiver's hands toward the ball with IK for about 0.3 s before the catch, with a head turn. Lean the carrier's torso 15-20 degrees into cuts with a visible plant foot. Give blocking pairs a push-back and recovery cycle instead of a frozen crouch. Merges G-catch-cut-poses and G-contact-locomotion.",
+    "priority": 0.3,
+    "selected": false
+  },
+  {
+    "id": "G-tackle-contact",
+    "category": "animation",
+    "expectedGain": 0.7,
+    "severity": 4,
+    "effort": "L",
+    "workstream": "WS4b",
+    "evidence": [
+      "strips/high/R10",
+      "strips/high/R13",
+      "strips/high/R09"
+    ],
+    "benchmark": "cfb26-4",
+    "fix": "Insert a 2-3 sample wrap and contact pose before every fall (tackler's arms around the carrier, carrier's torso jolting). Stagger the descents so the pile builds across frames, complete the replay tackle within the strip window, and add a short punch-in or slow motion at first contact. Merges G-contact-beats and G-tackle-transition.",
+    "priority": 0.262,
+    "selected": false
+  },
+  {
+    "id": "G-stand-falloff",
+    "category": "lighting",
+    "expectedGain": 0.3,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS1",
+    "evidence": [
+      "high/desktop/R01",
+      "high/desktop/R17",
+      "strips/high/R13"
+    ],
+    "benchmark": "cfb26-3",
+    "fix": "Add field-spill light to the near and far grandstands, falling off with distance from the light banks, so the kickoff and punt wide shots show lit seating instead of a black bowl. Replace the flat grey wall behind the replay bleacher with a dressed backdrop (fence, concourse, the R15 treeline). Also about +0.2 authenticity. The cause is lighting and an unfilled backdrop, not a missing crowd.",
+    "priority": 0.225,
+    "selected": false
+  },
+  {
+    "id": "G-wet-surface",
+    "category": "lighting",
+    "expectedGain": 0.3,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS5",
+    "evidence": [
+      "high/desktop/R18",
+      "crops/high/R18-turf_26_67_40"
+    ],
+    "benchmark": "cfb26-4",
+    "fix": "Keep the current wet-turf darkening (already visibly darker than dry). Make the low-frequency puddle masks, several yards across, visible from the gameplay camera. Clamp the specular peak and widen the lobe so lamp reflections streak and spread instead of blowing out to one white hotspot. Merges G-rain-reads-dry.",
+    "priority": 0.225,
+    "selected": false
+  },
+  {
+    "id": "G-band-student-section",
+    "category": "authenticity",
+    "expectedGain": 0.4,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS2",
+    "evidence": [
+      "high/desktop/R01",
+      "crops/high/R01-crowd",
+      "high/desktop/R20"
+    ],
+    "benchmark": "cfb26-1",
+    "fix": "Add a marching-band block in uniform colour with instrument silhouettes, and a student section with a distinct colour (or white-out) and its own waving pattern, in the home stands. Both must be visible in the R01 and R03 framings and in crops/high/R01-crowd.",
+    "priority": 0.2,
+    "selected": false
+  }
+]

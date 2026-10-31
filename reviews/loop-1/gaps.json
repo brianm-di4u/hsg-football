@@ -1,0 +1,205 @@
+[
+  {
+    "id": "G-overlay-anchoring",
+    "category": "ui",
+    "expectedGain": 0.6,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R12",
+      "high/mobile/R12",
+      "high/desktop/R15",
+      "crops/high/R11-carrier",
+      "high/desktop/R22"
+    ],
+    "benchmark": "madden26-3",
+    "fix": "Project the carrier tag from the carrier's head bone each frame (drop to ring when down); lock the carrier ring to the carrier root within 0.3 yd every rendered frame, live and replay; dock the result banner under the scorebug whenever its screen box intersects a player within 3 yd of the ball; replace the duplicate panel result heading with drive context; fit or scroll the play list so no card clips at 1280x800.",
+    "priority": 0.9,
+    "selected": true
+  },
+  {
+    "id": "G-replay-dof-focus",
+    "category": "readability",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS1",
+    "evidence": [
+      "high/desktop/R15",
+      "high/desktop/R13"
+    ],
+    "benchmark": "cfb26-4",
+    "fix": "Set replay focus distance to camera-to-carrier distance, keep an in-focus band of at least +/-5 yd and cap max circle of confusion so only far stands blur; carrier and contacting defender must be as sharp in R13/R15 as in a live frame.",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-qb-ball-in-hand",
+    "category": "animation",
+    "expectedGain": 0.4,
+    "severity": 4,
+    "effort": "S",
+    "workstream": "WS4",
+    "evidence": [
+      "crops/high/R07-slot_QB"
+    ],
+    "benchmark": "madden26-4",
+    "fix": "Parent the ball to the QB throwing-hand socket from snap through drop and wind-up until the release tick; R07-slot_QB must show the ball inside the hand bounding box, never on the turf.",
+    "priority": 0.6,
+    "selected": true
+  },
+  {
+    "id": "G-jersey-numerals",
+    "category": "art",
+    "expectedGain": 0.4,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R04-slot_C",
+      "crops/high/R03-slot_QB",
+      "crops/high/R12-carrier",
+      "crops/high/R14-carrier"
+    ],
+    "benchmark": "madden26-4",
+    "fix": "Correct per-decal UV orientation on both kits front and back (white kit worst, some black backs too); add a render test over every kit x side x number 0-99 compared against the glyph.",
+    "priority": 0.6,
+    "selected": true
+  },
+  {
+    "id": "G-anim-key-beats",
+    "category": "animation",
+    "expectedGain": 1.5,
+    "severity": 5,
+    "effort": "L",
+    "workstream": "WS4",
+    "evidence": [
+      "strips/high/R09",
+      "crops/high/R09-slot_Z",
+      "strips/high/R11",
+      "crops/high/R14-carrier"
+    ],
+    "benchmark": "madden26-4",
+    "fix": "Blended key poses: QB set/load/release/follow-through tied to the release tick; receiver head turn and arm extension starting >=6 ticks before arrival; planted cut foot with >=10 deg torso lean; 4+ celebration variants per player; 0.6 s punch-in with slow-mo on catch and tackle contact. Verify in new R07/R09/R11 strips.",
+    "priority": 0.563,
+    "selected": true
+  },
+  {
+    "id": "G-player-mesh-v3",
+    "category": "art",
+    "expectedGain": 1.5,
+    "severity": 5,
+    "effort": "L",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R04-slot_C",
+      "crops/high/R06-slot_LG",
+      "crops/high/R03-slot_QB",
+      "crops/high/R16-slot_K"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Smooth skinned body with modeled gloves/fingers, shaped cleats, rolled shoulder-pad edges, face under the facemask, jersey normal map with folds and seams, 2-3 positional builds; officials get faces and caps. Close-ups must show no faceted torso, block hand or box foot.",
+    "priority": 0.563,
+    "selected": false
+  },
+  {
+    "id": "G-mobile-framing",
+    "category": "mobile",
+    "expectedGain": 0.75,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "high/mobile/R04",
+      "high/mobile/R21",
+      "high/desktop/R04"
+    ],
+    "benchmark": "retrobowl-1",
+    "fix": "Fit the phone pre-snap camera to formation width plus 8% so receivers 1 and 2 sit fully inside 390 px; pitch so the field reaches within 5% of the viewport top (no dark band); hide '(T)' on TIMEOUT for touch; add and tune a landscape 844x390 capture; on desktop lower the pre-snap target so the formation sits in the middle third instead of over 30% empty foreground.",
+    "priority": 0.563,
+    "selected": false
+  },
+  {
+    "id": "G-crowd-people",
+    "category": "art",
+    "expectedGain": 0.6,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS2",
+    "evidence": [
+      "crops/high/R01-crowd",
+      "high/desktop/R15"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Replace cuboid/diamond crowd with instanced impostor cards or low-poly people with heads, shoulders and arms, per-instance shirt color and pose, and aisles; crops/high/R01-crowd must read as seated people.",
+    "priority": 0.45,
+    "selected": false
+  },
+  {
+    "id": "G-rain-wet-read",
+    "category": "lighting",
+    "expectedGain": 0.3,
+    "severity": 2,
+    "effort": "S",
+    "workstream": "WS5",
+    "evidence": [
+      "high/desktop/R18",
+      "crops/high/R18-turf_26_67_40"
+    ],
+    "benchmark": "cfb26-4",
+    "fix": "Darken wet albedo and lower roughness until lamp streaks are visible from the broadcast camera in R18; prefilter puddle normals to remove glitter; replace white-cube spray with soft alpha splash sprites.",
+    "priority": 0.45,
+    "selected": false
+  },
+  {
+    "id": "G-hs-staging",
+    "category": "authenticity",
+    "expectedGain": 0.75,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS2",
+    "evidence": [
+      "high/desktop/R15",
+      "high/desktop/R20",
+      "crops/high/R01-crowd"
+    ],
+    "benchmark": "cfb26-2",
+    "fix": "Add a uniformed band block in the visitor or end-zone bleacher, a cheer line on the apron, lane lines on the existing tan apron so it reads as a track, a student-section block in school colors, and varied sideline poses (helmets off, kneeling, coaches with headsets) instead of a cloned row.",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-tackle-falls",
+    "category": "animation",
+    "expectedGain": 1,
+    "severity": 4,
+    "effort": "L",
+    "workstream": "WS4b",
+    "evidence": [
+      "crops/high/R12-carrier",
+      "strips/high/R10"
+    ],
+    "benchmark": "cfb26-4",
+    "fix": "On contact: wrap pose and shared momentum, balance loss and a descent of >=0.4 s, torso roll and settle, 3-4 fall variants, no body interpenetration. Re-capture R10/R13 with evenly spaced dense strips (current R10 skips 3:20 to 3:18 between panels 5 and 6).",
+    "priority": 0.375,
+    "selected": false
+  },
+  {
+    "id": "G-bowl-light-bloom",
+    "category": "lighting",
+    "expectedGain": 0.5,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS1",
+    "evidence": [
+      "high/desktop/R01",
+      "strips/high/R09",
+      "high/desktop/R19"
+    ],
+    "benchmark": "cfb26-3",
+    "fix": "Light bleacher geometry and crowd from the lamp banks so the stands are lit from the aerial kick cameras (R01/R02/R17), make lamp heads emissive and visible from above, raise the bloom threshold above field-paint luminance (no halo in R19), and remove the haze sheet in the pass camera's upper corner (R07/R09).",
+    "priority": 0.375,
+    "selected": false
+  }
+]

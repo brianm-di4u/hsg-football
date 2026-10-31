@@ -1,0 +1,22 @@
+Changes since loop 11 (facts only). Score **High** on desktop. Medium is the phone and mid tier. Low is the v2 look, captured to catch regressions.
+
+- **Receiver badges.**
+  - Badges sit just over the receiver's helmet again (loop 11 had lifted them so far that they landed on the players behind).
+  - A short light tether runs from each badge down to its receiver's helmet.
+  - Edge-clamped badges keep their chevron tabs.
+  - The target receiver's in-flight badge gets the same treatment.
+- **Field-goal meter.** It is drawn at the top of the field, over the sky and far stands, instead of the lower third. The holder, kicker and line stay fully in view.
+- **Result cameras.**
+  - On desktop the result camera looks less far ahead, so the pile sits nearer mid-frame, clear of the bottom-docked result toast.
+  - In portrait the post-play camera centres between the spot and the offense's huddle behind it, so both teams are in view above the result band.
+- **Phone held sideways (844 × 390).**
+  - Live play, kicks, touchdowns and replays use a 200 px panel (was 250 px). JUKE still fits.
+  - Result toasts are a solid rounded plate instead of an edge-faded band, with less padding.
+- **Lighting (Medium and High, night).**
+  - The light pools on the field toward each tower are tighter and brighter, with darker gaps between towers.
+  - The painted night sky is about half a stop darker, and its dusk orange is muted toward night (all tiers).
+- **Capture notes.**
+  - Idle frames now take a second snap once the layout has settled, because the landscape panel widens at the result.
+  - 25 of 27 repeat checks are within 0.5/255. High landscape R10 is at 0.63 (gait noise). Low desktop R12, a regression-check frame that isn't scored, varies between runs in a way that has moved between tiers from run to run; this is a rig timing issue.
+  - Perf was measured on a loaded machine again.
+- **Unchanged since loop 11:** player and official models, animation (catch, falls, blocking), crowd and venue, wet turf, the pre-snap cameras, the desktop live panel and the play-call layout.

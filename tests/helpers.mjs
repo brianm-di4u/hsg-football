@@ -13,10 +13,11 @@ export async function waitFor(t, pred, ms = 8000, label = 'condition') {
 }
 
 // Deterministic exhibition: user team is teams[0], no auto-continue, kickoff already done.
-// Graphics pinned to High so screenshots don't depend on the adaptive quality of the (software) test GPU.
+// Graphics pinned to the Low tier at full detail (the v2 look) so screenshots don't depend on the adaptive quality of
+// the (software) test GPU or on the optional asset packs; tiers.test.mjs covers Medium and High.
 export async function quickGame(t, { seed = 7, you = 'hot-springs', opp = 'lakeside', settings = {}, skipKickoff = true, receiver = 0, quarterMin = 4 } = {}) {
   await t.seed(seed);
-  await t.game('setState', { settings: { autoContinue: false, sound: false, quality: 'high', ...settings } });
+  await t.game('setState', { settings: { autoContinue: false, sound: false, quality: 'low', detail: 2, ...settings } });
   await t.game('newGame', { mode: 'exhibition', you, opp, skipToss: true, skipKickoff, receiver, quarterMin, seed });
   return t.state();
 }

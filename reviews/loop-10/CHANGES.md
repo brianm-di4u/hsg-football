@@ -1,0 +1,21 @@
+Changes since loop 9 (facts only). Score **High** on desktop. Medium is the phone and mid tier. Low is the v2 look, captured to catch regressions.
+
+- **Panel text never clipped.**
+  - The play list's bottom fade appears only when the panel really scrolls. When the ten plays fit, every card is drawn whole with no fade.
+  - A log in the side panel shows only whole entries: an entry the panel's bottom edge would cut is left out (for example, the landscape result panel now shows two whole plays).
+- **Slimmer desktop panel in quiet states.** During kickoffs, punts, field goals, touchdowns and replays, the desktop side panel is 250 px wide (was 320–360), and the field takes the width. Phones are unchanged.
+- **Light around the field (Medium and High, night).**
+  - The light pools on the field toward each tower are about twice as strong as loop 9 (roughly 25–35% brighter at their centres).
+  - The ground beyond the field is darker away from the poles.
+  - At High the additive night haze over the bowl is about a third weaker, so the stands' surroundings and the area behind the end zones are darker.
+- **Kicks.**
+  - Kickoffs, punts and field goals in the air trail the same tapered light ribbon as passes, traced back along the kick's flight.
+  - Kickoffs and punts show a ring on the turf where the ball will land.
+- **Portrait phone cameras.**
+  - Pre-snap, the camera fits the offense within 9 yd of the line (up to 29 yd across, was 21–25) with a longer lens, so more receivers are on screen. Linemen are about 23 CSS px (loop 9: about 27). The formation sits just below mid-frame. Receivers beyond the frame keep edge badges.
+  - With a pass in the air, the camera frames the ball-to-target corridor (22–32 yd across, centred between ball and target), so receivers are about 35–40 CSS px and the action is mid-frame.
+- **Edge badges.** Badges clamped to the same edge stack further apart, so their chevron tabs no longer overlap.
+- **Capture and perf notes.**
+  - 26 of 27 repeat checks are within 0.5/255. Medium landscape R12 is at 0.504.
+  - The machine was under heavy unrelated load during this loop's perf runs (a long-running dev server and a stray headless browser), so every tier's CPU time is about double loop 9's. Loop 9's committed code, measured at the same time, was as slow: Medium phone at 4× throttle 34–54 fps, against 45–90 fps for this build. Read perf.json as loaded-machine numbers, not a regression.
+- **Unchanged since loop 9:** player and official models, animation and falls, crowd, venue geometry, wet turf, desktop and landscape cameras, the kickoff establishing shot and the play-call layout.

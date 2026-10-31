@@ -1,0 +1,25 @@
+Changes since loop 6 (facts only). Score **High** on desktop. Medium is the phone and mid tier. Low is the v2 look, captured to catch regressions.
+
+- **Phone, portrait, pre-snap.**
+  - The camera frames the box instead of the whole formation: the tackles, the tight end and the backfield, about 21–25 yd across. The lens is longer (28° vertical, was 40°) and slightly lower.
+  - Linemen are about 26–28 CSS px tall, up from about 20.
+  - The line of scrimmage sits about 58% of the way down the field view; the far end zone is out of the shot.
+  - Wide receivers may be at or past the screen edge, where their badges clamp.
+  - The quarterback's passing view is unchanged, so every receiver stays on screen and can be tapped.
+- **Phone, scoreboard sliver.** When the top of the view would cut the stadium scoreboard to less than 60% of its height, its face is hidden, so no half-rows show under the HUD.
+- **Phone, bottom edge.** The live-play panel no longer has the scroll fade over its last line, so the "Steer by dragging" hint shows in full. The panel also pads for the device's bottom safe area.
+- **Phone held sideways (844 × 390), play list.**
+  - Play titles and the panel header are each one line, with an ellipsis if needed. The header drops "Your ball:" and reads "1st & 10 at the own 30".
+  - Card descriptions are hidden, and cards and their diagrams are smaller, so more cards show.
+  - The scorebug is shorter: smaller scores, clock and down text, and less padding.
+- **Play log.**
+  - A punt is logged when the ball is dead, not when it is kicked, so no line says "downed" while the ball is in the air.
+  - Staged review scenarios add a line saying where the drive reached, so the log ends at the scorebug's spot.
+- **Player model (Medium and High).**
+  - The pants fit closer: the hips are about 10% narrower and the waistband no longer flares wider than the jersey above it.
+  - The seat, the thigh pads and the outer-hip pads are smaller.
+  - The thighs taper into the knee.
+  - The pants are less glossy (roughness 0.66, was 0.48), so they read as fabric rather than a shiny shell.
+  - The forearms taper from the muscle to a slimmer wrist.
+- **Capture note.** In trial runs, R12 on landscape sometimes differed by 1–2/255 between two captures, and loop 6's committed code did the same, so it is test-rig noise rather than a change in this loop. In this capture every verified frame repeats within 0.5/255 (worst 0.37).
+- **Unchanged since loop 6:** lighting, post chain, crowd, venue, animation and motion, desktop camera framing, the officials, and the jersey and helmet.

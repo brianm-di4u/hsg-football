@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "setup": "cd shared/test-harness && npm install && npx playwright install chromium",
-    "build": "node shared/tools/inline.mjs .",
+    "build": "node tools/build.mjs --only=data,inline,check",
     "test": "node shared/test-harness/run.mjs ."
   }
 }

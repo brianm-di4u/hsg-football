@@ -1,0 +1,149 @@
+{
+ "L1": {
+  "level": 1,
+  "parts": 19,
+  "blenderTris": 356,
+  "blenderVerts": 218,
+  "groups": {
+   "body": 192,
+   "feet": 24,
+   "hands": 24,
+   "face": 8,
+   "helmet": 34,
+   "mask": 74
+  },
+  "bytes": 26816,
+  "tris": 356,
+  "verts": 734,
+  "primitives": 8,
+  "materials": 8,
+  "extensions": [
+   "KHR_materials_clearcoat",
+   "KHR_materials_sheen"
+  ]
+ },
+ "L2": {
+  "level": 2,
+  "parts": 24,
+  "blenderTris": 1138,
+  "blenderVerts": 630,
+  "groups": {
+   "body": 726,
+   "feet": 80,
+   "numbers": 14,
+   "hands": 40,
+   "face": 24,
+   "helmet": 186,
+   "mask": 68
+  },
+  "bytes": 36408,
+  "tris": 1138,
+  "verts": 860,
+  "primitives": 10,
+  "materials": 10,
+  "extensions": [
+   "KHR_materials_clearcoat",
+   "KHR_materials_sheen"
+  ]
+ },
+ "L3": {
+  "level": 3,
+  "parts": 38,
+  "blenderTris": 3466,
+  "blenderVerts": 1881,
+  "groups": {
+   "body": 1520,
+   "trim": 286,
+   "feet": 340,
+   "numbers": 42,
+   "hands": 232,
+   "face": 100,
+   "helmet": 662,
+   "mask": 284
+  },
+  "bytes": 86068,
+  "tris": 3466,
+  "verts": 2280,
+  "primitives": 12,
+  "materials": 12,
+  "extensions": [
+   "KHR_materials_clearcoat",
+   "KHR_materials_sheen"
+  ]
+ },
+ "L4": {
+  "level": 4,
+  "parts": 50,
+  "blenderTris": 9206,
+  "blenderVerts": 4892,
+  "groups": {
+   "body": 4158,
+   "trim": 916,
+   "feet": 668,
+   "numbers": 204,
+   "hands": 524,
+   "face": 210,
+   "helmet": 1654,
+   "mask": 872
+  },
+  "bytes": 206292,
+  "tris": 9206,
+  "verts": 5819,
+  "primitives": 13,
+  "materials": 13,
+  "extensions": [
+   "KHR_materials_clearcoat",
+   "KHR_materials_sheen"
+  ]
+ },
+ "L5": {
+  "level": 5,
+  "parts": 141,
+  "blenderTris": 32526,
+  "blenderVerts": 17710,
+  "groups": {
+   "body": 9386,
+   "trim": 3932,
+   "feet": 2212,
+   "numbers": 3552,
+   "hands": 2476,
+   "face": 1158,
+   "helmet": 5438,
+   "mask": 4372
+  },
+  "bytes": 676796,
+  "tris": 32526,
+  "verts": 19457,
+  "primitives": 17,
+  "materials": 17,
+  "extensions": [
+   "KHR_materials_clearcoat",
+   "KHR_materials_sheen"
+  ]
+ },
+ "L6": {
+  "level": 6,
+  "parts": 164,
+  "blenderTris": 121634,
+  "blenderVerts": 62851,
+  "groups": {
+   "body": 47130,
+   "trim": 14068,
+   "feet": 8900,
+   "numbers": 4896,
+   "hands": 8196,
+   "face": 4882,
+   "helmet": 19182,
+   "mask": 14380
+  },
+  "bytes": 2330308,
+  "tris": 121634,
+  "verts": 66073,
+  "primitives": 17,
+  "materials": 17,
+  "extensions": [
+   "KHR_materials_clearcoat",
+   "KHR_materials_sheen"
+  ]
+ }
+}

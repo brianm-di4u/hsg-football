@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Baseline Player Showroom</title>
+<link rel="icon" href="data:,">
+<!-- The baseline player (build_baseline.py) in every team's home and away uniform, posed by the game's own Rig.pose().
+     Needs http:  node experiments/baseline-player/serve.mjs
+     URL options: ?view=lineup|hero|lods|poses  &team=<id>  &away  &lod=hero|lod0|lod1|lod2  &pose=<name>  &still  &game=0..3 -->
+<style>
+  :root { --bg: #070b14; --panel: #0e1524; --line: #1d2940; --text: #e8ecf4; --muted: #8d9ab3; --accent: #e6b422; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 14px/1.35 system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+  header { position: fixed; top: 0; left: 0; right: 0; min-height: 56px; display: flex; align-items: center; gap: 12px; padding: 8px 16px; flex-wrap: wrap;
+           background: linear-gradient(#0b1220, rgba(11, 18, 32, 0.88)); border-bottom: 1px solid var(--line); z-index: 2; }
+  h1 { font-size: 16px; margin: 0; white-space: nowrap; }
+  h1 span { color: var(--muted); font-weight: 400; }
+  .controls { display: flex; gap: 6px; align-items: center; margin-left: auto; flex-wrap: wrap; }
+  button, select { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 6px 9px; font: inherit; cursor: pointer; }
+  button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+  #grid { position: fixed; top: var(--top, 56px); left: 0; right: 0; bottom: 0; display: grid; gap: 6px; padding: 6px; pointer-events: none; z-index: 1; }
+  .cell { position: relative; border: 1px solid var(--line); border-radius: 8px; min-height: 0; min-width: 0; }
+  .label { position: absolute; left: 0; right: 0; bottom: 0; padding: 6px 9px; background: linear-gradient(transparent, rgba(5, 8, 15, 0.9) 40%); border-radius: 0 0 8px 8px; font-size: 12px; }
+  .label b { color: var(--accent); font-size: 13px; }
+  .label .sub { color: var(--muted); }
+  #hint { position: fixed; right: 12px; bottom: 8px; color: var(--muted); font-size: 12px; z-index: 2; pointer-events: none; }
+  #err { position: fixed; inset: 80px 20px auto; color: #ff8080; z-index: 3; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<header>
+  <h1>Baseline player <span>· one mesh, every team</span></h1>
+  <div class="controls">
+    <select id="view" aria-label="View">
+      <option value="lineup">All teams</option><option value="hero">Single player</option><option value="lods">Levels of detail</option><option value="poses">Poses</option>
+    </select>
+    <select id="team" aria-label="Team"></select>
+    <button id="home" aria-pressed="true">Home</button>
+    <select id="lod" aria-label="Level of detail"><option value="hero">Hero</option><option value="lod0">LOD0</option><option value="lod1">LOD1</option><option value="lod2">LOD2</option></select>
+    <select id="pose" aria-label="Pose"></select>
+    <select id="skin" aria-label="Skin tone"></select>
+    <select id="game" aria-label="Viewing distance">
+      <option value="-1">Close up</option><option value="0">In game · 3 m</option><option value="1">In game · 8 m</option><option value="2">In game · 20 m</option><option value="3">In game · 45 m</option>
+    </select>
+    <button id="old" aria-pressed="false">Game shader</button>
+    <button id="wire" aria-pressed="false">Wireframe</button>
+    <button id="spin" aria-pressed="true">Turntable</button>
+  </div>
+</header>
+<div id="grid"></div>
+<div id="hint">Drag to orbit · wheel to zoom</div>
+<div id="err"></div>
+<script type="module">
+// school data first: the game's data.js reads globalThis.SCHOOLS when it is first imported
+globalThis.SCHOOLS = await (await fetch('../../data/schools.json')).json();
+const { THREE } = await import('../../src/js/three-lib.js');
+const { Rig, SCALE, uniformFor, SKIN_TONES } = await import('../../src/js/players3d.js');
+const { ALL, contrast, onColor } = await import('../../src/js/data.js');
+const { designFor, KITS: designs } = await import('./design.js');
+const { baselineGeometry, uniformMaterial, applyLook } = await import('./material.js');
+
+const qs = new URLSearchParams(location.search);
+const LODS = ['hero', 'lod0', 'lod1', 'lod2'];
+const POSES = ['rest', 'apose', 'idle', 'stance', 'run', 'throw', 'catch', 'celebrate'];
+const POSE_NAMES = { rest: 'Rest (game bind pose)', apose: 'A-pose', idle: 'Standing', stance: 'Lineman stance', run: 'Sprint', throw: 'Throw wind-up', catch: 'Reach for a catch', celebrate: 'Celebrate' };
+const GAME = [3, 8, 20, 45], GAME_FOV = 40, SCREEN_H = 1080, FRAME_H = 2.3 * SCALE;
+const state = {
+  view: qs.get('view') || 'lineup', team: qs.get('team') || 'hot-springs', home: !qs.has('away'), lod: qs.get('lod') || 'hero', pose: qs.get('pose') || 'idle',
+  skin: +(qs.get('skin') ?? 2), game: qs.has('game') ? +qs.get('game') : -1, old: false, wire: false, spin: !qs.has('still'), deltas: null, frame: 0,
+};
+const view = { az: -0.5, el: 0.12, dist: 6.2, fov: 30, target: new THREE.Vector3(0, 0.98 * SCALE, 0) };
+
+// ---------------------------------------------------------------- data
+const stats = await (await fetch('models/stats.json', { cache: 'no-store' })).json();
+const models = {};
+await Promise.all(LODS.map(async (l) => { try { models[l] = await (await fetch(l === 'hero' ? 'models/hero.json' : `../../art-src/players-baseline/${l}.json`, { cache: 'no-store' })).json(); } catch { /* not built */ } }));
+const REGIONS = models.hero.regions;
+const TEAMS = ALL.filter((t) => designs.teams[t.id]);
+
+// ---------------------------------------------------------------- renderer and the night-stadium rig (as experiments/lod-showcase)
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.NeutralToneMapping;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
+const BG = new THREE.Color(0x070b14);
+const scene = new THREE.Scene();
+scene.background = BG;
+scene.environment = nightEnvironment(); scene.environmentIntensity = 0.5;
+const S = SCALE;
+const key = new THREE.DirectionalLight(0xf2f5ff, 3.0);
+key.position.set(-2.6 * S, 6 * S, 4.2 * S); key.castShadow = true; key.shadow.mapSize.set(4096, 4096);
+Object.assign(key.shadow.camera, { left: -1.4 * S, right: 1.4 * S, top: 2.3 * S, bottom: -0.6 * S, near: 1, far: 20 * S });
+key.shadow.bias = -0.0002; key.shadow.normalBias = 0.025; key.target.position.set(0, 0.9 * S, 0);
+const fill = new THREE.DirectionalLight(0xffd8a8, 0.7); fill.position.set(4, 2.5, 2.5);
+const rim = new THREE.DirectionalLight(0xc2d6ff, 1.6); rim.position.set(1.5, 4.5, -5);
+scene.add(key, key.target, fill, rim, new THREE.HemisphereLight(0x2a3a5c, 0x0b160c, 0.35));
+const turf = new THREE.Mesh(new THREE.CircleGeometry(80, 64), new THREE.MeshStandardMaterial({ color: 0x1d4523, roughness: 0.95 }));
+turf.rotation.x = -Math.PI / 2; turf.receiveShadow = true; scene.add(turf);
+const line = new THREE.Mesh(new THREE.PlaneGeometry(0.11, 160), new THREE.MeshStandardMaterial({ color: 0xe9ecef, roughness: 0.9 }));
+line.rotation.x = -Math.PI / 2; line.position.set(1.2 * S, 0.002, 0); line.receiveShadow = true; scene.add(line);
+
+function nightEnvironment() {
+  const env = new THREE.Scene();
+  env.add(new THREE.Mesh(new THREE.SphereGeometry(50, 32, 16), new THREE.ShaderMaterial({
+    side: THREE.BackSide, depthWrite: false,
+    vertexShader: 'varying vec3 p; void main(){ p = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    fragmentShader: 'varying vec3 p; void main(){ float h = normalize(p).y; vec3 c = mix(vec3(0.035, 0.06, 0.035), vec3(0.03, 0.045, 0.09), smoothstep(-0.05, 0.05, h)); c = mix(c, vec3(0.008, 0.012, 0.03), smoothstep(0.1, 0.8, h)); gl_FragColor = vec4(c, 1.0); }',
+  })));
+  const lamp = new THREE.MeshBasicMaterial({ color: new THREE.Color(14, 14, 13) });
+  for (let i = 0; i < 4; i++) {
+    const a = Math.PI / 4 + i * Math.PI / 2, bank = new THREE.Mesh(new THREE.BoxGeometry(9, 3, 0.5), lamp);
+    bank.position.set(Math.sin(a) * 34, 22, Math.cos(a) * 34); bank.lookAt(0, 0, 0); env.add(bank);
+  }
+  const stands = new THREE.MeshBasicMaterial({ color: new THREE.Color(0.25, 0.22, 0.2) });
+  for (const z of [-30, 30]) { const s = new THREE.Mesh(new THREE.BoxGeometry(70, 8, 2), stands); s.position.set(0, 4, z); env.add(s); }
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const tex = pmrem.fromScene(env, 0.02).texture; pmrem.dispose();
+  return tex;
+}
+
+// ---------------------------------------------------------------- players
+const rigs = new Map(); // cell key -> { rig, mat }
+function getRig(key) {
+  if (rigs.has(key)) return rigs.get(key);
+  const rig = new Rig('player');
+  rig.mesh.castShadow = rig.mesh.receiveShadow = true;
+  const mat = uniformMaterial(REGIONS);
+  const r = { rig, mat, paint: '', lod: '', pose: '' };
+  rig.group.visible = false; scene.add(rig.group); rigs.set(key, r);
+  return r;
+}
+const BASE = { x: 0, z: 0, vx: 0, vz: 0, face: 0, stance: null, eng: false, carry: false, throwing: -1, reach: 0, down: false, dive: false, celebrate: false, idle: null, kick: -1 };
+function setPose(rig, pose) {
+  const B = rig.bones;
+  for (const b of Object.values(B)) b.rotation.set(0, 0, 0);
+  B.pelvis.position.copy(B.pelvis.userData.rest);
+  rig.group.position.set(0, 0, 0); rig.group.rotation.set(0, 0, 0); rig.mesh.rotation.set(0, 0, 0); rig.mesh.position.set(0, 0, 0);
+  rig.fall = 0; rig.bank = 0; rig.lastYaw = 0; rig.yaw = 0;
+  if (pose === 'rest') return;
+  if (pose === 'apose') { B.armL.rotation.z = 0.5; B.armR.rotation.z = -0.5; return; }
+  const s = { ...BASE };
+  if (pose === 'stance') s.stance = 'ol';
+  if (pose === 'run') { s.vz = 7.5; rig.phase = 1.15; rig.spd = 7.5; }
+  if (pose === 'throw') s.throwing = 0.17;
+  if (pose === 'catch') s.reach = 1;
+  if (pose === 'celebrate') { s.celebrate = true; rig.seed = 0.1; rig.phase = 1.1; }
+  rig.pose(s, 0, true);
+  rig.group.position.set(0, 0, 0);
+}
+function dress(r, team, home, lod, pose, num) {
+  const key = `${team.id}:${home}:${lod}:${pose}:${state.skin}:${state.old}:${num}`;
+  if (r.paint === key) return;
+  r.paint = key;
+  const rig = r.rig;
+  rig.mesh.geometry = baselineGeometry(models[lod] || models.hero, SCALE);
+  const skin = SKIN_TONES[state.skin % SKIN_TONES.length];
+  if (state.old) {  // the unchanged game shader (slots + uniformFor): proves the mesh is a drop-in
+    const u = uniformFor(team, home, contrast, onColor);
+    rig.mesh.material = rig.mat; rig.paint = ''; rig.setLook({ ...u.colors, skin }, num, u.numFill, u.numOutline);
+  } else {
+    rig.mesh.material = r.mat;
+    applyLook(r.mat, designFor(team, home, designs, { skin }), num);
+  }
+  rig.mesh.material.wireframe = state.wire;
+  setPose(rig, pose);
+}
+
+// ---------------------------------------------------------------- layout
+const grid = document.getElementById('grid');
+let cells = [];
+function teamById(id) { return TEAMS.find((t) => t.id === id) || TEAMS[0]; }
+function layout() {
+  grid.innerHTML = ''; cells = [];
+  const T = teamById(state.team);
+  const specs = [];
+  if (state.view === 'lineup') {
+    for (const half of [TEAMS.slice(0, 5), TEAMS.slice(5, 10)]) for (const home of [true, false]) for (const t of half) specs.push({ team: t, home, lod: state.lod, pose: state.pose, label: `<b>${t.short}</b> <span class="sub">${home ? 'home' : 'away'}</span>` });
+    grid.style.gridTemplateColumns = 'repeat(5, 1fr)';
+  } else if (state.view === 'lods') {
+    for (const l of LODS) specs.push({ team: T, home: state.home, lod: l, pose: state.pose, label: `<b>${l === 'hero' ? 'Hero' : l.toUpperCase()}</b> <span class="sub">${(stats[l]?.tris ?? 0).toLocaleString('en-US')} tris · ${Math.round((stats[l]?.bytes ?? 0) / 1024).toLocaleString('en-US')} KB</span><div class="gm sub"></div>` });
+    grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
+  } else if (state.view === 'poses') {
+    for (const p of POSES) specs.push({ team: T, home: state.home, lod: state.lod, pose: p, label: `<b>${POSE_NAMES[p]}</b>` });
+    grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
+  } else {
+    specs.push({ team: T, home: state.home, lod: state.lod, pose: state.pose, label: `<b>${T.name}</b> <span class="sub">${state.home ? 'home' : 'away'} · ${(stats[state.lod]?.tris ?? 0).toLocaleString('en-US')} tris</span>` });
+    grid.style.gridTemplateColumns = '1fr';
+  }
+  specs.forEach((sp, i) => {
+    const el = document.createElement('div'); el.className = 'cell';
+    el.innerHTML = `<div class="label">${sp.label}</div>`;
+    grid.appendChild(el);
+    cells.push({ ...sp, el, key: `${state.view}:${i}`, num: 2 + ((i * 7 + sp.team.id.length * 3) % 88) });
+  });
+  rigs.forEach((r) => { r.rig.group.visible = false; });
+}
+function layoutTop() { document.documentElement.style.setProperty('--top', `${document.querySelector('header').offsetHeight}px`); }
+
+// ---------------------------------------------------------------- rendering
+function rectOf(c) { const r = c.el.getBoundingClientRect(); return { x: r.left, y: innerHeight - r.bottom, w: r.width, h: r.height, ok: r.width > 2 && r.height > 2 }; }
+function placeCamera(cam, dist, fov, aspect) {
+  const { az, el, target } = view;
+  cam.fov = fov; cam.aspect = aspect;
+  cam.position.set(target.x + Math.sin(az) * Math.cos(el) * dist, target.y + Math.sin(el) * dist, target.z + Math.cos(az) * Math.cos(el) * dist);
+  cam.lookAt(target); cam.updateProjectionMatrix();
+}
+const camera = new THREE.PerspectiveCamera(30, 1, 0.05, 400);
+const makeRT = () => { const t = new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, samples: 4 }); t.texture.magFilter = t.texture.minFilter = THREE.NearestFilter; return t; };
+const rt = makeRT(), rtBig = makeRT();
+const blit = new THREE.ShaderMaterial({
+  depthTest: false, depthWrite: false, uniforms: { tex: { value: null }, lo: { value: new THREE.Vector2(1, 1) }, n: { value: 1 } },
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+  fragmentShader: `uniform sampler2D tex; uniform vec2 lo; uniform float n; varying vec2 vUv;
+    void main(){ vec2 p = floor(vUv * lo); vec3 c = vec3(0.0);
+      for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++) if (float(i) < n && float(j) < n) c += texture2D(tex, (p * n + vec2(i, j) + 0.5) / (lo * n)).rgb;
+      gl_FragColor = vec4(c / (n * n), 1.0);
+      #include <tonemapping_fragment>
+      #include <colorspace_fragment>
+    }`,
+});
+const blitScene = new THREE.Scene(), blitCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+blitScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), blit));
+function gamePixels(d) { return SCREEN_H * FRAME_H / (2 * d * S * Math.tan(THREE.MathUtils.degToRad(GAME_FOV / 2))); }
+
+function render(override = null, ss = 1) {
+  const W = innerWidth, H = innerHeight, dpr = renderer.getPixelRatio();
+  if (canvas.width !== Math.floor(W * dpr) || canvas.height !== Math.floor(H * dpr)) renderer.setSize(W, H, false);
+  renderer.setScissorTest(false); renderer.setClearColor(BG); renderer.clear(); renderer.setScissorTest(true);
+  cells.forEach((c, i) => {
+    const r = rectOf(c);
+    if (!r.ok) return;
+    const spec = override ? override(c, i) : c;
+    const R = spec ? getRig(`${c.key}:${spec.lod}`) : null;
+    rigs.forEach((x) => { x.rig.group.visible = x === R; });
+    if (R) dress(R, spec.team, spec.home, spec.lod, spec.pose, c.num);
+    if (state.game < 0) {
+      placeCamera(camera, view.dist * S / 1.334 * (state.view === 'lineup' ? 1.15 : 1), view.fov, r.w / r.h);
+      renderer.setViewport(r.x, r.y, r.w, r.h); renderer.setScissor(r.x, r.y, r.w, r.h);
+      renderer.render(scene, camera);
+    } else {
+      const d = GAME[state.game] * S, px = gamePixels(GAME[state.game]);
+      const rh = Math.max(8, Math.min(Math.round(px), Math.round(r.h * dpr))), rw = Math.max(4, Math.round(rh * r.w / r.h));
+      const target = ss > 1 ? rtBig : rt;
+      if (target.width !== rw * ss || target.height !== rh * ss) target.setSize(rw * ss, rh * ss);
+      blit.uniforms.tex.value = target.texture; blit.uniforms.lo.value.set(rw, rh); blit.uniforms.n.value = ss;
+      placeCamera(camera, d, THREE.MathUtils.radToDeg(2 * Math.atan(FRAME_H / 2 / d)), r.w / r.h);
+      renderer.setRenderTarget(target); renderer.setScissorTest(false); renderer.setClearColor(BG); renderer.clear(); renderer.render(scene, camera);
+      renderer.setRenderTarget(null); renderer.setScissorTest(true);
+      renderer.setViewport(r.x, r.y, r.w, r.h); renderer.setScissor(r.x, r.y, r.w, r.h); renderer.render(blitScene, blitCam);
+    }
+  });
+}
+
+// Each cell against the hero rendered 4 x 4 supersampled in the same cell (in-game modes) or the plain hero (close up):
+// share of the player's pixels that differ visibly (any channel > 12/255).
+function readCells() {
+  const gl = renderer.getContext(), dpr = renderer.getPixelRatio();
+  return cells.map((c) => { const r = rectOf(c), x = Math.round(r.x * dpr), y = Math.round(r.y * dpr), w = Math.floor(r.w * dpr), h = Math.floor(r.h * dpr);
+    const buf = new Uint8Array(w * h * 4); gl.readPixels(x, y, w, h, gl.RGBA, gl.UNSIGNED_BYTE, buf); return { w, h, buf }; });
+}
+function measure() {
+  render(() => null); const empty = readCells();
+  render((c) => ({ ...c, lod: 'hero' }), state.game >= 0 ? 4 : 1); const ref = readCells();
+  render(); const now = readCells();
+  return cells.map((c, i) => {
+    const a = now[i], b = ref[i], e = empty[i], w = Math.min(a.w, b.w, e.w), h = Math.min(a.h, b.h, e.h);
+    let mask = 0, changed = 0;
+    const dif = (p, q, x, y) => { const i1 = (y * p.w + x) * 4, i2 = (y * q.w + x) * 4; return Math.max(Math.abs(p.buf[i1] - q.buf[i2]), Math.abs(p.buf[i1 + 1] - q.buf[i2 + 1]), Math.abs(p.buf[i1 + 2] - q.buf[i2 + 2])); };
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      if (dif(b, e, x, y) <= 12 && dif(a, e, x, y) <= 12) continue;
+      mask++; if (dif(a, b, x, y) > 12) changed++;
+    }
+    return { lod: c.lod, team: c.team.id, home: c.home, playerPixels: mask, changedPct: mask ? +(100 * changed / mask).toFixed(2) : 0 };
+  });
+}
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  if (state.spin) view.az += dt * 0.35;
+  render();
+  if (state.view === 'lods' && state.game >= 0 && state.frame++ % 40 === 0) {
+    state.deltas = measure();
+    cells.forEach((c, i) => { const g = c.el.querySelector('.gm'); if (g) g.textContent = `${Math.round(gamePixels(GAME[state.game]) * 1.89 / 2.3)} px tall · ${state.deltas[i].changedPct}% differ from 16x hero`; });
+  }
+  requestAnimationFrame(frame);
+}
+
+// ---------------------------------------------------------------- controls
+const $ = (id) => document.getElementById(id);
+for (const t of TEAMS) $('team').add(new Option(t.short + (t.fictional ? ' (fictional)' : ''), t.id));
+for (const p of POSES) $('pose').add(new Option(POSE_NAMES[p], p));
+SKIN_TONES.forEach((c, i) => $('skin').add(new Option(`Skin ${i + 1}`, i)));
+function sync() {
+  $('view').value = state.view; $('team').value = state.team; $('lod').value = state.lod; $('pose').value = state.pose; $('skin').value = state.skin; $('game').value = state.game;
+  $('home').textContent = state.home ? 'Home' : 'Away'; $('home').setAttribute('aria-pressed', state.home);
+  for (const k of ['old', 'wire', 'spin']) $(k).setAttribute('aria-pressed', state[k]);
+  rigs.forEach((r) => { r.paint = ''; });
+  layout(); layoutTop();
+}
+$('view').onchange = (e) => { state.view = e.target.value; sync(); };
+$('team').onchange = (e) => { state.team = e.target.value; sync(); };
+$('lod').onchange = (e) => { state.lod = e.target.value; sync(); };
+$('pose').onchange = (e) => { state.pose = e.target.value; sync(); };
+$('skin').onchange = (e) => { state.skin = +e.target.value; sync(); };
+$('game').onchange = (e) => { state.game = +e.target.value; sync(); };
+$('home').onclick = () => { state.home = !state.home; sync(); };
+for (const k of ['old', 'wire', 'spin']) $(k).onclick = () => { state[k] = !state[k]; sync(); };
+let drag = null;
+canvas.addEventListener('pointerdown', (e) => { drag = { x: e.clientX, y: e.clientY }; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointermove', (e) => { if (!drag) return; view.az -= (e.clientX - drag.x) * 0.008; view.el = Math.max(-0.2, Math.min(1.2, view.el + (e.clientY - drag.y) * 0.006)); drag = { x: e.clientX, y: e.clientY }; });
+canvas.addEventListener('pointerup', () => { drag = null; });
+canvas.addEventListener('wheel', (e) => { e.preventDefault(); view.dist = Math.max(1, Math.min(20, view.dist * Math.pow(1.1, Math.sign(e.deltaY)))); }, { passive: false });
+addEventListener('resize', layoutTop);
+
+window.__bp = {
+  ready: false,
+  set(v) { Object.assign(state, v.state || {}); if (v.target) view.target.set(...v.target.map((x) => x * S)); for (const k of ['az', 'el', 'dist', 'fov']) if (v[k] !== undefined) view[k] = v[k]; sync(); render(); },
+  measure() { const m = measure(); render(); return m; },
+  gpu() { const gl = renderer.getContext(), x = gl.getExtension('WEBGL_debug_renderer_info'); return x ? gl.getParameter(x.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER); },
+  stats: () => stats, teams: () => TEAMS.map((t) => t.id), rigs,
+};
+sync();
+window.__bp.ready = true;
+requestAnimationFrame(frame);
+</script>
+<script>addEventListener('error', (e) => { document.getElementById('err').textContent += (e.message || e) + '\n'; });
+addEventListener('unhandledrejection', (e) => { document.getElementById('err').textContent += String(e.reason && e.reason.stack || e.reason) + '\n'; });</script>
+</body>
+</html>

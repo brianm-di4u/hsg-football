@@ -282,3 +282,101 @@ These are the remaining gaps from the final review, after the last fix batch.
    per-frame JS (`getState().gfx.cpuMs`) instead.
 3. A `t.cpuThrottle(rate)` helper (CDP `Emulation.setCPUThrottlingRate`) would make "mid-phone" performance checks
    repeatable.
+
+## v3 (Path A, three.js): final report (loops 0–16)
+
+The plan is VISUAL-PLAN-2.md and the loop procedure is reviews/PROTOCOL.md. Each loop:
+- builds and runs the full suite on a real GPU;
+- captures 22 canonical moments with tools/shots-gpu.mjs (High, Medium and Low; close-up cameras; 8-frame motion strips; a determinism check);
+- measures performance with tools/perf-gpu.mjs;
+- is reviewed by two blind critics (Claude and Codex), an advocate and a judge.
+
+Per-loop scores, reviewer spread and calibration are in reviews/HISTORY.md. Rulings and ranked gaps are in reviews/loop-N/.
+
+**Outcome.** The campaign stopped after loop 16 on the stagnation rule: two loops in a row (15 and 16) without beating the best total, 51.5 at loop 14. The rule changed during the run:
+- From loop 10, loops ran back to back with a 2-loop stagnation stop (it had been 3, with a cap of 12, which was dropped).
+- From loop 13, a loop counts as stagnant when its total doesn't beat the best total so far. Before that, any single category rising reset the count, and ±0.5 judging noise kept resetting it.
+
+**Judged scores (High tier, desktop; gates in brackets)**
+
+| Loop | Art [7] | Lighting [7] | Animation [7] | UI [7] | Typography [7] | Readability [7] | Mobile [7] | Authenticity [6] | Total /80 |
+|---|---|---|---|---|---|---|---|---|---|
+| 0 (v2 baseline) | 4 | 5 | 4 | 6 | 5.5 | 5.5 | 6 | 6 | 42.0 |
+| 2 | 5.5 | 6 | 4.5 | 6.5 | 6.5 | 6 | 6 | 6.5 | 47.5 |
+| 7 | 6 | 6 | 5.5 | 6.5 | 7 | 6.5 | 6.5 | 6.5 | 50.5 |
+| 14 (best) | 6.5 | 6.5 | 5.5 | 7 | 7 | 6.5 | 6 | 6.5 | 51.5 |
+| 16 (final) | 6 | 6.5 | 5.5 | 6.5 | 7 | 6.5 | 6 | 6.5 | 50.5 |
+
+The final total is 8.5 above the v2 baseline (9.5 at the best loop). Typography and Authenticity meet their gates. UI met its gate at loops 12 and 14. Art, Lighting, Animation, Readability and Mobile never reached 7. Totals plateaued at 49–51.5 from loop 7 onward.
+
+**What v3 added**
+- **Quality tiers.** Low is the v2 look, fully playable from index.html alone. Medium (the phone tier) and High swap materials and features on the built stadium without rebuilding it.
+- **Lighting.**
+  - Physically based materials and a venue environment map.
+  - Shadows from one light bank at Medium and two at High.
+  - High post chain: HDR with 4× MSAA, field-clipped GTAO, bloom, replay depth of field, LUT grade and grain.
+  - Tower light spill and ground pools, and a desaturated night sky.
+  - Wet rain turf with a roughness sheen and puddles.
+- **Players.**
+  - Blender-built baseline player with designed team kits and three LODs (15k, 6k and 2k triangles).
+  - Pelvis-tilted stances with foot IK.
+  - Catch reach; falls driven by time since the whistle, with carrier recoil.
+  - Small piles; per-frame body separation; blocks release at the whistle.
+  - Slow motion and a camera punch-in on catches.
+- **Crowd and venue.** Blender card crowd with a band and a student section; two-tier pines; sideline team clusters; an establishing shot at kickoff.
+- **Presentation.**
+  - One condensed type system.
+  - Numbered receiver badges with edge markers.
+  - Defensive pre-snap art: rush arrows, zone ovals and man lines.
+  - A docked result toast; a "Next: …" result panel; a kick meter at the top.
+  - A live context panel; tightened desktop, landscape and portrait cameras.
+- **Asset packs.** Optional classic-script packs (`assets/pack-*.js`, file://-safe): three-hi 258 KB, crowd 362 KB, players 2.1 MB. index.html is about 1.4 MB.
+- **Review tooling.**
+  - Deterministic test clock and capture settle.
+  - A verify pass that saves the second capture when they differ.
+  - Briefs, tally and stop rule, and a JSON validator.
+  - The perf table now says when no throttled rows were measured.
+
+**Not built from VISUAL-PLAN-2.** These are the levers the reviewers kept pointing at for Animation and Art:
+- Phase 5: the Blender-keyed clip library (AnimTrack, IK planting). Animation stayed procedural.
+- Phase 6: Rapier tackles.
+- MPFB2 bodies.
+- The KTX2 spike.
+
+**Performance (RTX 5060, vsync off, loop 16).** Low runs at 655 fps or more, Medium at 441 or more, and High at 236 or more (worst p95 frame 10 ms, replay).
+
+The phone proxy (4× CPU throttle) is noisy on this machine:
+- **Medium:** min 98 fps, p95 18 ms, measured idle at loop 15. Min 47 fps, p95 34 ms, measured under about 80% background CPU load at loop 16.
+- **Low:** about 76–85 fps.
+- **High** isn't meant for phones: 20–56 fps at 4×.
+
+**Tests.** 93/93 pass on the GPU harness.
+
+**Known capture flake.** The first R12 capture sometimes differs heavily, by 15–23/255, at one Medium or Low viewport. High has been stable. Affected loops used whichever capture matched High, and each CHANGES.md notes it.
+
+**Top remaining gaps (loop 16 judge, ranked)**
+1. **Desktop pre-snap backdrop share.** About 40% of the 3D view is backdrop and the QB is about 45 px tall. Target: at most 25% backdrop and a QB of 60 px or more.
+2. **Contact feel (animation).**
+   - A punch-in or slow motion and turf particles at tackles.
+   - Collision capsules so bodies in piles never interpenetrate.
+   - A catch secure beat before the result.
+   - Lateral bank into cuts.
+3. **Portrait phone.**
+   - The LOS at about 65% height, with the empty downfield half cropped.
+   - Figures about 1.2× larger.
+   - A scroll cue on the play list.
+   - A results stack of at most 25% of the screen.
+4. **Close-up figure defects.** Crouched pants balloon, officials have no faces, there is no glove material, and elbows are faceted.
+5. **Empty venue surround.** Needs fence, track edge, visitor bleachers, signage and a lit facade.
+6. **Gameday staging in frame.** A band block, cheer line and student section, and a filled visitor stand.
+7. **Side-panel blitz diagram.** It doesn't match the fanned field arrows, and its X glyphs overlap.
+8. **Smaller items.**
+   - The sidebar width jumps between phases.
+   - Sideline haze flare and facemask blowout.
+   - Near-camera officials.
+   - Toast occlusion on desktop.
+   - Phone perf headroom.
+
+Animation (5.5) is still the furthest from its gate. The reviewers consistently put the ceiling of the procedural rig at about 5.5–6, so the next real step is the Phase 5 clip system, not more tuning.
+
+Front jersey numbers: an attempted fix after loop 0 was wrong. The original decal UVs were correct, which was confirmed in-game with tools/dev/number-check.mjs and restored after loop 2.

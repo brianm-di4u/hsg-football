@@ -1,0 +1,26 @@
+Changes since loop 8 (facts only). Score **High** on desktop. Medium is the phone and mid tier. Low is the v2 look, captured to catch regressions.
+
+- **Kickoff establishing shot (R01).** The low pre-boot camera is turned further toward the home grandstand (about 27°, was 17°) and set a little further downfield. The home crowd fills roughly the left quarter of the frame, two light towers are in view, and the scoreboard is whole.
+- **Result banners.**
+  - On desktop, touchdown banners now dock at the bottom of the field like the other results, clear of the posts and the board.
+  - On a phone held sideways (844 × 390), every result banner docks at the bottom of the field instead of the top.
+- **Stadium scoreboard.** When a frame edge (top or side) cuts more than 4% of the scoreboard, the whole board is hidden (face, frame and legs), so it is either whole or absent. Loop 7's rule hid only the face, and only when the top cut it to under 60%.
+- **Carrier name plate.** Your own runner's plate trails just below his feet in every layout (desktop, landscape, portrait), not only portrait.
+- **Bloom (High).**
+  - The lamp heads are less hot (HDR 3.2, was 7).
+  - The bloom radius is much tighter (0.18, was 0.5) and slightly stronger (0.55).
+  - The halo stays on the lamp racks instead of washing a frame corner when a tower is just off-screen.
+- **Lamp spill and pools (Medium and High, night).**
+  - The ground around the field is now brightest around each tower base and falls off from the poles, instead of one even band.
+  - A faint warm layer on the field adds light pools toward each tower, about 10–15% brighter at their centres.
+- **The ball.**
+  - The tip stripes now render (the ball mesh has enough rings for them).
+  - A pass in the air trails a short tapered light ribbon traced back along its flight.
+  - The old 1-pixel trail line is gone.
+- **Receiver badges.** While a pass is in the air, the targeted receiver keeps his numbered badge. The other badges still drop at the throw.
+- **Desktop live panel.** Below JUKE and the hint, the panel shows the down and distance, the line to gain, and the last three plays of the log. Phones (portrait and landscape) don't show it.
+- **Capture rig.**
+  - With the sim paused under the test clock, particles, crowd hype and rain no longer advance with wall-clock frame time, so live frames repeat.
+  - The R08 ball close-up looks down from higher (pitch 0.6), so the receiver's body no longer hides the ball.
+- **Capture check.** All 27 repeat checks in this capture (R04, R10 and R12 on every tier and viewport) repeat within 0.5/255 (worst 0.49).
+- **Unchanged since loop 8:** player and official models, animation and falls, crowd, venue geometry and backdrop, rain and wet turf, play-call and pre-snap layouts, and the portrait cameras.

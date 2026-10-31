@@ -1,0 +1,207 @@
+[
+  {
+    "id": "G-carrier-tag-binding",
+    "category": "readability",
+    "expectedGain": 0.5,
+    "severity": 5,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R12",
+      "high/desktop/R18",
+      "strips/high/R10",
+      "high/desktop/R15"
+    ],
+    "benchmark": "madden26-1",
+    "fix": "Drive the name tag from the current ball-carrier entity's head-bone world position after animation interpolation every rendered frame, hide it on the dead-ball whistle, and place the ring at the same interpolated hip XZ (replays too). Test: in R12/R18/R10/R15 the tag anchor is within 0.5 yd of the carrier's head and the ring centre within 0.3 yd of his hips.",
+    "priority": 0.75,
+    "selected": true
+  },
+  {
+    "id": "G-front-number-decals",
+    "category": "art",
+    "expectedGain": 0.4,
+    "severity": 5,
+    "effort": "S",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R04-slot_C",
+      "crops/high/R07-slot_QB",
+      "crops/high/R14-carrier"
+    ],
+    "benchmark": "legendbowl-1",
+    "fix": "Rotate chest-number decals 180 degrees on all tiers (shoulders already correct) and make every number decal background fully transparent so no light patch shows on chest or back; add an asymmetric-number (57, 12, 69) front/back render test per tier.",
+    "priority": 0.6,
+    "selected": true
+  },
+  {
+    "id": "G-ball-stance-foot-contact",
+    "category": "animation",
+    "expectedGain": 0.7,
+    "severity": 5,
+    "effort": "M",
+    "workstream": "WS4",
+    "evidence": [
+      "crops/high/R07-slot_QB",
+      "crops/high/R04-slot_C",
+      "crops/high/R06-slot_C",
+      "crops/high/R11-carrier"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Parent the ball to the center's hand bones until the snap and to the QB's throwing-hand bone until release; three-point stance with the down hand IK-pinned to the turf; clamp stride amplitude in cuts and foot-IK the plant foot. Test: R07 ball in hand, R04/R06 down hands touching turf, R11 at least one cleat within 5 cm of turf.",
+    "priority": 0.525,
+    "selected": true
+  },
+  {
+    "id": "G-post-veil-and-smear",
+    "category": "lighting",
+    "expectedGain": 0.3,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS1",
+    "evidence": [
+      "high/desktop/R07",
+      "strips/high/R09",
+      "high/desktop/R15"
+    ],
+    "benchmark": "cfb26-3",
+    "fix": "Cut height-fog and lamp-glare sprite density on the drop/pass and huddle cameras so the upper third keeps black level; remove the dark vertical smear on the near turf in replay views (DOF or field-limited AO edge). Test: no beige wash in R07 upper third, no smear at bottom of R15.",
+    "priority": 0.45,
+    "selected": true
+  },
+  {
+    "id": "G-playlist-and-secondary-type",
+    "category": "ui",
+    "expectedGain": 0.3,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS7",
+    "evidence": [
+      "high/desktop/R22",
+      "high/desktop/R12"
+    ],
+    "benchmark": "madden26-3",
+    "fix": "Size the play list so complete cards end at the panel edge or add a fade-and-chevron scroll cue; raise secondary text from about 13 to 15 px; add +2-4% tracking on condensed display caps; add a play clock to the scorebug.",
+    "priority": 0.45,
+    "selected": true
+  },
+  {
+    "id": "G-mobile-portrait-framing",
+    "category": "mobile",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS7",
+    "evidence": [
+      "high/mobile/R04",
+      "high/mobile/R21",
+      "high/mobile/R12"
+    ],
+    "benchmark": "retrobowl-1",
+    "fix": "Lower and tilt the portrait camera so the field starts right under the HUD with no empty bowl band, fit the formation box to at least 85% of width (about 1.3x current zoom), and move the result banner to the top edge of the field view. Test: players at least 24 CSS px tall in R04/R08; banner covers no player in R21/R12.",
+    "priority": 0.375,
+    "selected": true
+  },
+  {
+    "id": "G-feel-beats",
+    "category": "animation",
+    "expectedGain": 0.4,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS4",
+    "evidence": [
+      "strips/high/R09",
+      "strips/high/R13",
+      "strips/high/R10"
+    ],
+    "benchmark": "madden26-4",
+    "fix": "0.3 s camera punch-in and 0.4x slow motion on the catch and on tackle contact, turf-spray particle burst at contact, and a buckle phase of at least 6 sim ticks. Test: R09 strip shows the catch frame and R10 strip shows a mid-buckle panel.",
+    "priority": 0.3,
+    "selected": false
+  },
+  {
+    "id": "G-lit-populated-perimeter",
+    "category": "lighting",
+    "expectedGain": 0.4,
+    "severity": 4,
+    "effort": "M",
+    "workstream": "WS2",
+    "evidence": [
+      "high/desktop/R01",
+      "high/mobile/R04",
+      "high/mobile/R21",
+      "sheets/compare-01"
+    ],
+    "benchmark": "cfb26-3",
+    "fix": "Fill the end-zone berms with lamp-lit crowd cards, add lamp spill on the track and apron falling off into the bowl, and reframe the kickoff camera to include one lit sideline stand. Test: R01 and mobile R04/R21 show lit people beyond the end line.",
+    "priority": 0.3,
+    "selected": false
+  },
+  {
+    "id": "G-rain-reads-dry",
+    "category": "lighting",
+    "expectedGain": 0.2,
+    "severity": 3,
+    "effort": "S",
+    "workstream": "WS5",
+    "evidence": [
+      "high/desktop/R18",
+      "high/mobile/R18"
+    ],
+    "benchmark": "legendbowl-1",
+    "fix": "Raise turf specular and lower albedo at grazing angles, add streaked lamp reflections in puddles, use round alpha-faded splash sprites. Test: R18 reads wet at the gameplay camera with rain streaks hidden.",
+    "priority": 0.3,
+    "selected": false
+  },
+  {
+    "id": "G-player-construction",
+    "category": "art",
+    "expectedGain": 0.8,
+    "severity": 4,
+    "effort": "L",
+    "workstream": "WS3",
+    "evidence": [
+      "crops/high/R04-slot_C",
+      "crops/high/R06-slot_LG",
+      "crops/high/R14-carrier"
+    ],
+    "benchmark": "axis-3",
+    "fix": "Taper limbs (calf and forearm mass, narrow ankles and wrists) and blend joints without ball seams; five-finger glove silhouettes, sleeve hems, socks and tape; jersey normal and roughness maps with mesh, folds and stitching; satin pants sheen.",
+    "priority": 0.3,
+    "selected": false
+  },
+  {
+    "id": "G-band-student-staging",
+    "category": "authenticity",
+    "expectedGain": 0.4,
+    "severity": 3,
+    "effort": "M",
+    "workstream": "WS2",
+    "evidence": [
+      "high/desktop/R15",
+      "crops/high/R01-crowd",
+      "high/desktop/R13"
+    ],
+    "benchmark": "cfb26-2",
+    "fix": "Put the band block (distinct uniform colour, instrument silhouettes) and a standing student section in a captured camera (R01, R13 or R15); mix idle poses per section and clamp card brightness; break the sideline clone row with varied spacing and poses.",
+    "priority": 0.2,
+    "selected": false
+  },
+  {
+    "id": "G-paired-tackle-contact",
+    "category": "animation",
+    "expectedGain": 0.5,
+    "severity": 4,
+    "effort": "L",
+    "workstream": "WS4b",
+    "evidence": [
+      "strips/high/R13",
+      "strips/high/R10",
+      "crops/high/R12-carrier"
+    ],
+    "benchmark": "cfb26-4",
+    "fix": "Tackles as paired beats: defender reach and wrap, shared compression, carrier imbalance, then a coordinated fall into the existing tangled end pose. Test: a strip panel shows arms wrapped before the fall.",
+    "priority": 0.188,
+    "selected": false
+  }
+]
