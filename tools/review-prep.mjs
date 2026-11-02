@@ -11,6 +11,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const GAME = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+// Benchmark screenshots (git-ignored): the workspace's shared reference/benchmarks/football/, else benchmarks/ here.
+const BENCH = [path.resolve(GAME, '..', '..', 'reference', 'benchmarks', 'football'), BENCH].find((d) => fs.existsSync(d)) || BENCH;
 const args = process.argv.slice(2);
 const N = +args.find((a) => /^\d+$/.test(a));
 if (!(N >= 0)) { console.error('usage: review-prep.mjs <N> [--tier=high] [--shots=review-loop-N]'); process.exit(2); }
@@ -52,7 +54,7 @@ fs.writeFileSync(path.join(loopDir, 'brief-advocate.md'), fill(read(path.join(br
 let drift = '';
 if (N > 0 && N % 3 === 0) {
   const pick = ['axis-3.jpg', 'axis-2.jpg', 'legendbowl-1.jpg'][(N / 3 - 1) % 3];
-  const src = path.join(GAME, 'benchmarks', pick);
+  const src = path.join(BENCH, pick);
   if (fs.existsSync(src)) {
     fs.copyFileSync(src, path.join(loopDir, 'calibration.jpg'));
     fs.writeFileSync(path.join(loopDir, '.calibration'), pick + '\n');
