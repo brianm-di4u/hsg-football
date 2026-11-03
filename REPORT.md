@@ -194,3 +194,12 @@ The `--matrix` view shows real counters between calls. For example, Bathhouse Di
 2. **Camera settling and `isIdle()`.** Shots taken right after state hooks need the game loop to run once. A
    `t.waitFrames(n)` helper would make that explicit instead of relying on `waitForStable`.
 3. **`--only` matches test names, not files.** A `--file` filter would make re-running one suite easier.
+
+## Update: repainted backgrounds (v3.1.0, 2026-11-02)
+
+The title paintings (wide and tall) and the night sky panorama were repainted. `index.html` is now 1429 KB, inside the
+1450 KB budget. The new source PNGs replace the `art-src/art.json` sources (git-ignored; the workspace keeps copies of
+the old and new paintings in `reference/backgrounds/`) and were packed with the usual tools. Older descriptions of
+these paintings in VISUAL-REPORT.md refer to the previous art.
+
+`npm test`: 93/93 passed.
