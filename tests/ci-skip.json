@@ -1,0 +1,6 @@
+[
+  {
+    "test": "High settles: the render loop stops when nothing moves",
+    "why": "the 3D scene settles slower than its wait in software WebGL on a shared runner"
+  }
+]
