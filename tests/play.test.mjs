@@ -70,8 +70,17 @@ export const tests = [
       await offenseAt(t, { ballOn: 40 }, 'curls');
       await t.game('act', 'snap');
       await t.game('step', 90);
-      lay = await t.game('act', 'layout');
-      const r = lay.receivers.find((x) => x.slot === 'X') || lay.receivers[0];
+      // The camera keeps easing while the game is paused, so a receiver's place on screen can move 60-170 px between reading it and
+      // clicking it, and the click then misses. Read it once it has held still for a few frames.
+      const pick = (l) => l.receivers.find((x) => x.slot === 'X') || l.receivers[0];
+      let r = null;
+      for (let i = 0, still = 0; i < 120 && still < 3; i++) {
+        await t.page.evaluate(() => new Promise((ok) => requestAnimationFrame(() => ok())));
+        lay = await t.game('act', 'layout');
+        const n = pick(lay);
+        still = r && n && Math.hypot(n.x - r.x, n.y - r.y) < 1 ? still + 1 : 0;
+        r = n;
+      }
       t.expect(!!r, 'receiver target on the field');
       if (t.viewport === 'mobile') await t.tap([r.x, r.y]); else await t.page.mouse.click(r.x, r.y);
       await t.game('step', 2);
